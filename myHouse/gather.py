@@ -48,9 +48,10 @@ def printPagesList(pagesList):
 		print link
 
 class extract_anunturi_ro:
-	def __init__(self, url, db):
+	def __init__(self, url, db, cache):
 		self.url = url
 		self.db = db
+		self.cache = cache
 		self.db.create("anuntul_ro_links")
 		self.db.create("anuntul_ro_data")
 		
@@ -167,11 +168,13 @@ class DB:
 		
 	def createCache(self, section):
 		c = self.connection.cursor()
-		sql = 'CREATE TABLE IF NOT EXISTS cache_' + section + ' (\
+		sql = 'CREATE TABLE IF NOT EXISTS ' + section + ' (\
 			id VARCHAR(64), \
-			data TEXT, \
+			data BLOB, \
 			addDate VARCHAR(20) \
 		)'
+		c.execute(sql)
+		sql = 'CREATE UNIQUE INDEX IF NOT EXISTS "id" on ' + section + ' (id ASC)'
 		c.execute(sql)
 		self.connection.commit()
 		c.close()
@@ -179,19 +182,43 @@ class DB:
 		self.open()
 	
 	
+	def update(self, table, data):
+		c = self.connection.cursor()
+		sql = 'UPDATE ' + table + ' SET '
+		
+		s = ""
+		for k, v in data.items():
+			sql+= s+k+"=?"
+			s = ","
+		sql+=" WHERE id='" + data['id'] + "'"
+		
+		dataList = [];
+		for k, v in data.items():
+			dataList.append(v)
+		
+		c.execute(sql, (dataList))
+		self.connection.commit()
+		c.close()
+		
 	def insert(self, table, data):
 		c = self.connection.cursor()
-		sql = 'INSERT INTO ' + table + ' (id, area, price, description, addDate, updateDate) VALUES ('
+		sql = 'INSERT INTO ' + table + ' ('
+		
 		s = ""
-		for key, value in data:
+		for k, v in data.items():
+			sql+= s+k
+			s = ","
+		sql+= ') VALUES ('
+		
+		s = ""
+		for k, v in data.items():
 			sql+= s+'?'
 			s = ","
 		sql+= ')'
 		
-		dataList = ();
-		for key, value in data:
-			print pickle.dumps(value)
-			dataList.append("ad")
+		dataList = [];
+		for k, v in data.items():
+			dataList.append(v)
 		
 		c.execute(sql, (dataList))
 		self.connection.commit()
@@ -200,6 +227,23 @@ class DB:
 	def select(self, table, id):
 		c = self.connection.cursor()
 		c.execute('SELECT * FROM ' + table + ' WHERE id="'+id+'"')
+		ret = c.fetchone()
+		self.connection.commit()
+		c.close()
+		return ret
+
+	def delete(self, table, id):
+		c = self.connection.cursor()
+		c.execute('DELETE FROM ' + table + ' WHERE id="'+id+'"')
+		ret = c.fetchone()
+		self.connection.commit()
+		c.close()
+		return ret
+
+
+	def selectCache(self, table, id):
+		c = self.connection.cursor()
+		c.execute('SELECT data FROM ' + table + ' WHERE id="'+id+'"')
 		ret = c.fetchone()
 		self.connection.commit()
 		c.close()
@@ -219,21 +263,30 @@ class CACHE:
 	def __init__(self, tablePrefix):
 		self.tablePrefix = tablePrefix
 		self.db = DB("cache.sqlite3")
+		self.db.createCache("cache_"+self.tablePrefix)
 	
 	def get(self, id):
-		return self.db.select(self.tablePrefix+"_cache", id)
+		row = self.db.selectCache("cache_"+self.tablePrefix, id)
+		if(row):
+			return pickle.loads(row[0])
+		return None
 		
 	def set(self, id, data):
-		return self.db.insert(self.tablePrefix+"_cache", { "id":id, "data":data })	
+		if(self.get(id)):
+			self.db.update("cache_"+self.tablePrefix, { "id":id, "data":pickle.dumps(data) })
+		else:
+			self.db.insert("cache_"+self.tablePrefix, { "id":id, "data":pickle.dumps(data) })
+	
+	def delete(self, id):
+		return self.db.delete("cache_"+self.tablePrefix, id)	
+
 		
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 
 db = DB("anunturi_ro.sqlite3")
 cache = CACHE("anunturi_ro")
 
-cache.set("asdsfdf", {"x":"rerer"})
-
-#parser = extract_anunturi_ro("http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/", db, cache)
-#parser.getAll()
+parser = extract_anunturi_ro("http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/", db, cache)
+parser.getAll()
 
 raise SystemExit
