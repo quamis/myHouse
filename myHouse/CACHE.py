@@ -4,7 +4,7 @@ from DB import DB
 class CACHE:
     def __init__(self, tablePrefix):
         self.tablePrefix = tablePrefix
-        self.db = DB("cache.sqlite3")
+        self.db = DB("cache.sqlite")
         self.db.createCache("cache_"+self.tablePrefix)
     
     def get(self, id):

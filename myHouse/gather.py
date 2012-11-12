@@ -14,8 +14,8 @@ import StringIO
 import re
 import time
 from datetime import date
-
 import md5
+import random
 
 from DB import DB
 from CACHE import CACHE
@@ -55,7 +55,7 @@ class extract_anunturi_ro:
 		self.db = db
 		self.cache = cache
 		self.db.create("anuntul_ro_links", { 
-			"id": 			"VARCHAR(64)",
+			"id": 			"VARCHAR(256)",
 			"url": 			"VARCHAR(256)",
 		}, ["id"])
 		self.db.create("anuntul_ro_data", { 
@@ -82,7 +82,7 @@ class extract_anunturi_ro:
 			gotNewPage=False
 			for link in completePagesList:
 				if link not in gotPagesList: 
-					#time.sleep(1.50)
+					#time.sleep(random.random()*5)
 					logging.debug('wget %s', link)
 					br = Browser()
 					br.set_handle_robots(False)
@@ -99,8 +99,8 @@ class extract_anunturi_ro:
 					detailedPagesList2 = extractDetailedPagesList(br)
 					detailedPagesList = cleanupPagesList(detailedPagesList + detailedPagesList2)
 					
-					#gotNewPage=True
-					gotNewPage=False
+					gotNewPage=True
+					#gotNewPage=False
 		
 		# printPagesList(detailedPagesList);
 		logging.debug("got %d links from %d pages", len(detailedPagesList), len(completePagesList));
@@ -109,18 +109,19 @@ class extract_anunturi_ro:
 		linkTotal = len(detailedPagesList)+1
 		linkIndex = 0
 		timestamp = time.time()
+		cachePrefix = time.strftime("%Y%m%d")
 		for link in detailedPagesList:
 			linkIndex+=1
-			#time.sleep(3.00)
-			html = self.cache.get(link)
+			html = self.cache.get(cachePrefix+link)
 			if(html is None):
+				#time.sleep(random.random()*10)
 				logging.debug("wget %s", link)
 				br = Browser()
 				br.set_handle_robots(False)
 				br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
 				html = br.open(link).read()
 				logging.debug('  wget done')
-				self.cache.set(link, html)
+				self.cache.set(cachePrefix+link, html)
 			else:
 				logging.debug("wget %s from cache", link)
 				
@@ -141,9 +142,9 @@ class extract_anunturi_ro:
 				idstr = id.hexdigest()
 				
 				if(db.recordExists("anuntul_ro_data", idstr)):
-					self.printRecord("old", linkIndex/linkTotal, pret, location + text)
+					self.printRecord("old", float(linkIndex)/linkTotal, pret, location + text)
 				else:
-					self.printRecord("new", linkIndex/linkTotal, pret, location + text)
+					self.printRecord("new", float(linkIndex)/linkTotal, pret, location + text)
 					db.insert("anuntul_ro_data",
 						{ 
 							"id": 			idstr,
@@ -159,7 +160,7 @@ class extract_anunturi_ro:
 		
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 
-db = DB("anunturi_ro.sqlite3")
+db = DB("anunturi_ro.sqlite")
 cache = CACHE("anunturi_ro")
 parser = extract_anunturi_ro("http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/", db, cache)
 parser.getAll()
