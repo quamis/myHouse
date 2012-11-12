@@ -82,7 +82,7 @@ class extract_anunturi_ro:
 			gotNewPage=False
 			for link in completePagesList:
 				if link not in gotPagesList: 
-					#time.sleep(random.random()*5)
+					time.sleep(random.random()*5)
 					logging.debug('wget %s', link)
 					br = Browser()
 					br.set_handle_robots(False)
@@ -114,7 +114,7 @@ class extract_anunturi_ro:
 			linkIndex+=1
 			html = self.cache.get(cachePrefix+link)
 			if(html is None):
-				#time.sleep(random.random()*10)
+				time.sleep(random.random()*10)
 				logging.debug("wget %s", link)
 				br = Browser()
 				br.set_handle_robots(False)
