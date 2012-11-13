@@ -25,10 +25,28 @@ class view_anunturi_ro:
 		sql = "SELECT * FROM `anuntul_ro_data` WHERE 1"
 		
 		if(args.area):
-			sql+=" AND `description` LIKE '%s%%'" % (args.area)
+			sql+=" AND( 0 "
+			for k in args.area:
+				sql+=" OR `description` LIKE '%s%%'" % (k)
+			sql+=")"
+			
+		if(args.narea):
+			sql+=" AND( 0 "
+			for k in args.area:
+				sql+=" OR `description` NOT LIKE '%s%%'" % (k)
+			sql+=")"
 			
 		if(args.text):
-			sql+=" AND `description` LIKE '%%%s%%'" % (args.text)
+			sql+=" AND( 0 "
+			for k in args.text:
+				sql+=" OR `description` LIKE '%%%s%%'" % (k)
+			sql+=")"
+				
+		if(args.ntext):
+			sql+=" AND( 0 "
+			for k in args.ntext:
+				sql+=" OR `description` NOT LIKE '%%%s%%'" % (k)
+			sql+=")"
 		
 		if(args.maxPrice):
 			sql+=" AND `price` < '%d'" % (args.maxPrice)
@@ -39,7 +57,7 @@ class view_anunturi_ro:
 		
 		sql+= " ORDER BY `price` ASC, `description` ASC"
 		
-		#print sql
+		print sql
 		results = self.db.selectCustom(sql)
 		for row in results:
 			self.printRow(row)
@@ -47,8 +65,10 @@ class view_anunturi_ro:
 	
 		
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
-parser.add_argument('-area', dest='area', 			action='store', type=str, default="TITAN",	help='search area')
-parser.add_argument('-text', dest='text', 			action='store', type=str, default=None,		help='text to find(regexp)')
+parser.add_argument('-area', dest='area', 			action='append', type=str, default=["TITAN"],	help='search area')
+parser.add_argument('-narea', dest='narea', 		action='append', type=str, default=[],		help='deny search area')
+parser.add_argument('-text', dest='text', 			action='append', type=str, default=[],		help='text to find')
+parser.add_argument('-ntext', dest='ntext', 		action='append', type=str, default=[],		help='text to skip')
 parser.add_argument('-maxPrice', dest='maxPrice', 	action='store', type=int, default=70000,	help='max price to match')
 parser.add_argument('-minPrice', dest='minPrice', 	action='store', type=int, default=20000,	help='min price to match')
 args = parser.parse_args()
