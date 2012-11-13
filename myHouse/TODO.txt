@@ -2,9 +2,11 @@ TODO:
  - aduna si afiseaza si url-urile, ca sa le poti incarca in browser
  - coloreaza output-ul
  - detecteaza agentiile, adsauga cautare dupa telefon/mail
+ - posibilitatee cautare dupa categorie(casa, 2, 3 camere)
  - adauga facilitate de "asemanatoare"
- - extrage date de genul suprafata, constructie, pret/m^2 construit
+ - extrage date de genul suprafata, constructie, pret/m^2 construit, renovat, AC, faianta, gresie, parchet
  - interpreteaza timetoul care vine din cand in cand si fa un retry
+ - eliminat spatiile duble din texte
  
  
  USAGE:

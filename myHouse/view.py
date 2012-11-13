@@ -65,7 +65,7 @@ class view_anunturi_ro:
 	
 		
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
-parser.add_argument('-area', dest='area', 			action='append', type=str, default=["TITAN"],	help='search area')
+parser.add_argument('-area', dest='area', 			action='append', type=str, default=[],		help='search area')
 parser.add_argument('-narea', dest='narea', 		action='append', type=str, default=[],		help='deny search area')
 parser.add_argument('-text', dest='text', 			action='append', type=str, default=[],		help='text to find')
 parser.add_argument('-ntext', dest='ntext', 		action='append', type=str, default=[],		help='text to skip')
