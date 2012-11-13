@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# -*- coding: utf-8 -*-
 
 # @see http://lxml.de/lxmlhtml.html#parsing-html
 # @see https://gist.github.com/823821
@@ -82,7 +83,7 @@ class extract_anunturi_ro:
 			gotNewPage=False
 			for link in completePagesList:
 				if link not in gotPagesList: 
-					time.sleep(random.random()*5)
+					time.sleep(random.random()*1)
 					logging.debug('wget %s', link)
 					br = Browser()
 					br.set_handle_robots(False)
@@ -114,7 +115,7 @@ class extract_anunturi_ro:
 			linkIndex+=1
 			html = self.cache.get(cachePrefix+link)
 			if(html is None):
-				time.sleep(random.random()*10)
+				time.sleep(random.random()*1)
 				logging.debug("wget %s", link)
 				br = Browser()
 				br.set_handle_robots(False)
@@ -136,6 +137,7 @@ class extract_anunturi_ro:
 				addDate = 	tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/span[@class='data']/text()")[0]
 				contact = 	tree.xpath("//table[@id='detalii_anunt']//div[@class='contact']/text()")[0]
 				pret = 		tree.xpath("//table[@id='detalii_anunt']//span[@class='pret']/text()")[0].replace("Pret:", "").replace(".", "")
+				pret = 		re.sub("[^0-9]", "", pret)
 				
 				id = md5.new()
 				id.update(link)

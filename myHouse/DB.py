@@ -93,6 +93,14 @@ class DB:
         self.connection.commit()
         c.close()
         return ret
+    
+    def selectCustom(self, sql):
+        c = self.connection.cursor()
+        c.execute(sql)
+        ret = c.fetchall()
+        self.connection.commit()
+        c.close()
+        return ret
 
     def delete(self, table, id):
         c = self.connection.cursor()
