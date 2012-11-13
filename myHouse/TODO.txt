@@ -4,3 +4,4 @@ TODO:
  - detecteaza agentiile, adsauga cautare dupa telefon/mail
  - adauga facilitate de "asemanatoare"
  - extrage date de genul suprafata, constructie, pret/m^2 construit
+ - interpreteaza timetoul care vine din cand in cand si fa un retry
