@@ -20,22 +20,7 @@ import random
 from DB import DB
 from CACHE import CACHE
 
-
-def extractPagesList(br):
-	ret=[]
-	for link in br.links(url_regex="\/anunturi-imobiliare-vanzari\/(.+)\/pag-[0-9]+\/"):
-		ret.append(link.url)
-	return ret
-
-	
-def extractDetailedPagesList(br):
-	ret=[]
-	for link in br.links(url_regex="\/anunturi-imobiliare-vanzari\/(.+)\/(.+)\.html"):
-		ret.append(link.url)
-	return ret
-
-	
-def cleanupPagesList(pagesList):
+def cleanupList(pagesList):
 	keys = {}
 	#pagesList.sort()
 	for e in pagesList:
@@ -72,6 +57,21 @@ class extract_anunturi_ro:
 		else:
 			print "[%02d%%]%15s %s" % (100*percent, price, description)
 	
+	
+	def extractPagesList(self, br):
+		ret=[]
+		for link in br.links(url_regex="\/anunturi-imobiliare-vanzari\/(.+)\/pag-[0-9]+\/"):
+			ret.append(link.url)
+		return ret
+	
+		
+	def extractDetailedPagesList(self, br):
+		ret=[]
+		for link in br.links(url_regex="\/anunturi-imobiliare-vanzari\/(.+)\/(.+)\.html"):
+			ret.append(link.url)
+		return ret
+	
+
 	def getAll(self):
 		completePagesList = [self.url]
 		gotPagesList = []
@@ -91,13 +91,13 @@ class extract_anunturi_ro:
 					logging.debug('  wget done')
 					
 					gotPagesList.append(link)
-					gotPagesList = cleanupPagesList(gotPagesList)
+					gotPagesList = cleanupList(gotPagesList)
 					
-					completePagesList = extractPagesList(br)
-					completePagesList = cleanupPagesList(completePagesList)
+					completePagesList = self.extractPagesList(br)
+					completePagesList = cleanupList(completePagesList)
 					
-					detailedPagesList2 = extractDetailedPagesList(br)
-					detailedPagesList = cleanupPagesList(detailedPagesList + detailedPagesList2)
+					detailedPagesList2 = self.extractDetailedPagesList(br)
+					detailedPagesList = cleanupList(detailedPagesList + detailedPagesList2)
 					
 					gotNewPage=True
 					#gotNewPage=False
@@ -163,6 +163,12 @@ logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 db = DB("anunturi_ro.sqlite")
 cache = CACHE("anunturi_ro")
 parser = extract_anunturi_ro("http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/", db, cache)
+parser.getAll()
+
+parser = extract_anunturi_ro("http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-2-camere/pag-1/", db, cache)
+parser.getAll()
+
+parser = extract_anunturi_ro("http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-3-camere/pag-2/", db, cache)
 parser.getAll()
 
 raise SystemExit
