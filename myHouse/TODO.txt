@@ -1,0 +1,6 @@
+TODO:
+ - aduna si afiseaza si url-urile, ca sa le poti incarca in browser
+ - coloreaza output-ul
+ - detecteaza agentiile, adsauga cautare dupa telefon/mail
+ - adauga facilitate de "asemanatoare"
+ - extrage date de genul suprafata, constructie, pret/m^2 construit
