@@ -18,7 +18,7 @@ class view_anunturi_ro:
 		self.cache = cache
 		
 	def printRow(self, row):
-		print "[%2s] %s" % (row[1], row[4])
+		print "[%2s]\t %s\n" % (row[1], row[4])
 	
 	
 	def filter(self, args):
@@ -39,7 +39,7 @@ class view_anunturi_ro:
 		
 		sql+= " ORDER BY `price` ASC, `description` ASC"
 		
-		print sql
+		#print sql
 		results = self.db.selectCustom(sql)
 		for row in results:
 			self.printRow(row)
