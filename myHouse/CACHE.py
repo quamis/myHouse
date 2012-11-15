@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import pickle
 from DB import DB
 
@@ -15,11 +16,11 @@ class CACHE:
         
     def set(self, id, data):
         if(self.get(id)):
-            self.db.update("cache_"+self.tablePrefix, { "id":id, "data":pickle.dumps(data) })
+            self.db.update("cache_"+self.tablePrefix, { "id":id, "data":buffer(pickle.dumps(data, pickle.HIGHEST_PROTOCOL)) })
         else:
-            self.db.insert("cache_"+self.tablePrefix, { "id":id, "data":pickle.dumps(data) })
+            self.db.insert("cache_"+self.tablePrefix, { "id":id, "data":buffer(pickle.dumps(data, pickle.HIGHEST_PROTOCOL)) })
     
     def delete(self, id):
-        return self.db.delete("cache_"+self.tablePrefix, id)    
+        return self.db.delete("cache_"+self.tablePrefix, id)
 
         

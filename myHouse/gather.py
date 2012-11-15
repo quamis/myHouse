@@ -47,7 +47,7 @@ class extract_anunturi_ro:
 		self.db.create("anuntul_ro_data", { 
 			"id": 			"VARCHAR(64)",
 			"price": 		"INT",
-			"description": 	"TEXT",
+			"description": 		"TEXT",
 			"addDate": 		"INT",
 			"updateDate": 	"INT",
 		}, ["id"])
@@ -83,7 +83,7 @@ class extract_anunturi_ro:
 			gotNewPage=False
 			for link in completePagesList:
 				if link not in gotPagesList: 
-					time.sleep(random.random()*1)
+#					time.sleep(random.random()*5)
 					logging.debug('wget %s', link)
 					br = Browser()
 					br.set_handle_robots(False)
@@ -115,7 +115,7 @@ class extract_anunturi_ro:
 			linkIndex+=1
 			html = self.cache.get(cachePrefix+link)
 			if(html is None):
-				time.sleep(random.random()*1)
+#				time.sleep(random.random()*7)
 				logging.debug("wget %s", link)
 				br = Browser()
 				br.set_handle_robots(False)
