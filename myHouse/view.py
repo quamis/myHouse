@@ -49,6 +49,12 @@ class view_anunturi_ro:
 				sql+=" OR `description` NOT LIKE '%%%s%%'" % (k)
 			sql+=")"
 		
+		if(args.ftext):
+			sql+=" AND( 1 "
+			for k in args.ftext:
+				sql+=" AND `description` LIKE '%%%s%%'" % (k)
+			sql+=")"
+		
 		if(args.maxPrice):
 			sql+=" AND `price` < '%d'" % (args.maxPrice)
 			
@@ -70,6 +76,7 @@ parser.add_argument('-area', dest='area', 			action='append', type=str, default=
 parser.add_argument('-narea', dest='narea', 		action='append', type=str, default=[],		help='deny search area')
 parser.add_argument('-text', dest='text', 			action='append', type=str, default=[],		help='text to find')
 parser.add_argument('-ntext', dest='ntext', 		action='append', type=str, default=[],		help='text to skip')
+parser.add_argument('-ftext', dest='ftext', 		action='append', type=str, default=[],		help='text to contains(mandatory text in the text)')
 parser.add_argument('-maxPrice', dest='maxPrice', 	action='store', type=int, default=70000,	help='max price to match')
 parser.add_argument('-minPrice', dest='minPrice', 	action='store', type=int, default=20000,	help='min price to match')
 args = parser.parse_args()
