@@ -19,7 +19,7 @@ class view_anunturi_ro:
 		self.cache = cache
 		
 	def printRow(self, row):
-		print "[%2s]\t %s\n" % (row[1], row[4])
+		print "[%2s]\t% 9s\t %s" % (row[0], row[5], row[2])
 	
 	
 	def filter(self, args):
