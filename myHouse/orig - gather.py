@@ -8,31 +8,21 @@ import sys
 import logging
 from DB import DB
 from CACHE import CACHE
-import importlib
-    
+
+	
 sys.path.insert(0, "base")
 import base.gather
 
+sys.path.insert(0, "anunturi_ro")
+import anunturi_ro.gather
 
-module="anunturi_ro";
-
-sys.path.insert(0, module)
-
+		
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 
-
-    
-moduleStr = "anunturi_ro";
-startUrl = "http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/"
-category = "case-vile"
-
-db = DB(moduleStr+".sqlite")
-cache = CACHE(moduleStr)
-
-sys.path.insert(0, moduleStr)
-module = importlib.import_module("gather", moduleStr)
-gatherer = module.newGatherer(category, startUrl, db, cache)
-gatherer.getAll()
+db = DB("anunturi_ro.sqlite")
+cache = CACHE("anunturi_ro")
+parser = anunturi_ro.gather.extract_anunturi_ro("case-vile", "http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/", db, cache)
+parser.getAll()
 
 """
 parser = extract_anunturi_ro("apt-2-camere", "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-2-camere/pag-1/", db, cache)
