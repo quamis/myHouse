@@ -10,7 +10,7 @@ class DB:
     def open(self):
         self.connection = sqlite3.connect(self.file)
         
-    def create(self, table, definition, indexes):
+    def create(self, table, definition, uniqueindexes, indexes=[]):
         c = self.connection.cursor()
         sql = "CREATE TABLE IF NOT EXISTS " + table + " ("
         s=""
@@ -20,8 +20,12 @@ class DB:
         sql+=")"
         c.execute(sql)
         
-        for v in indexes:
+        for v in uniqueindexes:
             sql = 'CREATE UNIQUE INDEX IF NOT EXISTS "'+v+'" on ' + table + ' ('+v+' ASC)'
+            c.execute(sql)
+            
+        for v in indexes:
+            sql = 'CREATE INDEX IF NOT EXISTS "'+v+'" on ' + table + ' ('+v+' ASC)'
             c.execute(sql)
         
         self.connection.commit()
@@ -102,6 +106,16 @@ class DB:
         self.connection.commit()
         c.close()
         return ret
+    
+    def selectStart(self, sql):
+        c = self.connection.cursor()
+        c.execute(sql)
+        return c
+    
+    def selectEnd(self, c):
+        self.connection.commit()
+        c.close()
+        
 
     def delete(self, table, id):
         c = self.connection.cursor()

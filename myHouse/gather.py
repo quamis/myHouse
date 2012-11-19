@@ -14,12 +14,7 @@ sys.path.insert(0, "base")
 import base.gather
 
 
-module="anunturi_ro";
-
-sys.path.insert(0, module)
-
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
-
 
     
 moduleStr = "anunturi_ro";
