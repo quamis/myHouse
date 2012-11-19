@@ -26,11 +26,11 @@ class Extractor(object):
 
 
     def extractPaginationUrls(self, html):
-        ret=[]
+        ret = []
         return ret
     
     def extractOffersUrls(self, html):
-        ret=[]
+        ret = []
         return ret
 
     def getAll(self):

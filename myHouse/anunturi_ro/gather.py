@@ -56,7 +56,7 @@ class newGatherer(base.gather.Extractor ):
         detailedPagesList = []
         gotNewPage=True
         
-        cachePrefix = time.strftime("%Y%m%d")
+        cachePrefix = time.strftime("%Y%m%d%H")
         while gotNewPage:
             gotNewPage=False
             for link in completePagesList:
@@ -109,7 +109,7 @@ class newGatherer(base.gather.Extractor ):
                     logging.debug('  wget failed, skipping')
                     continue
             else:
-                logging.debug("[%02d%%]wget from cache %s", 100*float(linkIndex)/linkTotal, link)
+                logging.debug("wget from cache %s", link)
                 
             # extract data from the selected page
             parser = etree.HTMLParser()
