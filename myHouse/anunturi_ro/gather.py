@@ -1,13 +1,12 @@
 import base.gather
 
-from mechanize import Browser
 import logging
 from lxml import etree
 import re
 import md5
-import random
-import urllib2
 import time
+
+import urllib2 # to be able to catch Browser expcetions
 
 class newGatherer(base.gather.Extractor ):
     def __init__(self, category, url, db, cache):
@@ -64,17 +63,10 @@ class newGatherer(base.gather.Extractor ):
                 if link not in gotPagesList: 
                     html = self.cache.get(cachePrefix+link)
                     if(html is None):
-                        # TODO: configure sleep period
-                        #time.sleep(random.random()*7)
                         try:
-                            logging.debug("wget %s", link)
-                            br = Browser()
-                            br.set_handle_robots(False)
-                            # TODO: configure user-agent
-                            br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
-                            html = br.open(link).read()
-                            logging.debug('  wget done')
+                            html = self.wget(link)
                             self.cache.set(cachePrefix+link, html)
+                            self.wait("new-page")
                         except urllib2.URLError, e:
                             logging.debug('  wget failed, skipping')
                             continue
@@ -108,15 +100,11 @@ class newGatherer(base.gather.Extractor ):
             linkIndex+=1
             html = self.cache.get(cachePrefix+link)
             if(html is None):
-#                time.sleep(random.random()*7)
+#                
                 try:
-                    logging.debug("[%02d%%]wget %s", 100*float(linkIndex)/linkTotal, link)
-                    br = Browser()
-                    br.set_handle_robots(False)
-                    br.addheaders = [('User-agent', 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1')]
-                    html = br.open(link).read()
-                    logging.debug('  wget done')
+                    html = self.wget(link)
                     self.cache.set(cachePrefix+link, html)
+                    self.wait("new-offer")
                 except urllib2.URLError, e:
                     logging.debug('  wget failed, skipping')
                     continue
