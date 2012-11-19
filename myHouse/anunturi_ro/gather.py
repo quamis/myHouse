@@ -29,7 +29,7 @@ class newGatherer(base.gather.Extractor ):
         }, ["id"])
         
         
-    def extractPaginationInfo(self, html):
+    def extractPaginationUrls(self, html):
         ret=[]
         parser = etree.HTMLParser()
         tree   = etree.HTML(html)
@@ -37,10 +37,9 @@ class newGatherer(base.gather.Extractor ):
         for a in hrefs:
             if(re.search("\/anunturi-imobiliare-vanzari\/(.+)\/pag-[0-9]+\/", a)):
                 ret.append(a)
-
         return ret
     
-    def extractOfferPagesList(self, html):
+    def extractOffersUrls(self, html):
         ret=[]
         parser = etree.HTMLParser()
         tree   = etree.HTML(html)
@@ -84,14 +83,14 @@ class newGatherer(base.gather.Extractor ):
                 
                 
                     gotPagesList.append(link)
-                    gotPagesList = self.cleanupList(gotPagesList)
+                    gotPagesList = self.removeDuplicates(gotPagesList)
                     
-                    completePagesList = self.extractPaginationInfo(html)
-                    completePagesList = self.cleanupList(completePagesList)
+                    completePagesList = self.extractPaginationUrls(html)
+                    completePagesList = self.removeDuplicates(completePagesList)
                     
                     # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
-                    detailedPagesList2 = self.extractOfferPagesList(html)
-                    detailedPagesList = self.cleanupList(detailedPagesList + detailedPagesList2)
+                    detailedPagesList2 = self.extractOffersUrls(html)
+                    detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
                     
                     gotNewPage=True
                     #gotNewPage=False

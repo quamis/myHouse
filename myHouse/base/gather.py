@@ -9,7 +9,8 @@ class Extractor(object):
         self.db = db
         self.cache = cache
 
-    def cleanupList(self, pagesList):
+
+    def removeDuplicates(self, pagesList):
         keys = {}
         for e in pagesList:
             keys[e] = 1
@@ -22,4 +23,13 @@ class Extractor(object):
             print link
 
 
+    def extractPaginationUrls(self, html):
+        ret=[]
+        return ret
+    
+    def extractOffersUrls(self, html):
+        ret=[]
+        return ret
 
+    def getAll(self):
+        pass
