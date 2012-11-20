@@ -134,6 +134,10 @@ class View:
 			dt = date.today()-timedelta(days=args.age)
 			sql+=" AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
 		
+		if(args.agea):
+			dt = date.today()-timedelta(days=args.agea)
+			sql+=" AND `addDate`>%d" % (time.mktime(dt.timetuple()))
+		
 		
 		sql+= " ORDER BY `price` ASC, `description` ASC"
 		
@@ -156,6 +160,7 @@ parser.add_argument('-ncategory', 	dest='ncategory',   action='append', 	type=st
 parser.add_argument('-maxPrice', 	dest='maxPrice', 	action='store', 	type=int, default=70000,	help='max price to match')
 parser.add_argument('-minPrice', 	dest='minPrice', 	action='store', 	type=int, default=30000,	help='min price to match')
 parser.add_argument('-age', 		dest='age', 		action='store', 	type=float, default=3.0,	help='max age in days')
+parser.add_argument('-agea', 		dest='agea', 		action='store', 	type=float, default=14.0,	help='max age when added in days')
 parser.add_argument('--profile', 	dest='profile', 	action='store', 	type=str, default="",		help='internal profile to use')
 args = parser.parse_args()
 
@@ -174,6 +179,10 @@ elif args.profile=="casa-1mai":
 	args.area = [ "Bucuresti Noi", "1 Mai", "Parc Bazilescu", "Bazilescu", "Pajura" ]
 	#args.text = [ "metrou" ]
 	args.category = [ "case-vile" ]
+elif args.profile=="case-noi":
+	#args.text = [ "metrou" ]
+	args.category = [ "case-vile" ]
+	args.agea = 1.5
 
 # change the output encoding to utf8
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
