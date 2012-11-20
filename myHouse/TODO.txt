@@ -11,3 +11,5 @@ TODO:
  
  USAGE:
 	clear; python ./view.py -text titan -text dristor -text grigorescu -text leonida -area ""
+	
+	python view.py -category=case-vile -ftext=metrou | less
