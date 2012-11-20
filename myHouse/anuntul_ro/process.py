@@ -3,13 +3,12 @@ import base.process
 import re
 import logging
 
-
 class doProcess(base.process.Processor ):
-    def __init__(self, source, maindb, db, cache):
-        super(doProcess, self).__init__(source, maindb, db, cache)
+    def __init__(self, source, maindb, db, cache, args):
+        super(doProcess, self).__init__(source, maindb, db, cache, args)
     
     def selectStart(self):
-        c = self.db.selectStart("SELECT `category`, `contact`, `description`, `url`, `price`, `id`  FROM `anuntul_ro_data` WHERE 1 ORDER BY `description` ASC")
+        c = self.db.selectStart("SELECT `category`, `contact`, `description`, `url`, `price`, `id`  FROM `anuntul_ro_data` WHERE 1 ORDER BY `category` ASC, `description` ASC")
         return c
     
     def selectEnd(self, c):
@@ -66,7 +65,7 @@ class doProcess(base.process.Processor ):
                 
         # extract surface_total
         if "surface_total" not in extr:        
-            m = re.search("(?P<supr>[0-9\.]+)[\s]?(mp|m\.p\.) teren", desc)
+            m = re.search("(?P<supr>[0-9\.]+)[\s]?(mp|m\.p\.) (total teren|teren)", desc)
             if m:
                 extr['surface_total'] = re.sub("(\.|\,)", "", m.group('supr'))
                 

@@ -1,9 +1,11 @@
 import logging
 import md5
 import time
+import sys
 
 class Processor(object):
-    def __init__(self, source, maindb, db, cache):
+    def __init__(self, source, maindb, db, cache, args):
+        self.args = args
         self.source = source
         self.db = db
         self.maindb = maindb
@@ -42,14 +44,42 @@ class Processor(object):
     def _processRow(self, row):
         pass
 
+    def debug_print(self, result, extra=None):
+        # 0 = none, 1: only importans, 2: dots, 3: debug
+        if(self.args.verbosity>=1):
+            self.debug_print_1(result, extra)
+        elif(self.args.verbosity>=0):
+            self.debug_print_0(result, extra)
+            
+    
+    def debug_print_1(self, result, extra=None):
+        if(result=="loop-step"):
+            pass
+        
+        if(result=="loop-new"):
+            sys.stdout.write("\n    % 9dEUR %s" % (extra['price'], extra['url']))
+            
+        if(result=="loop-old"):
+            sys.stdout.write('.')
+            
+        sys.stdout.flush()
+    
+    def debug_print_0(self, result, extra=None):
+        pass
+
     def run(self):
         rows = self.selectStart();
         timestamp = time.time()
         
+        index=0
         for row in rows:
+            self.debug_print("loop-step", { "index": index })
+            index+=1
             newRow = self._processRow(row)
             
             if(not self.maindb.recordExists("data", newRow['id'])):
+                self.debug_print("loop-new", newRow)
+                
                 if 'contacts' in newRow:
                     for c in newRow['contacts']:
                         self.maindb.insert("data_contacts", { "idOffer":newRow['id'], "key": c['key'], "value": c['value'] })
@@ -68,5 +98,7 @@ class Processor(object):
                       "addDate":    timestamp,
                       "updateDate": timestamp,
                       })
+            else:
+                self.debug_print("loop-old", newRow)
             
         self.selectEnd(rows);
