@@ -12,8 +12,14 @@ class Extractor(object):
         self.db = db
         self.cache = cache
         self.args = args
-
-
+        
+    def xpath_getOne(self, tree, xpath, ):
+        ret = tree.xpath(".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()")
+        if ret: 
+            return ret[0].strip()
+        return ""
+        
+        
     def removeDuplicates(self, pagesList):
         keys = {}
         for e in pagesList:
