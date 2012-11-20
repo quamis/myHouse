@@ -4,7 +4,7 @@
 # @see http://lxml.de/lxmlhtml.html#parsing-html
 # @see https://gist.github.com/823821
 
-import sys
+import sys, os
 import logging
 from DB import DB
 from CACHE import CACHE
