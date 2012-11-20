@@ -6,7 +6,7 @@
 
 import os, sys
 import logging
-from DB2 import DB2
+from DB import DB
 from CACHE import CACHE
 import argparse
 import importlib
@@ -28,8 +28,8 @@ if args.module is None:
 
 moduleStr = args.module
 
-maindb = DB2("main.sqlite")
-db = DB2(moduleStr+".sqlite")
+maindb = DB("main.sqlite")
+db = DB(moduleStr+".sqlite")
 cache = CACHE(moduleStr)
 
 sys.path.insert(0, os.path.abspath(moduleStr))
@@ -37,5 +37,6 @@ module = importlib.import_module("process", moduleStr)
 gatherer = module.doProcess(moduleStr, maindb, db, cache, args)
 sys.stdout.write("\n")
 gatherer.run()
+sys.stdout.write("\n")
 
 raise SystemExit

@@ -2,7 +2,6 @@ import base.gather
 
 from lxml import etree
 import re
-import md5
 import time
 
 import urllib2 # to be able to catch Browser expcetions
@@ -11,11 +10,12 @@ class newGatherer(base.gather.Extractor ):
     def __init__(self, category, url, db, cache, args):
         super(newGatherer, self).__init__(category, url, db, cache, args)
         
-        self.db.create("imobiliare_ro_links", { 
+        self.db.tableCreate("imobiliare_ro_links", { 
             "id":             "VARCHAR(256)",
             "url":            "VARCHAR(256)",
         }, ["id"])
-        self.db.create("imobiliare_ro_data", { 
+        
+        self.db.tableCreate("imobiliare_ro_data", { 
             "id":             "VARCHAR(64)",
             "category":       "VARCHAR(64)",
             "url":            "VARCHAR(256)",
@@ -57,7 +57,7 @@ class newGatherer(base.gather.Extractor ):
         return ret
     
     
-    def getAll(self):
+    def _gatherLinks(self):
         completePagesList = [self.url]
         gotPagesList = []
         detailedPagesList = []
@@ -65,7 +65,7 @@ class newGatherer(base.gather.Extractor ):
         
         cachePrefix = time.strftime("%Y%m%d%H")
         while gotNewPage:
-            gotNewPage=False
+            gotNewPage = False
             for link in completePagesList:
                 if link not in gotPagesList: 
                     html = self.cache.get(cachePrefix+link)
@@ -91,15 +91,14 @@ class newGatherer(base.gather.Extractor ):
                     detailedPagesList2 = self.extractOffersUrls(html)
                     detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
                     
-                    gotNewPage=True
-                    #gotNewPage=False
-        
-        # printPagesList(detailedPagesList);
-        self.debug_print("got-links", [len(detailedPagesList), len(completePagesList)])
-        
+                    gotNewPage = True
+                    #gotNewPage = False
+                    
+        return [completePagesList, detailedPagesList]
 
+    
+    def _getAll(self, detailedPagesList):
         # loop through all pages and gather individual links
-        linkTotal = len(detailedPagesList)+1
         linkIndex = 0
         timestamp = time.time()
         #cachePrefix = time.strftime("%Y%m%d")
@@ -113,7 +112,7 @@ class newGatherer(base.gather.Extractor ):
                     html = self.wget(link)
                     self.cache.set(cachePrefix+link, html)
                     self.wait("new-offer")
-                except urllib2.URLError, e:
+                except urllib2.URLError:
                     self.debug_print("wget-failed")
                     continue
             else:
@@ -121,7 +120,6 @@ class newGatherer(base.gather.Extractor ):
                 
                 
             # extract data from the selected page
-            parser = etree.HTMLParser()
             strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
             html = strip_unicode.sub('', html)
             tree   = etree.HTML(html)
@@ -130,7 +128,7 @@ class newGatherer(base.gather.Extractor ):
             location = re.search("^(?P<loc>[^,]+)", location_full).groups("loc")[0]
             
             price =             re.sub("[^0-9]", "", tree.xpath("//*[@id='b_detalii_titlu']/div/div/div/text()")[0].strip())
-            price_currency =    tree.xpath("//*[@id='b_detalii_titlu']/div/div/div/div/text()")[0].strip()
+            #price_currency =    tree.xpath("//*[@id='b_detalii_titlu']/div/div/div/div/text()")[0].strip()
             
             surface_total =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'teren')]/text()"))
             surface_built =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'util')]/text()"))
@@ -143,12 +141,9 @@ class newGatherer(base.gather.Extractor ):
             
             details =    location_full+". "+re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
             
-            id = md5.new()
-            id.update(link)
-            idstr = id.hexdigest()
-            
-            if(not self.db.recordExists("imobiliare_ro_data", idstr)):
-                self.db.insert("imobiliare_ro_data",
+            idstr = self.md5(link)
+            if(not self.db.itemExists("imobiliare_ro_data", idstr)):
+                self.db.itemInsert("imobiliare_ro_data",
                     { 
                         "id":             idstr,
                         "category":       self.category,
@@ -162,4 +157,5 @@ class newGatherer(base.gather.Extractor ):
                         "year_built":     year_built,
                         "addDate":        timestamp,
                         "updateDate":     timestamp,
-                    }) 
+                    })
+                self.db.flushRandom(0.025)

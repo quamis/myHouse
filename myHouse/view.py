@@ -20,9 +20,9 @@ class View:
 		
 	def printRow(self, id):
 		#                                       0           1           2          3       4       5
-		data = self.db.selectCustom("SELECT `category`, `source`, `description`, `url`, `price`, `id` FROM `data` WHERE `id`='%s'" %(id))[0]
-		data_contacts = self.db.selectCustom("SELECT `key`, `value` FROM `data_contacts` WHERE `idOffer`='%s' ORDER BY `key` ASC, `value` ASC" %(id))
-		data_extracted = self.db.selectCustom("SELECT `key`, `value` FROM `data_extracted` WHERE `idOffer`='%s' ORDER BY `key`" %(id))
+		data = self.db.selectAll("SELECT `category`, `source`, `description`, `url`, `price`, `id` FROM `data` WHERE `id`='%s'" %(id))[0]
+		data_contacts = self.db.selectAll("SELECT `key`, `value` FROM `data_contacts` WHERE `idOffer`='%s' ORDER BY `key` ASC, `value` ASC" %(id))
+		data_extracted = self.db.selectAll("SELECT `key`, `value` FROM `data_extracted` WHERE `idOffer`='%s' ORDER BY `key`" %(id))
 
 		#print data
 		#print data_contacts
@@ -135,7 +135,7 @@ class View:
 		print sql
 		print "-----------------------------------------------"
 		
-		results = self.db.selectCustom(sql)
+		results = self.db.selectAll(sql)
 		for row in results:
 			self.printRow(row[0])
 

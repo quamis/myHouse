@@ -4,6 +4,7 @@ import sys
 import random, time
 from mechanize import Browser
 import urllib2
+import md5
 
 class Extractor(object):
     def __init__(self, category, url, db, cache, args):
@@ -41,8 +42,27 @@ class Extractor(object):
         ret = []
         return ret
 
-    def getAll(self):
+    def gatherLinks(self):
+        ret = self._gatherLinks()
+        self.debug_print("got-links", [len(ret[1]), len(ret[0])])
+        return ret
+    
+    def _gatherLinks(self):
         pass
+
+    def getAll(self):
+        self._getAll(self.gatherLinks()[1])
+        self.cache.close()
+        self.db.close()
+    
+    def _getAll(self):
+        pass
+    
+    def md5(self, text):
+        ident = md5.new()
+        ident.update(text)
+        return ident.hexdigest()
+            
     
     def wait(self, reason):
         # TODO: configure sleep period from the command-line/system specific args

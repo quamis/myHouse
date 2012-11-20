@@ -20,8 +20,8 @@ import base.gather
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 
 parser = argparse.ArgumentParser(description='Gather data')
-parser.add_argument('-sleepp', dest='sleepp',         action='store', type=int, default=5,        help='[default: 5] default sleep between main page gets')
-parser.add_argument('-sleepo', dest='sleepo',         action='store', type=int, default=3,        help='[default: 3] default sleep between offer gets')
+parser.add_argument('-sleepp', dest='sleepp',         action='store', type=float, default=5,        help='[default: 5] default sleep between main page gets')
+parser.add_argument('-sleepo', dest='sleepo',         action='store', type=float, default=3,        help='[default: 3] default sleep between offer gets')
 parser.add_argument('-user-agent', dest='UA',         action='store', type=str, default='random', help='[default: real] used user-agent("random" will pick from internal list)')
 parser.add_argument('-v',       dest='verbosity',     action='store', type=int, default='1', help='[default: 1] verbosity')
 parser.add_argument('-module',  dest='module',        action='store', type=str, default=None,     help='used module')

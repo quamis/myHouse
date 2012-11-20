@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 import sqlite3
+import random
 
 class DB:
     def __init__(self, file):
         self.file = file
         self.connection = None
+        self.cursor = None
         self.open()
         
     def open(self):
         self.connection = sqlite3.connect(self.file)
-        
-    def create(self, table, definition, uniqueindexes, indexes=[]):
+    
+    def tableCreate(self, table, definition, uniqueindexes=[], indexes=[]):
         c = self.connection.cursor()
         sql = "CREATE TABLE IF NOT EXISTS " + table + " ("
         s=""
@@ -30,27 +32,49 @@ class DB:
         
         self.connection.commit()
         c.close()
-        self.connection.close()
-        self.open()
         
-    def createCache(self, section):
-        c = self.connection.cursor()
-        sql = 'CREATE TABLE IF NOT EXISTS ' + section + ' (\
-            id VARCHAR(64), \
-            data BLOB, \
-            addDate VARCHAR(20) \
-        )'
-        c.execute(sql)
-        sql = 'CREATE UNIQUE INDEX IF NOT EXISTS "id" on ' + section + ' (id ASC)'
-        c.execute(sql)
-        self.connection.commit()
-        c.close()
+        # reopen connection, seems like there are some bugs and we cannot see the tables on the same connection
         self.connection.close()
         self.open()
+        self.cursor = None
+        
+        
+    def _getCursor(self):
+        if self.cursor:
+            return self.cursor
+        
+        self.cursor = self.connection.cursor()
+        return self.cursor
     
-    
-    def update(self, table, data):
-        c = self.connection.cursor()
+    def close(self):
+        self.connection.commit()
+        if self.cursor:
+            self.cursor.close()
+        self.connection.commit()
+        self.cursor = None
+        
+    def flushRandom(self, chance):
+        if random.random()<chance:
+            self.connection.commit()
+            if self.cursor:
+                self.cursor.close()
+            self.connection.commit()
+            self.cursor = None
+        
+    def itemExists(self, table, id):
+        c = self._getCursor()
+        c.execute('SELECT id FROM ' + table + ' WHERE id="'+id+'"')
+        ret = c.fetchone()
+        return bool(ret)
+
+    def itemReadField(self, table, id, field):
+        c = self._getCursor()
+        c.execute('SELECT `%s` FROM `%s` WHERE id="%s"' % (field, table, id))
+        ret = c.fetchone()
+        return ret
+        
+    def itemUpdate(self, table, data):
+        c = self._getCursor()
         sql = 'UPDATE ' + table + ' SET '
         
         s = ""
@@ -64,11 +88,10 @@ class DB:
             dataList.append(v)
         
         c.execute(sql, (dataList))
-        self.connection.commit()
-        c.close()
         
-    def insert(self, table, data):
-        c = self.connection.cursor()
+        
+    def itemInsert(self, table, data):
+        c = self._getCursor()
         sql = 'INSERT INTO ' + table + ' ('
         
         s = ""
@@ -88,55 +111,20 @@ class DB:
             dataList.append(v)
         
         c.execute(sql, (dataList))
-        self.connection.commit()
-        c.close()
     
-    def select(self, table, id):
-        c = self.connection.cursor()
-        c.execute('SELECT * FROM ' + table + ' WHERE id="'+id+'"')
-        ret = c.fetchone()
-        self.connection.commit()
-        c.close()
-        return ret
-    
-    def selectCustom(self, sql):
-        c = self.connection.cursor()
+    def selectAll(self, sql):
+        c = self._getCursor()
         c.execute(sql)
         ret = c.fetchall()
-        self.connection.commit()
-        c.close()
         return ret
     
     def selectStart(self, sql):
-        c = self.connection.cursor()
+        c = self._getCursor()
         c.execute(sql)
         return c
     
     def selectEnd(self, c):
-        self.connection.commit()
-        c.close()
+        pass
         
+    
 
-    def delete(self, table, id):
-        c = self.connection.cursor()
-        c.execute('DELETE FROM ' + table + ' WHERE id="'+id+'"')
-        ret = c.fetchone()
-        self.connection.commit()
-        c.close()
-        return ret
-
-
-    def selectCache(self, table, id):
-        c = self.connection.cursor()
-        c.execute('SELECT data FROM ' + table + ' WHERE id="'+id+'"')
-        ret = c.fetchone()
-        self.connection.commit()
-        c.close()
-        return ret
-
-    def recordExists(self, table, id):
-        c = self.connection.cursor()
-        c.execute('SELECT id FROM ' + table + ' WHERE id="'+id+'"')
-        ret = c.fetchone()
-        c.close()
-        return bool(ret)

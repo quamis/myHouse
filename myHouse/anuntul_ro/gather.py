@@ -2,7 +2,6 @@ import base.gather
 
 from lxml import etree
 import re
-import md5
 import time
 
 import urllib2 # to be able to catch Browser expcetions
@@ -11,11 +10,12 @@ class newGatherer(base.gather.Extractor ):
     def __init__(self, category, url, db, cache, args):
         super(newGatherer, self).__init__(category, url, db, cache, args)
         
-        self.db.create("anuntul_ro_links", { 
+        self.db.tableCreate("anuntul_ro_links", { 
             "id":             "VARCHAR(256)",
             "url":             "VARCHAR(256)",
         }, ["id"])
-        self.db.create("anuntul_ro_data", { 
+        
+        self.db.tableCreate("anuntul_ro_data", { 
             "id":             "VARCHAR(64)",
             "category":     "VARCHAR(64)",
             "url":             "VARCHAR(256)",
@@ -48,12 +48,11 @@ class newGatherer(base.gather.Extractor ):
 
         return ret
     
-    
-    def getAll(self):
+    def _gatherLinks(self):
         completePagesList = [self.url]
         gotPagesList = []
         detailedPagesList = []
-        gotNewPage=True
+        gotNewPage = True
         
         cachePrefix = time.strftime("%Y%m%d%H")
         while gotNewPage:
@@ -83,15 +82,13 @@ class newGatherer(base.gather.Extractor ):
                     detailedPagesList2 = self.extractOffersUrls(html)
                     detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
                     
-                    gotNewPage=True
-                    #gotNewPage=False
+                    gotNewPage = True
+                    #gotNewPage = False
+        return [completePagesList, detailedPagesList]
         
-        # printPagesList(detailedPagesList);
-        self.debug_print("got-links", [len(detailedPagesList), len(completePagesList)])
-        
-
+    
+    def _getAll(self, detailedPagesList):
         # loop through all pages and gather individual links
-        linkTotal = len(detailedPagesList)+1
         linkIndex = 0
         timestamp = time.time()
         #cachePrefix = time.strftime("%Y%m%d")
@@ -112,26 +109,22 @@ class newGatherer(base.gather.Extractor ):
                 self.debug_print("wget-cached", link)
                 
             # extract data from the selected page
-            parser = etree.HTMLParser()
             strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
             html = strip_unicode.sub('', html)
             tree   = etree.HTML(html)
             try:
                 text =         tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/text()")[0]
                 location =     tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/strong/text()")[0]
-                addDate =      tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/span[@class='data']/text()")[0]
+                #addDate =      tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/span[@class='data']/text()")[0]
                 contact =      tree.xpath("//table[@id='detalii_anunt']//div[@class='contact']/text()")[0]
                 pret =         tree.xpath("//table[@id='detalii_anunt']//span[@class='pret']/text()")[0]
                 if pret:
                     pret = pret.replace("Pret:", "").replace(".", "")
                     pret =         re.sub("[^0-9]", "", pret)
                 
-                id = md5.new()
-                id.update(link)
-                idstr = id.hexdigest()
-                
-                if(not self.db.recordExists("anuntul_ro_data", idstr)):
-                    self.db.insert("anuntul_ro_data",
+                idstr = self.md5(link)
+                if(not self.db.itemExists("anuntul_ro_data", idstr)):
+                    self.db.itemInsert("anuntul_ro_data",
                         { 
                             "id":             idstr,
                             "price":         pret,
@@ -141,6 +134,7 @@ class newGatherer(base.gather.Extractor ):
                             "contact":         contact,
                             "addDate":         timestamp,
                             "updateDate":     timestamp,
-                        }) 
+                        })
+                    self.db.flushRandom(0.025)
             except IndexError as e:
                 self.debug_print("parse-failed", e)
