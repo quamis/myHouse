@@ -6,7 +6,7 @@
 
 import os, sys
 import logging
-from DB import DB
+from DB2 import DB2
 from CACHE import CACHE
 import argparse
 import importlib
@@ -22,11 +22,14 @@ parser.add_argument('-v',       dest='verbosity',     action='store', type=int, 
 parser.add_argument('-module',  dest='module',        action='store', type=str, default=None,     help='used module')
 args = parser.parse_args()
 
-    
+if args.module is None:
+    parser.print_help()
+    raise SystemExit
+
 moduleStr = args.module
 
-maindb = DB("main.sqlite")
-db = DB(moduleStr+".sqlite")
+maindb = DB2("main.sqlite")
+db = DB2(moduleStr+".sqlite")
 cache = CACHE(moduleStr)
 
 sys.path.insert(0, os.path.abspath(moduleStr))

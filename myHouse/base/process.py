@@ -12,7 +12,7 @@ class Processor(object):
         self.cache = cache
 
         #email, phones        
-        self.maindb.create("data", { 
+        self.maindb.tableCreate("data", { 
             "id":           "VARCHAR(64)",
             "category":     "VARCHAR(64)",
             "source":       "VARCHAR(16)",  # anunturi_ro
@@ -23,13 +23,13 @@ class Processor(object):
             "updateDate":   "INT",
         }, ["id"])
         
-        self.maindb.create("data_contacts", { 
+        self.maindb.tableCreate("data_contacts", { 
             "idOffer":      "VARCHAR(64)",
             "key":          "VARCHAR(16)",  # email, telephone, address
             "value":        "VARCHAR(256)",
         }, [], ["id"])
         
-        self.maindb.create("data_extracted", { 
+        self.maindb.tableCreate("data_extracted", { 
             "idOffer":      "VARCHAR(64)",
             "key":          "VARCHAR(16)",
             "value":        "VARCHAR(256)",
@@ -77,18 +77,18 @@ class Processor(object):
             index+=1
             newRow = self._processRow(row)
             
-            if(not self.maindb.recordExists("data", newRow['id'])):
+            if(not self.maindb.itemExists("data", newRow['id'])):
                 self.debug_print("loop-new", newRow)
                 
                 if 'contacts' in newRow:
                     for c in newRow['contacts']:
-                        self.maindb.insert("data_contacts", { "idOffer":newRow['id'], "key": c['key'], "value": c['value'] })
+                        self.maindb.itemInsert("data_contacts", { "idOffer":newRow['id'], "key": c['key'], "value": c['value'] })
                         
                 if 'extracted' in newRow:
                     for k,v in newRow['extracted'].items():
-                        self.maindb.insert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
+                        self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
                         
-                self.maindb.insert("data", {
+                self.maindb.itemInsert("data", {
                       "source":     self.source, 
                       "id":         newRow['id'],
                       "category":   newRow['category'], 
@@ -101,4 +101,5 @@ class Processor(object):
             else:
                 self.debug_print("loop-old", newRow)
             
-        self.selectEnd(rows);
+        self.selectEnd(rows)
+        self.maindb.close()

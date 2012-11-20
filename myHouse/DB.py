@@ -138,6 +138,5 @@ class DB:
         c = self.connection.cursor()
         c.execute('SELECT id FROM ' + table + ' WHERE id="'+id+'"')
         ret = c.fetchone()
-        self.connection.commit()
         c.close()
         return bool(ret)
