@@ -111,7 +111,8 @@ class doProcess(base.process.Processor ):
         
         
         # extract data
-        newRow['extracted'] = self._extractData_houses(newRow)
+        if newRow['category']=="case-vile":
+            newRow['extracted'] = self._extractData_houses(newRow)
         
                 
             #raise SystemExit  
