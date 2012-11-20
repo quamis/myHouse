@@ -55,8 +55,8 @@ class Processor(object):
                         self.maindb.insert("data_contacts", { "idOffer":newRow['id'], "key": c['key'], "value": c['value'] })
                         
                 if 'extracted' in newRow:
-                    for c in newRow['extracted']:
-                        self.maindb.insert("data_extracted", { "idOffer":newRow['id'], "key": c['key'], "value": c['value'] })
+                    for k,v in newRow['extracted'].items():
+                        self.maindb.insert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
                         
                 self.maindb.insert("data", {
                       "source":     self.source, 

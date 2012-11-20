@@ -4,7 +4,7 @@
 # @see http://lxml.de/lxmlhtml.html#parsing-html
 # @see https://gist.github.com/823821
 
-import sys
+import os, sys
 import logging
 from DB import DB
 from CACHE import CACHE
@@ -23,7 +23,7 @@ maindb = DB("main.sqlite")
 db = DB(moduleStr+".sqlite")
 cache = CACHE(moduleStr)
 
-sys.path.insert(0, moduleStr)
+sys.path.insert(0, os.path.abspath(moduleStr))
 module = importlib.import_module("process", moduleStr)
 gatherer = module.doProcess(moduleStr, maindb, db, cache)
 gatherer.run()
