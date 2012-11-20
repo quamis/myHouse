@@ -4,7 +4,7 @@
 # @see http://lxml.de/lxmlhtml.html#parsing-html
 # @see https://gist.github.com/823821
 
-import sys, time, os
+import sys, time, os, codecs
 import re
 from datetime import date
 
@@ -29,9 +29,10 @@ class View:
 		#print data_extracted
 		#print "[%2s]\t% 9s\t %s" % (row[0], row[5], row[2])
 		
-		sys.stdout.write(("[% 9s] %s\n"+
+		sys.stdout.write(unicode(
+			"[% 9s] %s\n"+
 			"  %s\n"
-			"  % 7s EUR\n") % (data[0], data[2], data[3], locale.format("%.*f", (0, data[4]), True)))
+			"  % 7s EUR\n") % (unicode(data[0]), unicode(data[2]), unicode(data[3]), locale.format(unicode("%.*f"), (0, data[4]), True)))
 		
 		if data_extracted:
 			extr = {}
@@ -108,6 +109,19 @@ class View:
 			for k in args.ftext:
 				sql+=" AND `description` LIKE '%%%s%%'" % (k)
 			sql+=")"
+			
+		if(args.category):
+			sql+=" AND( 0 "
+			for k in args.category:
+				sql+=" OR `category`='%s'" % (k)
+			sql+=")"
+		
+		if(args.ncategory):
+			sql+=" AND( 0 "
+			for k in args.ncategory:
+				sql+=" OR NOT(`category`='%s')" % (k)
+			sql+=")"
+		
 		
 		if(args.maxPrice):
 			sql+=" AND `price` < '%d'" % (args.maxPrice)
@@ -132,12 +146,17 @@ parser.add_argument('-narea', dest='narea', 		action='append', type=str, default
 parser.add_argument('-text', dest='text', 			action='append', type=str, default=[],		help='text to find')
 parser.add_argument('-ntext', dest='ntext', 		action='append', type=str, default=[],		help='text to skip')
 parser.add_argument('-ftext', dest='ftext', 		action='append', type=str, default=[],		help='text to contains(mandatory text in the text)')
+parser.add_argument('-category', dest='category',   action='append', type=str, default=[],		help='category')
+parser.add_argument('-ncategory', dest='ncategory',   action='append', type=str, default=[],	help='not in category')
 parser.add_argument('-maxPrice', dest='maxPrice', 	action='store', type=int, default=70000,	help='max price to match')
 parser.add_argument('-minPrice', dest='minPrice', 	action='store', type=int, default=20000,	help='min price to match')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 locale.setlocale(locale.LC_NUMERIC, '')
+
+# change the output encoding to utf8
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 db = DB("main.sqlite")
 viewer = View(db)
