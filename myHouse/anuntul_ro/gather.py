@@ -1,6 +1,5 @@
 import base.gather
 
-import logging
 from lxml import etree
 import re
 import md5
@@ -9,8 +8,8 @@ import time
 import urllib2 # to be able to catch Browser expcetions
 
 class newGatherer(base.gather.Extractor ):
-    def __init__(self, category, url, db, cache):
-        super(newGatherer, self).__init__(category, url, db, cache)
+    def __init__(self, category, url, db, cache, args):
+        super(newGatherer, self).__init__(category, url, db, cache, args)
         
         self.db.create("anuntul_ro_links", { 
             "id":             "VARCHAR(256)",
@@ -68,10 +67,10 @@ class newGatherer(base.gather.Extractor ):
                             self.cache.set(cachePrefix+link, html)
                             self.wait("new-page")
                         except urllib2.URLError, e:
-                            logging.debug('  wget failed, skipping')
+                            self.debug_print("wget-failed")
                             continue
                     else:
-                        logging.debug("wget from cache %s", link)
+                        self.debug_print("wget-cached", link)
                 
                 
                     gotPagesList.append(link)
@@ -88,7 +87,8 @@ class newGatherer(base.gather.Extractor ):
                     #gotNewPage=False
         
         # printPagesList(detailedPagesList);
-        logging.debug("got %d links from %d pages", len(detailedPagesList), len(completePagesList));
+        self.debug_print("got-links", [len(detailedPagesList), len(completePagesList)])
+        
 
         # loop through all pages and gather individual links
         linkTotal = len(detailedPagesList)+1
@@ -106,10 +106,10 @@ class newGatherer(base.gather.Extractor ):
                     self.cache.set(cachePrefix+link, html)
                     self.wait("new-offer")
                 except urllib2.URLError, e:
-                    logging.debug('  wget failed, skipping')
+                    self.debug_print("wget-failed")
                     continue
             else:
-                logging.debug("wget from cache %s", link)
+                self.debug_print("wget-cached", link)
                 
             # extract data from the selected page
             parser = etree.HTMLParser()
@@ -119,10 +119,12 @@ class newGatherer(base.gather.Extractor ):
             try:
                 text =         tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/text()")[0]
                 location =     tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/strong/text()")[0]
-                addDate =     tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/span[@class='data']/text()")[0]
-                contact =     tree.xpath("//table[@id='detalii_anunt']//div[@class='contact']/text()")[0]
-                pret =         tree.xpath("//table[@id='detalii_anunt']//span[@class='pret']/text()")[0].replace("Pret:", "").replace(".", "")
-                pret =         re.sub("[^0-9]", "", pret)
+                addDate =      tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/span[@class='data']/text()")[0]
+                contact =      tree.xpath("//table[@id='detalii_anunt']//div[@class='contact']/text()")[0]
+                pret =         tree.xpath("//table[@id='detalii_anunt']//span[@class='pret']/text()")[0]
+                if pret:
+                    pret = pret.replace("Pret:", "").replace(".", "")
+                    pret =         re.sub("[^0-9]", "", pret)
                 
                 id = md5.new()
                 id.update(link)
@@ -140,5 +142,5 @@ class newGatherer(base.gather.Extractor ):
                             "addDate":         timestamp,
                             "updateDate":     timestamp,
                         }) 
-            except IndexError:
-                logging.debug("  cannot extract info")
+            except IndexError as e:
+                self.debug_print("parse-failed", e)
