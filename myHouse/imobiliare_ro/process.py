@@ -24,14 +24,19 @@ class doProcess(base.process.Processor ):
     
     def _extractData_houses(self, newRow, row):
         extr = {}
-        extr['location'] = row[1]
-        extr['rooms'] = row[2]
-        extr['surface_built'] = row[7]
-        extr['surface_total'] = row[6]
+        if row[1]:
+            extr['location'] = row[1]
+            
+        if row[2]:
+            extr['rooms'] = row[2]
+            
+        if row[7]:
+            extr['surface_built'] = row[7]
+            
+        if row[6]:
+            extr['surface_total'] = row[6]
 
-        if "surface_built" in extr:
-            print newRow['price']
-            print extr['surface_built']
+        if newRow['price']!="" and "surface_built" in extr:
             extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_built']), 0)
             
         return extr
