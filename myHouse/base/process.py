@@ -1,5 +1,3 @@
-import logging
-import md5
 import time
 import sys
 

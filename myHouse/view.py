@@ -6,7 +6,7 @@
 
 import sys, time, os, codecs
 import re
-from datetime import date
+from datetime import date, timedelta
 
 from DB import DB
 from CACHE import CACHE
@@ -123,11 +123,16 @@ class View:
 			sql+=")"
 		
 		
+		if(args.minPrice):
+			sql+=" AND `price` > '%d'" % (args.minPrice)
+			
 		if(args.maxPrice):
 			sql+=" AND `price` < '%d'" % (args.maxPrice)
 			
-		if(args.minPrice):
-			sql+=" AND `price` > '%d'" % (args.minPrice)
+			
+		if(args.age):
+			dt = date.today()-timedelta(days=args.age)
+			sql+=" AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
 		
 		
 		sql+= " ORDER BY `price` ASC, `description` ASC"
@@ -141,19 +146,34 @@ class View:
 
 	
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
-parser.add_argument('-area', dest='area', 			action='append', type=str, default=[],		help='search area')
-parser.add_argument('-narea', dest='narea', 		action='append', type=str, default=[],		help='deny search area')
-parser.add_argument('-text', dest='text', 			action='append', type=str, default=[],		help='text to find')
-parser.add_argument('-ntext', dest='ntext', 		action='append', type=str, default=[],		help='text to skip')
-parser.add_argument('-ftext', dest='ftext', 		action='append', type=str, default=[],		help='text to contains(mandatory text in the text)')
-parser.add_argument('-category', dest='category',   action='append', type=str, default=[],		help='category')
-parser.add_argument('-ncategory', dest='ncategory',   action='append', type=str, default=[],	help='not in category')
-parser.add_argument('-maxPrice', dest='maxPrice', 	action='store', type=int, default=70000,	help='max price to match')
-parser.add_argument('-minPrice', dest='minPrice', 	action='store', type=int, default=20000,	help='min price to match')
+parser.add_argument('-area', 		dest='area', 		action='append', 	type=str, default=[],		help='search area')
+parser.add_argument('-narea', 		dest='narea', 		action='append', 	type=str, default=[],		help='deny search area')
+parser.add_argument('-text', 		dest='text', 		action='append', 	type=str, default=[],		help='text to find')
+parser.add_argument('-ntext', 		dest='ntext', 		action='append', 	type=str, default=[],		help='text to skip')
+parser.add_argument('-ftext', 		dest='ftext', 		action='append', 	type=str, default=[],		help='text to contain(mandatory text in the text)')
+parser.add_argument('-category', 	dest='category',    action='append', 	type=str, default=[],		help='category')
+parser.add_argument('-ncategory', 	dest='ncategory',   action='append', 	type=str, default=[],		help='not in category')
+parser.add_argument('-maxPrice', 	dest='maxPrice', 	action='store', 	type=int, default=70000,	help='max price to match')
+parser.add_argument('-minPrice', 	dest='minPrice', 	action='store', 	type=int, default=30000,	help='min price to match')
+parser.add_argument('-age', 		dest='age', 		action='store', 	type=float, default=3.0,	help='max age in days')
+parser.add_argument('--profile', 	dest='profile', 	action='store', 	type=str, default="",		help='internal profile to use')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 locale.setlocale(locale.LC_NUMERIC, '')
+
+if args.profile=="casa-leonida":
+	args.area = [ "Aparatorii Patriei", "Leonida", "Berceni", "Oltenitei", "Alexandru Obregia", "Obregia", "Popesti Leordeni" ]
+	#args.text = [ "metrou" ]
+	args.category = [ "case-vile" ]
+elif args.profile=="casa-titan":
+	args.area = [ "Titan", "Auchan", "Cora", "Dristor", "1 Decembrie", "23 August", "Baba Novac", "Grigorescu", "Nic% grigorescu", "Republica" ] # "Pantelimon", 
+	#args.text = [ "metrou" ]
+	args.category = [ "case-vile" ]
+elif args.profile=="casa-1mai":
+	args.area = [ "Bucuresti Noi", "1 Mai", "Parc Bazilescu", "Bazilescu", "Pajura" ]
+	#args.text = [ "metrou" ]
+	args.category = [ "case-vile" ]
 
 # change the output encoding to utf8
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)

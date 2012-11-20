@@ -1,7 +1,6 @@
 import base.process
 
 import re
-import logging
 
 class doProcess(base.process.Processor ):
     def __init__(self, source, maindb, db, cache, args):

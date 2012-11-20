@@ -111,22 +111,6 @@ class Extractor(object):
             
     def debug_print_2(self, result, extra=None):
         if(result=="wget-start"):
-            sys.stdout.write(">")
-        elif(result=="wget-done"):
-            sys.stdout.write("<")
-        elif(result=="wget-fail"):
-            sys.stdout.write("!")
-        elif(result=="wget-cached"):
-            sys.stdout.write(".")
-        elif(result=="parse-failed"):
-            sys.stdout.write("X")
-        elif(result=="got-links"):
-            sys.stdout.write("\n\n")
-            
-        sys.stdout.flush()
-        
-    def debug_print_1(self, result, extra=None):
-        if(result=="wget-start"):
             sys.stdout.write("\n %s" % (extra))
         elif(result=="wget-done"):
             pass
@@ -138,6 +122,22 @@ class Extractor(object):
             sys.stdout.write(" (parse fail)")
         elif(result=="got-links"):
             pass
+            
+        sys.stdout.flush()
+        
+    def debug_print_1(self, result, extra=None):
+        if(result=="wget-start"):
+            sys.stdout.write(">")
+        elif(result=="wget-done"):
+            sys.stdout.write("<")
+        elif(result=="wget-fail"):
+            sys.stdout.write("!")
+        elif(result=="wget-cached"):
+            sys.stdout.write(".")
+        elif(result=="parse-failed"):
+            sys.stdout.write("X")
+        elif(result=="got-links"):
+            sys.stdout.write("\n\n")
             
         sys.stdout.flush()
         
