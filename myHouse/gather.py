@@ -17,7 +17,7 @@ import base.gather
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 
     
-moduleStr = "anunturi_ro";
+moduleStr = "anuntul_ro";
 startUrl = "http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/"
 category = "case-vile"
 

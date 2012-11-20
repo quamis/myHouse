@@ -17,7 +17,7 @@ import base.gather
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 
     
-moduleStr = "anunturi_ro";
+moduleStr = "anuntul_ro";
 
 maindb = DB("main.sqlite")
 db = DB(moduleStr+".sqlite")
