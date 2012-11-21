@@ -123,18 +123,23 @@ class newGatherer(base.gather.Extractor ):
                     pret =         re.sub("[^0-9]", "", pret)
                 
                 idstr = self.md5(link)
-                if(not self.db.itemExists("anuntul_ro_data", idstr)):
-                    self.db.itemInsert("anuntul_ro_data",
-                        { 
-                            "id":             idstr,
-                            "price":         pret,
-                            "category":     self.category,
-                            "url":             link,
-                            "description":     location+" "+text,
-                            "contact":         contact,
-                            "addDate":         timestamp,
-                            "updateDate":     timestamp,
-                        })
-                    self.db.flushRandom(0.0025)
+                self.writeItem({ 
+                    "id":             idstr,
+                    "price":         pret,
+                    "category":     self.category,
+                    "url":             link,
+                    "description":     location+" "+text,
+                    "contact":         contact,
+                    "addDate":         timestamp,
+                    "updateDate":     timestamp,
+                })
             except IndexError as e:
                 self.debug_print("parse-failed", e)
+
+    def writeItem(self, item):
+        if(self.db.itemExists("anuntul_ro_data", item['id'])):
+            self.db.itemUpdate("anuntul_ro_data",{ "id": item['id'], "updateDate":     item['updateDate'], })
+        else:
+            self.db.itemInsert("anuntul_ro_data", item)
+            self.db.flushRandom(0.025)
+        

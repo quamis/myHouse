@@ -75,7 +75,10 @@ class Processor(object):
             index+=1
             newRow = self._processRow(row)
             
-            if(not self.maindb.itemExists("data", newRow['id'])):
+            if(self.maindb.itemExists("data", newRow['id'])):
+                self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })
+                self.debug_print("loop-old", newRow)
+            else:
                 self.debug_print("loop-new", newRow)
                 
                 if 'contacts' in newRow:
@@ -95,9 +98,9 @@ class Processor(object):
                       "description":newRow['description'],
                       "addDate":    timestamp,
                       "updateDate": timestamp,
-                      })
-            else:
-                self.debug_print("loop-old", newRow)
+                  })
+                self.db.flushRandom(0.025)
+                
             
         self.selectEnd(rows)
         self.maindb.close()

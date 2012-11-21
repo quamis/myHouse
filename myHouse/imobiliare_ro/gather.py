@@ -142,20 +142,25 @@ class newGatherer(base.gather.Extractor ):
             details =    location_full+". "+re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
             
             idstr = self.md5(link)
-            if(not self.db.itemExists("imobiliare_ro_data", idstr)):
-                self.db.itemInsert("imobiliare_ro_data",
-                    { 
-                        "id":             idstr,
-                        "category":       self.category,
-                        "url":            link,
-                        "location":       location,
-                        "details":        details,
-                        "price":          price,
-                        "rooms":          rooms,
-                        "surface_total":  surface_total,
-                        "surface_built":  surface_built,
-                        "year_built":     year_built,
-                        "addDate":        timestamp,
-                        "updateDate":     timestamp,
-                    })
-                self.db.flushRandom(0.0025)
+            self.writeItem({ 
+                "id":             idstr,
+                "category":       self.category,
+                "url":            link,
+                "location":       location,
+                "details":        details,
+                "price":          price,
+                "rooms":          rooms,
+                "surface_total":  surface_total,
+                "surface_built":  surface_built,
+                "year_built":     year_built,
+                "addDate":        timestamp,
+                "updateDate":     timestamp,
+            })
+
+    def writeItem(self, item):
+        if(self.db.itemExists("imobiliare_ro_data", item['id'])):
+            self.db.itemUpdate("imobiliare_ro_data",{ "id": item['id'], "updateDate":     item['updateDate'], })
+        else:
+            self.db.itemInsert("imobiliare_ro_data", item)
+            self.db.flushRandom(0.025)
+        
