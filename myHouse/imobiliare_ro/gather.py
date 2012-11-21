@@ -158,4 +158,4 @@ class newGatherer(base.gather.Extractor ):
                         "addDate":        timestamp,
                         "updateDate":     timestamp,
                     })
-                self.db.flushRandom(0.025)
+                self.db.flushRandom(0.0025)

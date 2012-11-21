@@ -135,6 +135,6 @@ class newGatherer(base.gather.Extractor ):
                             "addDate":         timestamp,
                             "updateDate":     timestamp,
                         })
-                    self.db.flushRandom(0.025)
+                    self.db.flushRandom(0.0025)
             except IndexError as e:
                 self.debug_print("parse-failed", e)

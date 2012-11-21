@@ -24,7 +24,7 @@ class CACHE:
         else:
             self.db.itemInsert(self.tablePrefix, { "id":id, "data":buffer(pickle.dumps(data, pickle.HIGHEST_PROTOCOL)) })
             
-        self.db.flushRandom(0.1)
+        self.db.flushRandom(0.001)
     
     def close(self):
         self.db.close()
