@@ -53,5 +53,5 @@ sys.path.insert(0, os.path.abspath(moduleStr))
 module = importlib.import_module("gather", moduleStr)
 gatherer = module.newGatherer(category, startUrl, db, cache, args)
 gatherer.getAll()
-
+sys.stdout.write("\n")
 raise SystemExit
