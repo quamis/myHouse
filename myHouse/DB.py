@@ -53,10 +53,10 @@ class DB:
         self.connection.commit()
         self.cursor = None
         
-    def flushRandom(self, chance):
+    def flushRandom(self, chance, doClose=True):
         if random.random()<chance:
             self.connection.commit()
-            if self.cursor:
+            if self.cursor and doClose:
                 self.cursor.close()
             self.connection.commit()
             self.cursor = None

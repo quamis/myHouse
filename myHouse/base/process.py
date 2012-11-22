@@ -99,7 +99,7 @@ class Processor(object):
                       "addDate":    timestamp,
                       "updateDate": timestamp,
                   })
-                self.db.flushRandom(0.025)
+                self.db.flushRandom(0.025, False)
                 
             
         self.selectEnd(rows)
