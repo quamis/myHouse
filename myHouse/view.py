@@ -80,9 +80,9 @@ class View:
 	def filter(self, args):
 		sql = "SELECT `id` FROM `data` WHERE 1"
 		
-		if(args.area):
+		if(args.id):
 			sql+=" AND( 0 "
-			for k in args.area:
+			for k in args.id:
 				sql+=" OR `id`='%s'" % (k)
 			sql+=")"
 		else:
