@@ -189,6 +189,7 @@ elif args.profile=="casa-1mai":
 elif args.profile=="case-noi":
 	#args.text = [ "metrou" ]
 	args.category = [ "case-vile" ]
+	args.ntext = [ "cash" ]
 	args.agea = 1.5
 
 # change the output encoding to utf8
