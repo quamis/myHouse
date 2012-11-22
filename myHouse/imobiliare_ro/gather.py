@@ -141,7 +141,7 @@ class newGatherer(base.gather.Extractor ):
             
             details =    location_full+". "+re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
             
-            idstr = self.md5(link)
+            idstr = self.hash(link)
             self.writeItem({ 
                 "id":             idstr,
                 "category":       self.category,

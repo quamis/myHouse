@@ -19,7 +19,7 @@ class View:
 		self.db = db
 		
 	def printRow(self, id):
-		#                                       0           1           2          3       4       5
+		#                                     0        1           2          3       4       5
 		data = self.db.selectAll("SELECT `category`, `source`, `description`, `url`, `price`, `id` FROM `data` WHERE `id`='%s'" %(id))[0]
 		data_contacts = self.db.selectAll("SELECT `key`, `value` FROM `data_contacts` WHERE `idOffer`='%s' ORDER BY `key` ASC, `value` ASC" %(id))
 		data_extracted = self.db.selectAll("SELECT `key`, `value` FROM `data_extracted` WHERE `idOffer`='%s' ORDER BY `key`" %(id))
@@ -32,7 +32,7 @@ class View:
 		sys.stdout.write(unicode(
 			"[% 9s] %s\n"+
 			"  %s\n"
-			"  % 7s EUR\n") % (unicode(data[0]), unicode(data[2]), unicode(data[3]), locale.format(unicode("%.*f"), (0, data[4]), True)))
+			"  % 7s EUR, \tid: %s\n") % (unicode(data[0]), unicode(data[2]), unicode(data[3]), locale.format(unicode("%.*f"), (0, data[4]), True),data[5] ))
 		
 		if data_extracted:
 			extr = {}

@@ -1,10 +1,10 @@
 import logging
-import md5
 import sys
 import random, time
 from mechanize import Browser
 import urllib2
-import md5
+import hashlib
+import numconv
 
 class Extractor(object):
     def __init__(self, category, url, db, cache, args):
@@ -58,10 +58,15 @@ class Extractor(object):
     def _getAll(self):
         pass
     
-    def md5(self, text):
-        ident = md5.new()
-        ident.update(text)
-        return ident.hexdigest()
+    def hash(self, text):
+       #ident = md5.new()
+       #ident.update(text)
+       #return ident.hexdigest()
+       ident = hashlib.md5()
+       ident.update(text)
+       digest = ident.hexdigest()
+       number = int(digest, 16) % 0xffffffff
+       return numconv.int2str(number, 64)
             
     
     def wait(self, reason):

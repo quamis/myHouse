@@ -122,7 +122,7 @@ class newGatherer(base.gather.Extractor ):
                     pret = pret.replace("Pret:", "").replace(".", "")
                     pret =         re.sub("[^0-9]", "", pret)
                 
-                idstr = self.md5(link)
+                idstr = self.hash(link)
                 self.writeItem({ 
                     "id":             idstr,
                     "price":         pret,
