@@ -83,60 +83,66 @@ class View:
 		if(args.area):
 			sql+=" AND( 0 "
 			for k in args.area:
-				sql+=" OR `description` LIKE '%s%%'" % (k)
+				sql+=" OR `id`='%s'" % (k)
 			sql+=")"
-			
-		if(args.narea):
-			sql+=" AND( 0 "
-			for k in args.area:
-				sql+=" OR `description` NOT LIKE '%s%%'" % (k)
-			sql+=")"
-			
-		if(args.text):
-			sql+=" AND( 0 "
-			for k in args.text:
-				sql+=" OR `description` LIKE '%%%s%%'" % (k)
-			sql+=")"
+		else:
+			if(args.area):
+				sql+=" AND( 0 "
+				for k in args.area:
+					sql+=" OR `description` LIKE '%s%%'" % (k)
+				sql+=")"
 				
-		if(args.ntext):
-			sql+=" AND( 0 "
-			for k in args.ntext:
-				sql+=" OR `description` NOT LIKE '%%%s%%'" % (k)
-			sql+=")"
-		
-		if(args.ftext):
-			sql+=" AND( 1 "
-			for k in args.ftext:
-				sql+=" AND `description` LIKE '%%%s%%'" % (k)
-			sql+=")"
+			if(args.narea):
+				sql+=" AND( 0 "
+				for k in args.area:
+					sql+=" OR `description` NOT LIKE '%s%%'" % (k)
+				sql+=")"
+				
+			if(args.text):
+				sql+=" AND( 0 "
+				for k in args.text:
+					sql+=" OR `description` LIKE '%%%s%%'" % (k)
+				sql+=")"
+					
+			if(args.ntext):
+				sql+=" AND( 0 "
+				for k in args.ntext:
+					sql+=" OR `description` NOT LIKE '%%%s%%'" % (k)
+				sql+=")"
 			
-		if(args.category):
-			sql+=" AND( 0 "
-			for k in args.category:
-				sql+=" OR `category`='%s'" % (k)
-			sql+=")"
-		
-		if(args.ncategory):
-			sql+=" AND( 0 "
-			for k in args.ncategory:
-				sql+=" OR NOT(`category`='%s')" % (k)
-			sql+=")"
-		
-		
-		if(args.minPrice):
-			sql+=" AND `price` > '%d'" % (args.minPrice)
+			if(args.ftext):
+				sql+=" AND( 1 "
+				for k in args.ftext:
+					sql+=" AND `description` LIKE '%%%s%%'" % (k)
+				sql+=")"
+				
+			if(args.category):
+				sql+=" AND( 0 "
+				for k in args.category:
+					sql+=" OR `category`='%s'" % (k)
+				sql+=")"
 			
-		if(args.maxPrice):
-			sql+=" AND `price` < '%d'" % (args.maxPrice)
+			if(args.ncategory):
+				sql+=" AND( 0 "
+				for k in args.ncategory:
+					sql+=" OR NOT(`category`='%s')" % (k)
+				sql+=")"
 			
 			
-		if(args.age):
-			dt = date.today()-timedelta(days=args.age)
-			sql+=" AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
-		
-		if(args.agea):
-			dt = date.today()-timedelta(days=args.agea)
-			sql+=" AND `addDate`>%d" % (time.mktime(dt.timetuple()))
+			if(args.minPrice):
+				sql+=" AND `price` > '%d'" % (args.minPrice)
+				
+			if(args.maxPrice):
+				sql+=" AND `price` < '%d'" % (args.maxPrice)
+				
+				
+			if(args.age):
+				dt = date.today()-timedelta(days=args.age)
+				sql+=" AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
+			
+			if(args.agea):
+				dt = date.today()-timedelta(days=args.agea)
+				sql+=" AND `addDate`>%d" % (time.mktime(dt.timetuple()))
 		
 		
 		sql+= " ORDER BY `price` ASC, `description` ASC"
@@ -150,6 +156,7 @@ class View:
 
 	
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
+parser.add_argument('-id', 			dest='id', 			action='append', 	type=str, default=[],		help='id')
 parser.add_argument('-area', 		dest='area', 		action='append', 	type=str, default=[],		help='search area')
 parser.add_argument('-narea', 		dest='narea', 		action='append', 	type=str, default=[],		help='deny search area')
 parser.add_argument('-text', 		dest='text', 		action='append', 	type=str, default=[],		help='text to find')
