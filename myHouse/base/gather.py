@@ -1,7 +1,8 @@
 import logging
 import sys
 import random, time
-from mechanize import Browser
+import mechanize
+import cookielib
 import urllib2
 import hashlib
 import numconv
@@ -13,6 +14,7 @@ class Extractor(object):
         self.db = db
         self.cache = cache
         self.args = args
+        self.br = None
         
     def xpath_getOne(self, tree, xpath):
         ret = tree.xpath(xpath)
@@ -81,10 +83,33 @@ class Extractor(object):
         
     def wget(self, url):
         self.debug_print("wget-start", url)
-        br = Browser()
-        br.set_handle_robots(False)
-        br.addheaders = [('User-agent', self.args.UA)]
-        html = br.open(url).read()
+        if self.br is None:
+            br = mechanize.Browser()
+            
+            # Cookie Jar
+            cj = cookielib.LWPCookieJar()
+            br.set_cookiejar(cj)
+            
+            # Browser options
+            br.set_handle_equiv(True)
+            br.set_handle_gzip(True)
+            br.set_handle_redirect(True)
+            br.set_handle_referer(True)
+            br.set_handle_robots(False)
+            
+            # Follows refresh 0 but not hangs on refresh > 0
+            br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+
+            br.addheaders = [('User-agent', self.args.UA)]
+            
+            # Want debugging messages?
+            #br.set_debug_http(True)
+            #br.set_debug_redirects(True)
+            #br.set_debug_responses(True)
+            
+            self.br = br
+        
+        html = self.br.open(url).read()
         self.debug_print("wget-done")
         return html
     
