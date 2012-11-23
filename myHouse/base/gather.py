@@ -3,7 +3,6 @@ import sys
 import random, time
 import mechanize
 import cookielib
-import urllib2
 import hashlib
 import numconv
 
@@ -61,14 +60,11 @@ class Extractor(object):
         pass
     
     def hash(self, text):
-       #ident = md5.new()
-       #ident.update(text)
-       #return ident.hexdigest()
-       ident = hashlib.md5()
-       ident.update(text)
-       digest = ident.hexdigest()
-       number = int(digest, 16) % 0xffffffff
-       return numconv.int2str(number, 64)
+        ident = hashlib.md5()
+        ident.update(text)
+        digest = ident.hexdigest()
+        number = int(digest, 16) % 0xffffffff
+        return numconv.int2str(number, 64)
             
     
     def wait(self, reason):
