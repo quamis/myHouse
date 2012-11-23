@@ -14,8 +14,8 @@ class Extractor(object):
         self.cache = cache
         self.args = args
         
-    def xpath_getOne(self, tree, xpath, ):
-        ret = tree.xpath(".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()")
+    def xpath_getOne(self, tree, xpath):
+        ret = tree.xpath(xpath)
         if ret: 
             return ret[0].strip()
         return ""
@@ -138,9 +138,9 @@ class Extractor(object):
         elif(result=="wget-fail"):
             sys.stdout.write("!")
         elif(result=="wget-cached"):
-            sys.stdout.write(".")
+            sys.stdout.write("-")
         elif(result=="parse-failed"):
-            sys.stdout.write("X")
+            sys.stdout.write("*")
         elif(result=="got-links"):
             sys.stdout.write("\n\n")
             

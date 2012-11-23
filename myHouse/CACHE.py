@@ -7,7 +7,7 @@ class CACHE:
         self.tablePrefix = tablePrefix
         self.db = DB("cache.sqlite")
         self.db.tableCreate(self.tablePrefix, { 
-            "id":             "VARCHAR(128)",
+            "id":             "VARCHAR(256)",
             "data":           "BLOB",
             "addDate":        "INT",
         }, ["id"])
@@ -24,7 +24,7 @@ class CACHE:
         else:
             self.db.itemInsert(self.tablePrefix, { "id":id, "data":buffer(pickle.dumps(data, pickle.HIGHEST_PROTOCOL)) })
             
-        self.db.flushRandom(0.001)
+        self.db.flushRandom(0.01)
     
     def close(self):
         self.db.close()

@@ -157,6 +157,7 @@ class newGatherer(base.gather.Extractor ):
                 "updateDate":     timestamp,
             })
 
+
     def writeItem(self, item):
         if(self.db.itemExists("imobiliare_ro_data", item['id'])):
             self.db.itemUpdate("imobiliare_ro_data",{ "id": item['id'], "updateDate":     item['updateDate'], })

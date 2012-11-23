@@ -12,6 +12,7 @@ class Processor(object):
         #email, phones        
         self.maindb.tableCreate("data", { 
             "id":           "VARCHAR(64)",
+			"status":       "VARCHAR(128)",
             "category":     "VARCHAR(64)",
             "source":       "VARCHAR(16)",  # anunturi_ro
             "url":          "VARCHAR(256)",

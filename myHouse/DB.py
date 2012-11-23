@@ -111,6 +111,10 @@ class DB:
             dataList.append(v)
         
         c.execute(sql, (dataList))
+		
+    def execute(self, sql):
+        c = self._getCursor()
+        return c.execute(sql)
     
     def selectAll(self, sql):
         c = self._getCursor()
