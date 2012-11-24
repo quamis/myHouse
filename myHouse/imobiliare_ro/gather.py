@@ -80,16 +80,16 @@ class newGatherer(base.gather.Extractor ):
                     else:
                         self.debug_print("wget-cached", link)
                 
-                
-                    gotPagesList.append(link)
-                    gotPagesList = self.removeDuplicates(gotPagesList)
-                    
-                    completePagesList = self.extractPaginationUrls(html)
-                    completePagesList = self.removeDuplicates(completePagesList)
-                    
-                    # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
-                    detailedPagesList2 = self.extractOffersUrls(html)
-                    detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
+                    if(html):
+                        gotPagesList.append(link)
+                        gotPagesList = self.removeDuplicates(gotPagesList)
+                        
+                        completePagesList = self.extractPaginationUrls(html)
+                        completePagesList = self.removeDuplicates(completePagesList)
+                        
+                        # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
+                        detailedPagesList2 = self.extractOffersUrls(html)
+                        detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
                     
                     gotNewPage = True
                     #gotNewPage = False

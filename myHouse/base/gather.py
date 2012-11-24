@@ -110,7 +110,7 @@ class Extractor(object):
             html = self.br.open(url).read()
         except Exception, ex:
             sys.stdout.write("\n Browser.open.read() returned with exception: %s\n" % (ex))
-            return ""
+            return None
             
         self.debug_print("wget-done")
         return html

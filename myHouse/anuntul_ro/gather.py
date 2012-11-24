@@ -69,17 +69,17 @@ class newGatherer(base.gather.Extractor ):
                     else:
                         self.debug_print("wget-cached", link)
                 
-                
-                    gotPagesList.append(link)
-                    gotPagesList = self.removeDuplicates(gotPagesList)
-                    
-                    completePagesList = self.extractPaginationUrls(html)
-                    completePagesList = self.removeDuplicates(completePagesList)
-                    
-                    # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
-                    detailedPagesList2 = self.extractOffersUrls(html)
-                    detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
-                    
+                    if(html):
+                        gotPagesList.append(link)
+                        gotPagesList = self.removeDuplicates(gotPagesList)
+                        
+                        completePagesList = self.extractPaginationUrls(html)
+                        completePagesList = self.removeDuplicates(completePagesList)
+                        
+                        # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
+                        detailedPagesList2 = self.extractOffersUrls(html)
+                        detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
+                        
                     gotNewPage = True
                     #gotNewPage = False
         return [completePagesList, detailedPagesList]
@@ -107,32 +107,33 @@ class newGatherer(base.gather.Extractor ):
                 self.debug_print("wget-cached", link)
                 
             # extract data from the selected page
-            strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
-            html = strip_unicode.sub('', html)
-            tree   = etree.HTML(html)
-            try:
-                text =         tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/text()")[0]
-                location =     tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/strong/text()")[0]
-                #addDate =      tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/span[@class='data']/text()")[0]
-                contact =      tree.xpath("//table[@id='detalii_anunt']//div[@class='contact']/text()")[0]
-                pret =         tree.xpath("//table[@id='detalii_anunt']//span[@class='pret']/text()")[0]
-                if pret:
-                    pret = pret.replace("Pret:", "").replace(".", "")
-                    pret =         re.sub("[^0-9]", "", pret)
-                
-                idstr = self.hash(link)
-                self.writeItem({ 
-                    "id":             idstr,
-                    "price":         pret,
-                    "category":     self.category,
-                    "url":             link,
-                    "description":     location+" "+text,
-                    "contact":         contact,
-                    "addDate":         timestamp,
-                    "updateDate":     timestamp,
-                })
-            except IndexError as e:
-                self.debug_print("parse-failed", e)
+            if(html):
+                strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
+                html = strip_unicode.sub('', html)
+                tree   = etree.HTML(html)
+                try:
+                    text =         tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/text()")[0]
+                    location =     tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/strong/text()")[0]
+                    #addDate =      tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/span[@class='data']/text()")[0]
+                    contact =      tree.xpath("//table[@id='detalii_anunt']//div[@class='contact']/text()")[0]
+                    pret =         tree.xpath("//table[@id='detalii_anunt']//span[@class='pret']/text()")[0]
+                    if pret:
+                        pret = pret.replace("Pret:", "").replace(".", "")
+                        pret =         re.sub("[^0-9]", "", pret)
+                    
+                    idstr = self.hash(link)
+                    self.writeItem({ 
+                        "id":             idstr,
+                        "price":         pret,
+                        "category":     self.category,
+                        "url":             link,
+                        "description":     location+" "+text,
+                        "contact":         contact,
+                        "addDate":         timestamp,
+                        "updateDate":     timestamp,
+                    })
+                except IndexError as e:
+                    self.debug_print("parse-failed", e)
 
     def writeItem(self, item):
         if(self.db.itemExists("anuntul_ro_data", item['id'])):
