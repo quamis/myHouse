@@ -7,7 +7,7 @@ python ./gather.py -v=1 -sleepp=0.1 -sleepo=0.1 -user-agent="random" -module "an
 #python ./gather.py -v=1 -sleepp=0.1 -sleepo=0.1 -user-agent="random" -module "anuntul_ro" -category "apt-2-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-2-camere/pag-1/"    
 
 echo "anuntul_ro->apt-3-camere";
-python ./gather.py -v=1 -sleepp=0.1 -sleepo=0.1 -user-agent="random" -module "anuntul_ro" -category "apt-3-cam" -url "http:/www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-3-camere/pag-1/"     
+python ./gather.py -v=1 -sleepp=0.1 -sleepo=0.1 -user-agent="random" -module "anuntul_ro" -category "apt-3-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-3-camere/pag-1/"     
 
 echo "anuntul_ro->apt-4-camere";
 python ./gather.py -v=1 -sleepp=0.1 -sleepo=0.1 -user-agent="random" -module "anuntul_ro" -category "apt-4-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-4-camere/pag-1/"    
