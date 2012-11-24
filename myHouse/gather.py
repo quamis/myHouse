@@ -38,6 +38,8 @@ if args.UA=="random":
                              'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:x.xx) Gecko/20030504 Mozilla Firebird/0.6', # Firebird
                              'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19', # Chrome
                              ''])
+    sys.stdout.write("Chosen UA: %s\n" % (args.UA))
+    
 if args.UA=="real":
     args.UA = "myHouse/0.7 (CLI; Python)";
     
