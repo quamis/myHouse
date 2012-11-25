@@ -20,8 +20,7 @@ class Extractor(object):
         if ret: 
             return ret[0].strip()
         return ""
-        
-        
+    
     def removeDuplicates(self, pagesList):
         keys = {}
         for e in pagesList:

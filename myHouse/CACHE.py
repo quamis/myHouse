@@ -28,4 +28,6 @@ class CACHE:
     
     def close(self):
         self.db.close()
-        
+    
+    def flushRandom(self, chance=0.01):    
+        self.db.flushRandom(chance)
