@@ -75,6 +75,8 @@ class Processor(object):
             self.debug_print("loop-step", { "index": index })
             index+=1
             newRow = self._processRow(row)
+            if newRow is None:
+                continue
             
             if(self.maindb.itemExists("data", newRow['id'])):
                 self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })

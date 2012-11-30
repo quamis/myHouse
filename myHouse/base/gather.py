@@ -21,6 +21,16 @@ class Extractor(object):
             return ret[0].strip()
         return ""
     
+    def xpath_getTexts(self, tree, xpath):
+        all = tree.xpath(xpath)
+        ret = ""
+        for r in all:
+            ret+= r + "\n"
+            
+        if ret: 
+            return ret.strip()
+        return ""
+    
     def removeDuplicates(self, pagesList):
         keys = {}
         for e in pagesList:

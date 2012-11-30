@@ -18,6 +18,10 @@ python ./gather.py -v=1 -sleepp=0 -sleepo=0 -user-agent="real" -module "imobilia
 echo "tocmai_ro->case-file";
 python ./gather.py -v=5 -sleepp=0.1 -sleepo=0.1 -user-agent="random" -module "tocmai_ro" -category "case-vile" -url "http://www.tocmai.ro/cauta?page=1&typ=1&ct=8&jd=26&tz=1"
 
+echo "az_ro->case-file";
+python ./gather.py -v=1 -sleepp=0.1 -sleepo=0.1 -user-agent="random" -module "az_ro" -category "case-vile" -url "http://www.az.ro/imobiliare-vanzari/case-vile"
+
+
 
 
 echo "anuntul_ro->process";
@@ -28,3 +32,6 @@ python ./process.py -v=1 -module "imobiliare_ro"
 
 echo "tocmai_ro->process";
 python ./process.py -v=1 -module "tocmai_ro"
+
+echo "az_ro->process";
+python ./process.py -v=1 -module "az_ro"
