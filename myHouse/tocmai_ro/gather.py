@@ -148,11 +148,18 @@ class newGatherer(base.gather.Extractor ):
                     surface_total = re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'Suprafata')]/../text()"))
                     rooms =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'camere')]/../text()"))
     
-                    descRows =      tree.xpath(".//*[@id='main']/div[3]/div/div[2]/div[8]/text()")
+                    #descRows =      tree.xpath(".//*[@id='main']/div[3]/div/div[2]/div[8]/text()")
+                    descRows =      tree.xpath(".//*[@id='main']//div[contains(@class, 'item-description')]/text()")
                     description = ""
                     for r in descRows:
                         description+= r.strip()+"\n"
                     description = description.strip()
+                    
+                    if re.search("apartament", description) and re.search("etaj", description):
+                        raise Exception("This is not the correct category. Ignoring")
+                    
+                    if re.search("^[\s]*$", description):
+                        raise Exception("This description is empty. Ignoring")
     
                     idstr = self.hash(link)
                     self.writeItem({ 
@@ -168,7 +175,7 @@ class newGatherer(base.gather.Extractor ):
                         "updateDate":     timestamp,
                     })
                 except Exception:
-                    pass
+                    self.debug_print("parse-failed")
 
 
     def writeItem(self, item):
