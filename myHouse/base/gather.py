@@ -26,9 +26,9 @@ class Extractor(object):
         return ""
     
     def xpath_getTexts(self, tree, xpath):
-        all = tree.xpath(xpath)
+        elms = tree.xpath(xpath)
         ret = ""
-        for r in all:
+        for r in elms:
             ret+= r + "\n"
             
         if ret: 

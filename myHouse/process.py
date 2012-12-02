@@ -12,7 +12,6 @@ import argparse
 import importlib
     
 sys.path.insert(0, "base")
-import base.gather
 
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
