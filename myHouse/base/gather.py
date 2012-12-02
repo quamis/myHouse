@@ -77,14 +77,14 @@ class Extractor(object):
         return numconv.int2str(number, 64)
             
     
-    def wait(self, reason):
+    def wait(self, reason): 
         # TODO: configure sleep period from the command-line/system specific args
         if reason=="new-page":
-            time.sleep(random.random()*self.args.sleepp)
+            time.sleep(random.random()*self.args.sleep)
         elif reason=="new-offer":
-            time.sleep(random.random()*self.args.sleepo)
+            time.sleep(random.random()*self.args.sleep)
         else:
-            time.sleep(random.random()*self.args.sleepp)
+            time.sleep(random.random()*self.args.sleep)
             
         
     def wget(self, url):
