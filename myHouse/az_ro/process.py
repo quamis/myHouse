@@ -43,8 +43,6 @@ class doProcess(base.process.Processor ):
         newRow['contacts'] = contact
         
         
-        print newRow['url'] 
-        
         #print newRow
         return newRow
     
