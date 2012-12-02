@@ -83,8 +83,8 @@ class newGatherer(base.gather.Extractor ):
                         detailedPagesList2 = self.extractOffersUrls(html)
                         detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
                         
-                    #gotNewPage = True
-                    gotNewPage = False
+                    gotNewPage = True
+                    #gotNewPage = False
                     
         return [completePagesList, detailedPagesList]
         
