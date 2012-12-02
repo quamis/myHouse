@@ -95,7 +95,7 @@ locale.setlocale(locale.LC_NUMERIC, '')
 # change the output encoding to utf8
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
-db = DB("main.sqlite")
+db = DB("../db/main.sqlite")
 stats = Stats(db)
 stats.extract(args)
 sys.stdout.write("\n")

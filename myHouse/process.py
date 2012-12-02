@@ -28,8 +28,8 @@ if args.module is None:
 
 moduleStr = args.module
 
-maindb = DB("main.sqlite")
-db = DB(moduleStr+".sqlite")
+maindb = DB("../db/main.sqlite")
+db = DB("../db/"+moduleStr+".sqlite")
 cache = CACHE(moduleStr)
 
 sys.path.insert(0, os.path.abspath(moduleStr))

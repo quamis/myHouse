@@ -230,7 +230,7 @@ elif args.profile=="case-noi":
 # change the output encoding to utf8
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
-db = DB("main.sqlite")
+db = DB("../db/main.sqlite")
 viewer = View(db)
 viewer.filter(args)
 

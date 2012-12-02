@@ -48,7 +48,7 @@ moduleStr = args.module
 startUrl = args.url
 category = args.category
 
-db = DB(moduleStr+".sqlite")
+db = DB("../db/"+moduleStr+".sqlite")
 cache = CACHE(moduleStr)
 
 sys.path.insert(0, os.path.abspath(moduleStr))

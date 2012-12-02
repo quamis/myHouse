@@ -5,6 +5,7 @@ import mechanize
 import cookielib
 import hashlib
 import numconv
+import warnings
 
 class Extractor(object):
     def __init__(self, category, url, db, cache, args):
@@ -96,14 +97,17 @@ class Extractor(object):
             br.set_cookiejar(cj)
             
             # Browser options
-            br.set_handle_equiv(True)
-            br.set_handle_gzip(True)
-            br.set_handle_redirect(True)
-            br.set_handle_referer(True)
-            br.set_handle_robots(False)
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
             
-            # Follows refresh 0 but not hangs on refresh > 0
-            br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+                br.set_handle_equiv(True)
+                br.set_handle_gzip(True)
+                br.set_handle_redirect(True)
+                br.set_handle_referer(True)
+                br.set_handle_robots(False)
+                
+                # Follows refresh 0 but not hangs on refresh > 0
+                br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
 
             br.addheaders = [('User-agent', self.args.UA)]
             

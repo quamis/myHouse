@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ ! -d "../db/" ]; then 
+    mkdir "../db/"
+    rm cache.sqlite
+    mv *.sqlite "../db/"
+fi
+
+
 echo "anuntul_ro->case-vile";
 python ./gather.py -v=1 -sleepp=0.1 -sleepo=0.1 -user-agent="random" -module "anuntul_ro" -category "case-vile" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/"               
 
