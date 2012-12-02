@@ -28,6 +28,10 @@ python ./gather.py -v=1 -sleep=0.0 -user-agent="random" -module "tocmai_ro" -cat
 echo "az_ro->case-file";
 python ./gather.py -v=1 -sleep=1.0 -user-agent="random" -module "az_ro" -category "case-vile" -url "http://www.az.ro/imobiliare-vanzari/case-vile"
 
+echo "mercador_ro->search[vanzare-case]"
+python ./gather.py -v=1 -sleep=1.0 -user-agent="random" -module "mercador_ro" -category "case-vile" -url "http://mercador.ro/imobiliare/case-de-vanzare-si-de-inchiriat/bucuresti/?search[filter_float_price%3Afrom]=20000&search[filter_float_price%3Ato]=90000&search[filter_enum_alege]=vanzare"
+
+
 
 
 
@@ -42,3 +46,6 @@ python ./process.py -v=1 -module "tocmai_ro"
 
 echo "az_ro->process";
 python ./process.py -v=1 -module "az_ro"
+
+echo "mercador_ro->process";
+python ./process.py -v=1 -module "mercador_ro"
