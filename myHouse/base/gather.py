@@ -6,6 +6,7 @@ import cookielib
 import hashlib
 import numconv
 import warnings
+import datetime
 
 class Extractor(object):
     def __init__(self, category, url, db, cache, args):
@@ -15,6 +16,8 @@ class Extractor(object):
         self.cache = cache
         self.args = args
         self.br = None
+        
+        self.lastCallTime = datetime.datetime.now()
         
     def xpath_getOne(self, tree, xpath):
         ret = tree.xpath(xpath)
@@ -79,10 +82,11 @@ class Extractor(object):
     
     def wait(self, reason): 
         # TODO: configure sleep period from the command-line/system specific args
-        if reason=="new-page":
-            time.sleep(random.random()*self.args.sleep)
-        elif reason=="new-offer":
-            time.sleep(random.random()*self.args.sleep)
+        if reason=="new-page" or reason=="new-offer":
+            now = datetime.datetime.now()
+            remainingSleep = max(0, self.args.sleep - (now - self.lastCallTime).total_seconds())
+            self.lastCallTime = now 
+            time.sleep(remainingSleep)
         else:
             time.sleep(random.random()*self.args.sleep)
             
