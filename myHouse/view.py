@@ -4,7 +4,7 @@
 # @see http://lxml.de/lxmlhtml.html#parsing-html
 # @see https://gist.github.com/823821
 
-import sys, time, os, codecs
+import sys, time, codecs
 import re
 from datetime import date, timedelta
 
@@ -110,9 +110,9 @@ class View:
 				sql+=")"
 					
 			if(args.ntext):
-				sql+="/*ntext*/ AND( 0 "
+				sql+="/*ntext*/ AND( 1 "
 				for k in args.ntext:
-					sql+=" OR `description` NOT LIKE '%%%s%%'" % (k)
+					sql+=" AND `description` NOT LIKE '%%%s%%'" % (k)
 				sql+=")"
 			
 			if(args.ftext):
@@ -222,6 +222,7 @@ elif args.profile=="casa-1mai":
 elif args.profile=="case-noi":
 	#args.text = [ "metrou" ]
 	args.narea = [ "Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin" ]
+	args.ntext = [ "comuna" ]
 	args.category = [ "case-vile" ]
 	args.maxPrice = 70000
 	args.minPrice = 30000
