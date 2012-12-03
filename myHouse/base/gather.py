@@ -84,10 +84,13 @@ class Extractor(object):
     def wait(self, reason): 
         # TODO: configure sleep period from the command-line/system specific args
         if reason=="new-page" or reason=="new-offer":
-            now = datetime.datetime.now()
-            remainingSleep = max(0, self.args.sleep - (now - self.lastCallTime).total_seconds())
-            self.lastCallTime = now 
-            time.sleep(remainingSleep)
+			try:
+				now = datetime.datetime.now()
+				remainingSleep = max(0, self.args.sleep - (now - self.lastCallTime).total_seconds())
+				self.lastCallTime = now 
+				time.sleep(remainingSleep)
+			except AttributeError:
+				time.sleep(random.random()*self.args.sleep)
         else:
             time.sleep(random.random()*self.args.sleep)
             
