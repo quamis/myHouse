@@ -41,19 +41,19 @@ class View:
 			
 			str_surface = ""
 			s = ""
-			if "surface_total" in extr:
+			if "surface_total" in extr and extr["surface_total"]!='':
 				str_surface+="%ssupraf. tot: %dmp" % (s, int(extr["surface_total"]))
 				s=", "
 			
-			if "surface_built" in extr:
+			if "surface_built" in extr and extr["surface_built"]!='':
 				str_surface+="%sconstr: %dmp" % (s, int(extr["surface_built"]))
 				s=", "
 				
-			if "price_per_mp_built" in extr:
+			if "price_per_mp_built" in extr and extr["price_per_mp_built"]!='':
 				str_surface+="%s%dEUR/mp" % (s, float(extr["price_per_mp_built"]))
 				s=", "
 				
-			if "rooms" in extr:
+			if "rooms" in extr and extr["rooms"]!='':
 				str_surface+="%s%d camere" % (s, int(extr["rooms"]))
 				s=", "
 				
