@@ -20,14 +20,15 @@ class Stats:
 		self.db = db
 	
 	def extract(self, args):
-		#              0       1           2          3       4          5   
-		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`  FROM `data` WHERE 1 ORDER BY `price` ASC, `description` ASC"
+		#              0       1           2          3       4          5            6
+		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`  FROM `data` WHERE 1 ORDER BY `price` ASC, `description` ASC"
 		
 		timestamp = time.time()
 		
 		stats = {}
 		stats['source'] = {}
 		stats['categories'] = {}
+		stats['statuses'] = {}
 		
 		prices = {}
 		alivePeriods = []
@@ -38,11 +39,15 @@ class Stats:
 		for row in rows:
 			if row[1] not in stats['categories']:
 				stats['categories'][row[1]] = 0
-			stats['categories'][row[1]]+=1	
+			stats['categories'][row[1]]+= 1 	
 
 			if row[2] not in stats['source']:
 				stats['source'][row[2]] = 0				
-			stats['source'][row[2]]+=1
+			stats['source'][row[2]]+= 1
+			
+			if row[6] not in stats['statuses']:
+				stats['statuses'][row[6]] = 0
+			stats['statuses'][row[6]]+= 1
 			
 			if row[1] not in prices:
 				prices[row[1]] = []
@@ -71,19 +76,28 @@ class Stats:
 		self.printStats(stats)
 		
 	def printStats(self, stats):
-		sys.stdout.write("\n Sources: ")
+		sys.stdout.write("\n\n Sources: ")
 		s = ""
 		for src in stats['source']:
 			sys.stdout.write("%s %s(%s)" % (s, src, locale.format("%.*f", (0, stats['source'][src]), True)))
 			s = ","
 			
-		sys.stdout.write("\n Categories: ")
-		s = ""
+		sys.stdout.write("\n\n Categories: ")
 		for src in stats['categories']:
 			sys.stdout.write("\n\t%s: \t% 5s \tmedia % 7s EUR (% 7s EUR)" % (src, 
 				locale.format("%.*f", (0, stats['categories'][src]), True), 
 				locale.format("%.*f", (0, stats['price_per_category:mean'][src]), True),
 				locale.format("%.*f", (0, stats['price_per_category:median'][src]), True)))
+			
+			
+		sys.stdout.write("\n\n Statuses: ")
+		for src in stats['statuses']:
+			if src!='' and src!=None:
+				sys.stdout.write("\n\t%s: \t% 8s" % (src, locale.format("%.*f", (0, stats['statuses'][src]), True)))
+		sys.stdout.write("\n\tNone: \t% 8s" % (locale.format("%.*f", (0, stats['statuses'][''] + stats['statuses'][None]), True)))
+		
+		
+		sys.stdout.write("\n\n Times: %d days alive, appeared %d days ago, dissapeared %d days ago" % (stats['alivePeriod'], stats['timeSinceAppeared'], stats['timeSinceDisappeared']))
 	
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
 parser.add_argument('-minPrice', 	dest='minPrice', 	action='store', 	type=int, default=30000,	help='min price to match')
