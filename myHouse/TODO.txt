@@ -23,3 +23,4 @@ GIT set user.name and email
 	git commit --amend --reset-author
 	
 git push git@gitorious.org:myhouse/myhouse.git
+test
