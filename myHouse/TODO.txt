@@ -15,3 +15,11 @@ TODO:
 GIT complete resync
     git fetch origin master
     git reset --hard origin/master
+	
+GIT set user.name and email
+	git config --global user.name "Lucian Sirbu"
+	git config --global user.email quamis@gmail.com
+
+	git commit --amend --reset-author
+	
+git push git@gitorious.org:myhouse/myhouse.git
