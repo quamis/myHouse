@@ -53,3 +53,6 @@ python ./process.py -v=1 -module "mercador_ro"
 
 echo "imopedia_ro->process";
 python ./process.py -v=1 -module "imopedia_ro"
+
+echo "cleanup";
+python ./cleanup.py -v=1 -nodescription=1 -fixstatus=1
