@@ -93,6 +93,7 @@ class Processor(object):
                         self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
                         
                 self.maindb.itemInsert("data", {
+                      "status":     "",
                       "source":     self.source, 
                       "id":         newRow['id'],
                       "category":   newRow['category'], 
