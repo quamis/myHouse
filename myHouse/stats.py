@@ -20,8 +20,10 @@ class Stats:
 		self.db = db
 	
 	def extract(self, args):
-		#              0       1           2          3       4          5            6
-		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`  FROM `data` WHERE 1 ORDER BY `price` ASC, `description` ASC"
+		#              0     1           2         3        4          5             6         7
+		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`  FROM `data` WHERE 1" \
+			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted') )" \
+			+ " ORDER BY `price` ASC, `description` ASC"
 		
 		timestamp = time.time()
 		

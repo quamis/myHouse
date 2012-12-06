@@ -83,7 +83,9 @@ class View:
 	
 	
 	def filter(self, args):
-		sql = "SELECT `id` FROM `data` WHERE 1"
+		#              0     1           2         3        4          5             6         7
+		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`  FROM `data` WHERE 1" \
+			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted') )" \
 		
 		if(args.id):
 			sql+=" AND( 0 "
@@ -227,7 +229,16 @@ elif args.profile=="case-noi":
 	args.maxPrice = 70000
 	args.minPrice = 30000
 	args.agea = 1.5
-
+elif args.profile=="case-valide":
+	#args.text = [ "metrou" ]
+	args.narea = [ "Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin" ]
+	args.ntext = [ "comuna" ]
+	args.category = [ "case-vile" ]
+	args.maxPrice = 70000
+	args.minPrice = 30000
+	args.age = 1.5
+	args.agea = 90
+	
 # change the output encoding to utf8
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 

@@ -60,6 +60,10 @@ class DB:
                 self.cursor.close()
             self.connection.commit()
             self.cursor = None
+            
+    def itemDelete(self, table, id):
+        c = self._getCursor()
+        c.execute('DELETE FROM ' + table + ' WHERE id="'+id+'"')
         
     def itemExists(self, table, id):
         c = self._getCursor()
