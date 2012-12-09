@@ -85,7 +85,7 @@ class View:
 	def filter(self, args):
 		#              0     1           2         3        4          5             6         7
 		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`  FROM `data` WHERE 1" \
-			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted') )" \
+			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide') )" \
 		
 		if(args.id):
 			sql+=" AND( 0 "

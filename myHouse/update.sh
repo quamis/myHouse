@@ -55,4 +55,6 @@ echo "imopedia_ro->process";
 python ./process.py -v=1 -module "imopedia_ro"
 
 echo "cleanup";
-python ./cleanup.py -v=1 -nodescription=1 -fixstatus=1
+python ./cleanup.py -v=5 -nodescription=1 -fixstatus=1 
+python ./cleanup.py -v=5 -dup_windowSize=5 -dup_minAutoMatch=0.999 -dup_algorithm_c=desc:1 -dup_algorithm_s=1.7.2 
+
