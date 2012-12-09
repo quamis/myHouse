@@ -22,7 +22,6 @@ class Stats:
 	def extract(self, args):
 		#              0     1           2         3        4          5             6         7
 		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`  FROM `data` WHERE 1" \
-			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted') )" \
 			+ " ORDER BY `price` ASC, `description` ASC"
 		
 		timestamp = time.time()
@@ -95,8 +94,8 @@ class Stats:
 		sys.stdout.write("\n\n Statuses: ")
 		for src in stats['statuses']:
 			if src!='' and src!=None:
-				sys.stdout.write("\n\t%s: \t% 8s" % (src, locale.format("%.*f", (0, stats['statuses'][src]), True)))
-		sys.stdout.write("\n\tNone: \t% 8s" % (locale.format("%.*f", (0, stats['statuses'][''] + stats['statuses'][None]), True)))
+				sys.stdout.write("\n\t%- 9s: % 9s" % (src, locale.format("%.*f", (0, stats['statuses'][src]), True)))
+		sys.stdout.write("\n\tNone     : % 9s" % (locale.format("%.*f", (0, stats['statuses']['']), True)))
 		
 		
 		sys.stdout.write("\n\n Times: %d days alive, appeared %d days ago, dissapeared %d days ago" % (stats['alivePeriod'], stats['timeSinceAppeared'], stats['timeSinceDisappeared']))
