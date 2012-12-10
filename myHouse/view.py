@@ -238,6 +238,15 @@ elif args.profile=="case-noi":
 	args.maxPrice = 70000
 	args.minPrice = 30000
 	args.agea = 1.5
+elif args.profile=="case-noi-metrou":
+	#args.text = [ "metrou" ]
+	args.narea = [ "Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin" ]
+	args.ntext = [ "comuna" ]
+	args.text = [ "metrou" ]
+	args.category = [ "case-vile" ]
+	args.maxPrice = 70000
+	args.minPrice = 30000
+	args.agea = 1.5
 elif args.profile=="case-valide":
 	#args.text = [ "metrou" ]
 	args.narea = [ "Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin" ]
