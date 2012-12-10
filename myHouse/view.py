@@ -13,14 +13,15 @@ from CACHE import CACHE
 import logging
 import locale
 import argparse
+import datetime
 
 class View:
 	def __init__(self, db):
 		self.db = db
 		
 	def printRow(self, id, newStatus=None):
-		#                                 0           1         2              3      4        5     6
-		data = self.db.selectAll("SELECT `category`, `source`, `description`, `url`, `price`, `id`, `status` FROM `data` WHERE `id`='%s'" %(id))[0]
+		#                                 0           1         2              3      4        5     6         7          8
+		data = self.db.selectAll("SELECT `category`, `source`, `description`, `url`, `price`, `id`, `status`, `addDate`, `updateDate`  FROM `data` WHERE `id`='%s'" %(id))[0]
 		data_contacts = self.db.selectAll("SELECT `key`, `value` FROM `data_contacts` WHERE `idOffer`='%s' ORDER BY `key` ASC, `value` ASC" %(id))
 		data_extracted = self.db.selectAll("SELECT `key`, `value` FROM `data_extracted` WHERE `idOffer`='%s' ORDER BY `key`" %(id))
 
@@ -32,7 +33,15 @@ class View:
 		sys.stdout.write(unicode(
 			"[% 9s]%s %s\n"+
 			"  %s\n"
-			"  % 7s EUR, \tid: %s\n") % (unicode(data[0]), ("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",unicode(data[2]), unicode(data[3]), locale.format(unicode("%.*f"), (0, data[4]), True),data[5] ))
+			"  % 7s EUR, \tid: %s (add:%s, upd:%s)\n") % (
+			unicode(data[0]), 
+			("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
+			unicode(data[2]), 
+			unicode(data[3]), 
+			locale.format(unicode("%.*f"), (0, data[4]), True),
+			data[5],
+			datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
+			datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  ))
 		
 		if data_extracted:
 			extr = {}
