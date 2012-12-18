@@ -256,6 +256,10 @@ elif args.profile=="case-valide":
 	args.minPrice = 30000
 	args.age = 1.5
 	args.agea = 90
+else:
+	print "no profile, or unknown profile specified"
+	raise SystemExit
+
 	
 # change the output encoding to utf8
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
