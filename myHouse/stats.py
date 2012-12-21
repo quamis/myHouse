@@ -92,10 +92,33 @@ class Stats:
 			
 			
 		sys.stdout.write("\n\n Statuses: ")
+		prio = ("todo", "None")
+		unprio = ("old", "deleted", "duplicate")
+		
+		st = { }
 		for src in stats['statuses']:
-			if src!='' and src!=None:
+			val = stats['statuses'][src]
+			if  src=='':
+				src = "None"
+				
+			if  src is None:
+				src = "None"
+				
+			st[src] = val
+		stats['statuses'] = st
+		
+		for src in prio:
+			if src in stats['statuses']:
 				sys.stdout.write("\n\t%- 9s: % 9s" % (src, locale.format("%.*f", (0, stats['statuses'][src]), True)))
-		sys.stdout.write("\n\tNone     : % 9s" % (locale.format("%.*f", (0, stats['statuses']['']), True)))
+
+		for src in stats['statuses']:
+			if src not in prio and src not in unprio:
+				sys.stdout.write("\n\t%- 9s: % 9s" % (src, locale.format("%.*f", (0, stats['statuses'][src]), True)))
+		
+		for src in unprio:
+			if src in stats['statuses']:
+				sys.stdout.write("\n\t%- 9s: % 9s" % (src, locale.format("%.*f", (0, stats['statuses'][src]), True)))
+		
 		
 		
 		sys.stdout.write("\n\n Times: %d days alive, appeared %d days ago, dissapeared %d days ago" % (stats['alivePeriod'], stats['timeSinceAppeared'], stats['timeSinceDisappeared']))

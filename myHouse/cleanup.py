@@ -27,7 +27,7 @@ from DB import DB
 import logging
 import locale
 import argparse
-
+from datetime import date, timedelta
 import difflib
 
 class Cleanup:
@@ -154,16 +154,39 @@ class Cleanup:
 			
 		return duplicateRowsIndexesToHide
 	
+	def vacuum(self, args):
+		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`, `url`  FROM `data` WHERE 1" \
+			+ " AND ( `status` IS NULL OR `status` IN ('deleted', 'duplicate', 'hide', 'old') )" \
+			+ " ORDER BY `price` ASC, `description` ASC"
+		
+		print sql
+		rows = self.db.selectAll(sql)
+		for index in range(len(rows)):
+			row = rows[index]
+			sys.stdout.write("X")
+			self.db.itemDelete("data", row[0])
+		sys.stdout.write("\n")
+		
+		self.db.close()
+		self.db.open()
+		self.db.execute("VACUUM")
+		
 	def cleanup(self, args):
+		if args.vacuum:
+			self.vacuum(args)
+		
 		#              0     1           2         3        4          5             6         7              8
 		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`, `url`  FROM `data` WHERE 1" \
-			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide') )" \
+			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide', 'old') )" \
 			+ " ORDER BY `price` ASC, `description` ASC"
 		
 		print sql
 		rows = self.db.selectAll(sql)
 		
 		duplicateRowsIndexesToHide = self.findDuplicateItems(rows, args)
+		
+		dt = date.today()-timedelta(days=5)
+		maxUpdatedTime = time.mktime(dt.timetuple())
 		
 		for index in range(len(rows)):
 			row = rows[index]
@@ -188,6 +211,14 @@ class Cleanup:
 			if args.nodescription and delete is False and row[7] is None:
 				delete = True
 				
+			if args.deleteOldItems and delete is False and row[5]<maxUpdatedTime:
+				updated = "_"
+				self.db.itemUpdate("data", {
+					"id": row[0],
+					"status": 'old',
+				})
+				
+				
 			if args.nodescription and delete is False and re.match("^[\s]*$", row[7]):
 				delete = True
 			
@@ -209,8 +240,10 @@ class Cleanup:
 
 	
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
-parser.add_argument('-nodescription', 	dest='nodescription', 	action='store', 	type=int, default=1,	help='remove items with no description')
-parser.add_argument('-fixstatus', 		dest='fixstatus', 		action='store', 	type=int, default=1,	help='fix status=None')
+parser.add_argument('-nodescription', 	dest='nodescription', 	action='store', 	type=int, default=0,	help='remove items with no description')
+parser.add_argument('-fixstatus', 		dest='fixstatus', 		action='store', 	type=int, default=0,	help='fix status=None')
+parser.add_argument('-deleteOldItems', 	dest='deleteOldItems', 	action='store', 	type=int, default=0,	help='delete old items')
+parser.add_argument('-vacuum', 			dest='vacuum', 			action='store', 	type=int, default=0,	help='delete old items')
 
 parser.add_argument('-dup_apply',		dest='dup_apply',		action='store', 	type=int, default=1,help='debug swith to be able to disabele applying updated to duplicates found')
 parser.add_argument('-dup_algorithm_c',	dest='dup_algorithm_c', action='store', 	type=str, default='disabled',help='used algorithm for duplicates detection(cleanup method), defaults to disabled. values: disabled, desc:0, desc:1, desc:2')

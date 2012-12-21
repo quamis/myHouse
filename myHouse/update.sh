@@ -10,14 +10,14 @@ fi
 echo "anuntul_ro->case-vile";
 python ./gather.py -v=1 -sleep=1.0 -user-agent="random" -module "anuntul_ro" -category "case-vile" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/case-vile/pag-1/"               
 
-#echo "anuntul_ro->apt-2-camere";
-#python ./gather.py -v=1 -sleep=0.5 -user-agent="random" -module "anuntul_ro" -category "apt-2-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-2-camere/pag-1/"    
+echo "anuntul_ro->apt-2-camere";
+python ./gather.py -v=1 -sleep=0.5 -user-agent="random" -module "anuntul_ro" -category "apt-2-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-2-camere/pag-1/"    
 
-#echo "anuntul_ro->apt-3-camere";
-#python ./gather.py -v=1 -sleep=0.5 -user-agent="random" -module "anuntul_ro" -category "apt-3-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-3-camere/pag-1/"     
+echo "anuntul_ro->apt-3-camere";
+python ./gather.py -v=1 -sleep=0.5 -user-agent="random" -module "anuntul_ro" -category "apt-3-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-3-camere/pag-1/"     
 
-#echo "anuntul_ro->apt-4-camere";
-#python ./gather.py -v=1 -sleep=0.5 -user-agent="random" -module "anuntul_ro" -category "apt-4-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-4-camere/pag-1/"    
+echo "anuntul_ro->apt-4-camere";
+python ./gather.py -v=1 -sleep=0.5 -user-agent="random" -module "anuntul_ro" -category "apt-4-cam" -url "http://www.anuntul.ro/anunturi-imobiliare-vanzari/apartamente-4-camere/pag-1/"    
 
 echo "imobiliare_ro->case-vile";
 python ./gather.py -v=1 -sleep=0.5 -user-agent="real" -module "imobiliare_ro" -category "case-vile" -url "http://www.imobiliare.ro/vanzare-case-vile/bucuresti"
@@ -55,6 +55,7 @@ echo "imopedia_ro->process";
 python ./process.py -v=1 -module "imopedia_ro"
 
 echo "cleanup";
-python ./cleanup.py -v=5 -nodescription=1 -fixstatus=1 
-python ./cleanup.py -v=5 -dup_windowSize=5 -dup_minAutoMatch=0.999 -dup_algorithm_c=desc:1 -dup_algorithm_s=1.7.2 
+python ./cleanup.py -v=5 -vacuum=1
+#python ./cleanup.py -v=1 -nodescription=1 -fixstatus=1 
+#python ./cleanup.py -v=5 -deleteOldItems=1 
 
