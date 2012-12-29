@@ -2,6 +2,7 @@
 import pickle
 from DB import DB
 import zlib
+import time
 
 class CACHE:
     def __init__(self, tablePrefix):
@@ -21,9 +22,9 @@ class CACHE:
         
     def set(self, id, data):
         if(self.db.itemExists(self.tablePrefix, id)):
-            self.db.itemUpdate(self.tablePrefix, { "id":id, "data":buffer(zlib.compress(pickle.dumps(data, pickle.HIGHEST_PROTOCOL))) })
+            self.db.itemUpdate(self.tablePrefix, { "id":id, "addDate":time.time(), "data":buffer(zlib.compress(pickle.dumps(data, pickle.HIGHEST_PROTOCOL))) })
         else:
-            self.db.itemInsert(self.tablePrefix, { "id":id, "data":buffer(zlib.compress(pickle.dumps(data, pickle.HIGHEST_PROTOCOL))) })
+            self.db.itemInsert(self.tablePrefix, { "id":id, "addDate":time.time(), "data":buffer(zlib.compress(pickle.dumps(data, pickle.HIGHEST_PROTOCOL))) })
             
         self.db.flushRandom(0.01)
     

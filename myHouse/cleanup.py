@@ -24,11 +24,13 @@ import re
 import datetime
 
 from DB import DB
+from CACHE import CACHE
 import logging
 import locale
 import argparse
 from datetime import date, timedelta
 import difflib
+import importlib
 
 class Cleanup:
 	def __init__(self, db):
@@ -250,6 +252,8 @@ parser.add_argument('-dup_algorithm_c',	dest='dup_algorithm_c', action='store', 
 parser.add_argument('-dup_algorithm_s',	dest='dup_algorithm_s', action='store', 	type=str, default='disabled',help='used algorithm for duplicates detection(sort algorithm), defaults to disabled. values: disabled, 1.7.2, 7.2, len')
 parser.add_argument('-dup_windowSize', 	dest='dup_windowSize', 	action='store', 	type=int, default=5,	help='duplicates window size(will get doubled internally)')
 parser.add_argument('-dup_minAutoMatch',dest='dup_minAutoMatch',action='store', 	type=float, default=0.99,help='duplicates match percent(DO NOT SET THIS BELOW 0.80)')
+
+parser.add_argument('-module',  dest='module',        action='store', type=str, default=None,     help='used module')
 parser.add_argument('-v',       		dest='verbosity',     	action='store', 	type=int, default='1', help='[default: 1] verbosity')
 args = parser.parse_args()
 
@@ -259,8 +263,22 @@ locale.setlocale(locale.LC_NUMERIC, '')
 # change the output encoding to utf8
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
-db = DB("../db/main.sqlite")
-cleanup = Cleanup(db)
-cleanup.cleanup(args)
+if args.module:
+	moduleStr = args.module
+	
+	db = DB("../db/"+moduleStr+".sqlite")
+	cache = CACHE(moduleStr)
+	
+	sys.path.insert(0, os.path.abspath(moduleStr))
+	module = importlib.import_module("cleanup", moduleStr)
+	mod = module.doCleanup(moduleStr, db, cache, args)
+	sys.stdout.write("\n")
+	mod.run()
+	sys.stdout.write("\n")
+else:
+	db = DB("../db/main.sqlite")
+	cleanup = Cleanup(db)
+	cleanup.cleanup(args)
+
 sys.stdout.write("\n")
 raise SystemExit
