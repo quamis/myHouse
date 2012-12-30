@@ -32,7 +32,7 @@ class newGatherer(base.gather.Extractor ):
         tree   = etree.HTML(html)
         hrefs = tree.xpath("//a/@href")
         for a in hrefs:
-            if(re.search("\/imobiliare-vanzari\/case-vile\?page=[0-9]+", a)):
+            if(re.search("\/imobiliare-vanzari\/(case-vile|[1-9]-camere)\?page=[0-9]+", a)):
                 ret.append(a)
         return ret
     
@@ -41,7 +41,7 @@ class newGatherer(base.gather.Extractor ):
         tree   = etree.HTML(html)
         hrefs = tree.xpath("//a/@href")
         for a in hrefs:
-            if(re.search("\/imobiliare-vanzari\/case-vile\/[^?]+", a)):
+            if(re.search("\/imobiliare-vanzari\/(case-vile|[1-9]-camere)\/[^?]+", a)):
                 ret.append(a)
 
         return ret
