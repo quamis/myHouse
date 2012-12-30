@@ -36,6 +36,14 @@ class Extractor(object):
             return ret.strip()
         return ""
     
+    def getCachePrefix(self, usage):
+        if usage=="links":
+            return time.strftime("%Y%m%d%H")
+        elif usage=="page":
+            return "page-"
+        else:
+            return ""
+    
     def removeDuplicates(self, pagesList):
         keys = {}
         for e in pagesList:

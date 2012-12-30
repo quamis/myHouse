@@ -61,7 +61,7 @@ class newGatherer(base.gather.Extractor ):
         detailedPagesList = []
         gotNewPage=True
         
-        cachePrefix = time.strftime("%Y%m%d%H")
+        cachePrefix = self.getCachePrefix("links")
         while gotNewPage:
             gotNewPage = False
             for link in completePagesList:
@@ -99,8 +99,7 @@ class newGatherer(base.gather.Extractor ):
         # loop through all pages and gather individual links
         linkIndex = 0
         timestamp = time.time()
-        #cachePrefix = time.strftime("%Y%m%d")
-        cachePrefix = "page-"
+        cachePrefix = self.getCachePrefix("page")
         for link in detailedPagesList:
             linkIndex+=1
             html = self.cache.get(cachePrefix+link)

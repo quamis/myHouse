@@ -36,7 +36,7 @@ if args.UA=="random":
                              'Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:16.0) Gecko/20100101 Firefox/16.0 ', # Firefox/Linux
                              'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:x.xx) Gecko/20030504 Mozilla Firebird/0.6', # Firebird
                              'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.19 (KHTML, like Gecko) Chrome/0.2.153.1 Safari/525.19', # Chrome
-                             ''])
+                             ])
     sys.stdout.write("Chosen UA: %s\n" % (args.UA))
     
 if args.UA=="real":

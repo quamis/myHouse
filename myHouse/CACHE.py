@@ -7,7 +7,7 @@ import time
 class CACHE:
     def __init__(self, tablePrefix):
         self.tablePrefix = tablePrefix
-        self.db = DB("../db/cache.sqlite")
+        self.db = DB("../db/cache-"+self.tablePrefix+".sqlite")
         self.db.tableCreate(self.tablePrefix, { 
             "id":             "VARCHAR(256)",
             "data":           "BLOB",
