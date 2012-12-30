@@ -64,7 +64,12 @@ class newGatherer(base.gather.Extractor ):
         return pagesList
     
     def linkAlreadyLoaded(self, link, gotPagesList):
-        page = re.search("page=(?P<page>[0-9]+)", link).groups("page")
+        m = re.search("page=(?P<page>[0-9]+)", link)
+        if m:
+            page = m.groups("page")
+        else:
+            page = 1
+            
         for e in gotPagesList:
             pg = re.search("page=(?P<page>[0-9]+)", e).groups("page")
             if page == pg:
@@ -154,8 +159,9 @@ class newGatherer(base.gather.Extractor ):
                         description+= r.strip()+"\n"
                     description = description.strip()
                     
-                    if re.search("apartament", description) and re.search("etaj", description):
-                        raise Exception("This is not the correct category. Ignoring")
+                    if self.category=="case-vile":
+                        if re.search("apartament", description) and re.search("etaj", description):
+                            raise Exception("This is not the correct category. Ignoring")
                     
                     if re.search("^[\s]*$", description):
                         raise Exception("This description is empty. Ignoring")
