@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import base.gather
 
 from lxml import etree
@@ -127,32 +129,52 @@ class newGatherer(base.gather.Extractor ):
             price =             re.sub("[^0-9]", "", tree.xpath("//*[@id='b_detalii_titlu']/div/div/div/text()")[0].strip())
             #price_currency =    tree.xpath("//*[@id='b_detalii_titlu']/div/div/div/div/text()")[0].strip()
             
-            surface_total =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'teren')]/text()"))
-            surface_built =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'util')]/text()"))
-            
-            year_built =       re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()"))
-            x_rooms =          tree.xpath("//*[@id='b_detalii_caracteristici']//table//tr/td[1][contains(text(), 'camere')]/../td[2]/text()")
-            rooms = 0
-            if x_rooms:
-                rooms = x_rooms[0]
-            
-            details =    location_full+". "+re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
-            
             idstr = self.hash(link)
-            self.writeItem({ 
-                "id":             idstr,
-                "category":       self.category,
-                "url":            link,
-                "location":       location,
-                "details":        details,
-                "price":          price,
-                "rooms":          rooms,
-                "surface_total":  surface_total,
-                "surface_built":  surface_built,
-                "year_built":     year_built,
-                "addDate":        timestamp,
-                "updateDate":     timestamp,
-            })
+            if self.category=="case-vile":
+                surface_total =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'teren')]/text()"))
+                surface_built =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'util')]/text()"))
+                
+                year_built =       re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()"))
+                x_rooms =          tree.xpath("//*[@id='b_detalii_caracteristici']//table//tr/td[1][contains(text(), 'camere')]/../td[2]/text()")
+                rooms = 0
+                if x_rooms:
+                    rooms = x_rooms[0]
+                
+                details =    location_full+". "+re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
+                self.writeItem({ 
+                    "id":             idstr,
+                    "category":       self.category,
+                    "url":            link,
+                    "location":       location,
+                    "details":        details,
+                    "price":          price,
+                    "rooms":          rooms,
+                    "surface_total":  surface_total,
+                    "surface_built":  surface_built,
+                    "year_built":     year_built,
+                    "addDate":        timestamp,
+                    "updateDate":     timestamp,
+                })
+            else:
+                # apt
+                details =    re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
+                surface_built =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'Suprafaa construit')]/text()"))
+                year_built =       re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()"))
+                self.writeItem({ 
+                    "id":             idstr,
+                    "category":       self.category,
+                    "url":            link,
+                    "location":       location,
+                    "details":        details,
+                    "price":          price,
+                    "surface_built":  surface_built,
+                    "year_built":     year_built,
+                    "addDate":        timestamp,
+                    "updateDate":     timestamp,
+                })
+            
+            
+            
 
 
     def writeItem(self, item):
