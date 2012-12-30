@@ -76,7 +76,7 @@ class newGatherer(base.gather.Extractor ):
                             html = self.wget(link)
                             self.cache.set(cachePrefix+link, html)
                             self.wait("new-page")
-                        except urllib2.URLError, e:
+                        except urllib2.URLError:
                             self.debug_print("wget-failed")
                             continue
                     else:
