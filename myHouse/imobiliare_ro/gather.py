@@ -38,7 +38,7 @@ class newGatherer(base.gather.Extractor ):
         tree   = etree.HTML(html)
         hrefs = tree.xpath("//a/@href")
         for a in hrefs:
-            if(re.search("\/vanzare-(.+)\?pagina=[0-9]+$", a)):
+            if(re.search("\/vanzare-(.+)(\?|\&|\;)pagina=[0-9]+$", a)):
                 ret.append(a)
 
         return ret
