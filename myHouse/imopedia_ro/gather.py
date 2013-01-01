@@ -5,6 +5,7 @@ import re
 import time
 
 import urllib2 # to be able to catch Browser expcetions
+from Scientific.Mathematica import surfacePlot
 
 class newGatherer(base.gather.Extractor ):
     def __init__(self, category, url, db, cache, args):
@@ -131,10 +132,31 @@ class newGatherer(base.gather.Extractor ):
                     location =      self.xpath_getOne(tree, ".//div[contains(@class, 'det')]//strong[contains(text(), 'Zona')]/span/text()")
                     
                     price =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//div[contains(@class, 'pret_1')]/strong/text()"))
-                    surface_total = re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li[contains(text(), 'total teren')]/text()"))
-    
-                    description =   self.xpath_getTexts(tree, ".//div[contains(@class, 'alte_informatii')]//text()")
                     
+                    if self.category=="case-vile":
+                        surface_total = re.sub("[^0-9.]", "", self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li[contains(text(), 'total teren')]/text()"))
+                    else: # apt
+                        surface_total = re.sub("[^0-9.]", "", self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li//*[contains(text(), 'suprafata utila')]/../text()"))
+                        if not surface_total:
+                            surface_total = re.sub("[^0-9.]", "", self.xpath_getOne(tree, "//div[@id='informatii']//ul/li//*[contains(text(), 'suprafata construita')]/../text()"))
+                            
+
+                    description =   self.xpath_getTexts(tree, ".//div[contains(@class, 'alte_informatii')]//text()")
+
+                    # add info from the end info tables                    
+                    lis = tree.xpath(".//*[@id='informatii']//div[contains(text(), 'utile')]/../ul/li")
+                    description+= "\n"
+                    s=""
+                    for li in lis:
+                        tx = self.xpath_getTexts(li, ".//text()")
+                        tx = re.sub("-", "", tx)
+                        tx = re.sub("[\s]+", " ", tx)
+                        tx = tx.strip()
+                        if tx:
+                            description+= s + tx
+                            s=". "
+                    description = description.strip()
+                                
                     if re.search("^[\s]*$", description):
                         raise Exception("This description is empty. Ignoring")
     
