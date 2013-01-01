@@ -59,7 +59,8 @@ class Processor(object):
             sys.stdout.write("\n    % 9dEUR %s" % (extra['price'], extra['url']))
             
         if(result=="loop-old"):
-            sys.stdout.write('.')
+            #sys.stdout.write('.')
+            pass
             
         sys.stdout.flush()
     
