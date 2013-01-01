@@ -2,8 +2,6 @@
 
 if [ ! -d "../db/" ]; then 
     mkdir "../db/"
-    rm cache.sqlite
-    mv *.sqlite "../db/"
 fi
 
 
