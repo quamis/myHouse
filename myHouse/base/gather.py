@@ -168,7 +168,9 @@ class Extractor(object):
         elif(result=="parse-failed"):
             logging.debug("cannot extract data")
         elif(result=="got-links"):
-            logging.debug("got %d links from %d pages", extra[0], extra[1]);
+            logging.debug("got %d links from %d pages", extra[0], extra[1])
+        else:
+            logging.debug(result)
             
     def debug_print_2(self, result, extra=None):
         if(result=="wget-start"):
