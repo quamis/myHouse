@@ -87,7 +87,7 @@ class doProcess(base.process.Processor ):
                     extr['surface_built'] = b
                      
 
-        if "surface_built" in extr:
+        if "surface_built" in extr and float(extr['surface_built'])>0:
             extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_built']), 0)
             
         return extr
