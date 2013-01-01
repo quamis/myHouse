@@ -121,66 +121,90 @@ function gather_az_ro(){
 
 
 
-# Starting background processes
-echo "Starting background processes"
-gather_anuntul_ro 1>&2 >"$OFILE" &
-gather_imobiliare_ro 1>&2 >"$OFILE" &
-gather_tocmai_ro 1>&2 >"$OFILE" &
-gather_mercador_ro 1>&2 >"$OFILE" &
-gather_imopedia_ro 1>&2 >"$OFILE" &
-gather_az_ro 1>&2 >"$OFILE" &
-
-
-
-
-
-LOCKSC=99999
-while [ $LOCKSC -gt 0 ]; do
-    LOCKS=`ls -1 "$LDIR" | sort`
-    LOCKSC=`ls -1 "$LDIR" | wc -l`
-
-    if [ $LOCKSC -gt 0 ]; then    
-        LOCKSSTR=""
-        S=""
-        for L in $LOCKS; do
-            LOCKSSTR="$LOCKSSTR$S$L(`cat $LDIR/$L`)"
-            S=", "
-        done
-        
-        DT=`date +"%Y-%m-%d %H:%M:%S"`
-        
-        COLS=`tput cols`
-        printf "\r%- ${COLS}s" "[$DT] Waiting for $LOCKSSTR to finish";
-        sleep 1.5
-    fi;
+GATHER="default"
+PROCESS="default"
+CLEANUP="default"
+while test $# -gt 0; do
+    case $1 in
+        -gather)
+            shift
+            GATHER=$1
+            ;;
+        -process)
+            shift
+            PROCESS=$1
+            ;;
+        -cleanup)
+            shift
+            CLEANUP=$1
+            ;;
+        *)
+            echo "Invalid argument: $1"
+            ;;
+    esac
+    shift
 done
-echo "";
+
+if [ "$GATHER" == "default" -o "$GATHER" == "linear" ]; then
+    # Starting background processes
+    if [ "$GATHER" == "linear" ]; then
+        echo "Starting linear processes"
+        gather_anuntul_ro
+        gather_imobiliare_ro
+        gather_tocmai_ro
+        gather_mercador_ro
+        gather_imopedia_ro
+        gather_az_ro
+    else
+        echo "Starting background processes"
+        gather_anuntul_ro 1>&2 >"$OFILE" &
+        gather_imobiliare_ro 1>&2 >"$OFILE" &
+        gather_tocmai_ro 1>&2 >"$OFILE" &
+        gather_mercador_ro 1>&2 >"$OFILE" &
+        gather_imopedia_ro 1>&2 >"$OFILE" &
+        gather_az_ro 1>&2 >"$OFILE" &
+    fi;
+    
+    
+    LOCKSC=99999
+    while [ $LOCKSC -gt 0 ]; do
+        LOCKS=`ls -1 "$LDIR" | sort`
+        LOCKSC=`ls -1 "$LDIR" | wc -l`
+    
+        if [ $LOCKSC -gt 0 ]; then    
+            LOCKSSTR=""
+            S=""
+            for L in $LOCKS; do
+                LOCKSSTR="$LOCKSSTR$S$L(`cat $LDIR/$L`)"
+                S=", "
+            done
+            
+            DT=`date +"%Y-%m-%d %H:%M:%S"`
+            
+            COLS=`tput cols`
+            printf "\r%- ${COLS}s" "[$DT] Waiting for $LOCKSSTR to finish";
+            sleep 1.5
+        fi;
+    done
+    echo "";
+fi;
+
+
+if [ "$PROCESS" == "default" ]; then
+    python ./process.py -v=1 -module "anuntul_ro"
+    python ./process.py -v=1 -module "imobiliare_ro"
+    python ./process.py -v=1 -module "tocmai_ro"
+    python ./process.py -v=1 -module "az_ro"
+    python ./process.py -v=1 -module "mercador_ro"
+    python ./process.py -v=1 -module "imopedia_ro"
+fi;
 
 
 
-
-echo "anuntul_ro->process";
-python ./process.py -v=1 -module "anuntul_ro"
-
-echo "imobiliare_ro->process";
-python ./process.py -v=1 -module "imobiliare_ro"
-
-echo "tocmai_ro->process";
-python ./process.py -v=1 -module "tocmai_ro"
-
-echo "az_ro->process";
-python ./process.py -v=1 -module "az_ro"
-
-echo "mercador_ro->process";
-python ./process.py -v=1 -module "mercador_ro"
-
-echo "imopedia_ro->process";
-python ./process.py -v=1 -module "imopedia_ro"
-
-
-echo "------------------------------------------------------------------------------------";
-echo "cleanup";
-#python ./cleanup.py -v=5 -vacuum=1
-python ./cleanup.py -v=1 -nodescription=1 -fixstatus=1 
-#python ./cleanup.py -v=5 -deleteOldItems=1 
+if [ "$CLEANUP" == "default" ]; then
+    echo "cleanup";
+    #python ./cleanup.py -v=5 -vacuum=1
+    python ./cleanup.py -v=1 -nodescription=1 -fixstatus=1 
+    #python ./cleanup.py -v=5 -deleteOldItems=1 
+fi
 
