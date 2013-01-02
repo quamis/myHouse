@@ -14,12 +14,15 @@ import logging
 import locale
 import argparse
 import datetime
+import csv
 
 class View:
 	def __init__(self, db):
 		self.db = db
+		self.csvfile = None
+		self.csvwriter = None
 		
-	def printRow(self, id, newStatus=None):
+	def printRow(self, id, args, newStatus=None):
 		#                                 0           1         2              3      4        5     6         7          8
 		data = self.db.selectAll("SELECT `category`, `source`, `description`, `url`, `price`, `id`, `status`, `addDate`, `updateDate`  FROM `data` WHERE `id`='%s'" %(id))[0]
 		data_contacts = self.db.selectAll("SELECT `key`, `value` FROM `data_contacts` WHERE `idOffer`='%s' ORDER BY `key` ASC, `value` ASC" %(id))
@@ -30,65 +33,83 @@ class View:
 		#print data_extracted
 		#print "[%2s]\t% 9s\t %s" % (row[0], row[5], row[2])
 		
-		sys.stdout.write(unicode(
-			"[% 9s]%s %s\n"+
-			"  %s\n"
-			"  % 7s EUR, \tid: %s (add:%s, upd:%s)\n") % (
-			unicode(data[0]), 
-			("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
-			unicode(data[2]), 
-			unicode(data[3]), 
-			locale.format(unicode("%.*f"), (0, data[4]), True),
-			data[5],
-			datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
-			datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  ))
-		
-		if data_extracted:
-			extr = {}
-			for k in data_extracted:
-				extr[k[0]] = k[1]
+		if args.outputFormat=="default":
+			sys.stdout.write(unicode(
+				"[% 9s]%s %s\n"+
+				"  %s\n"
+				"  % 7s EUR, \tid: %s (add:%s, upd:%s)\n") % (
+				unicode(data[0]), 
+				("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
+				unicode(data[2]), 
+				unicode(data[3]), 
+				locale.format(unicode("%.*f"), (0, data[4]), True),
+				data[5],
+				datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
+				datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  ))
 			
-			str_surface = ""
-			s = ""
-			if "surface_total" in extr and extr["surface_total"]!='':
-				str_surface+="%ssupraf. tot: %dmp" % (s, int(extr["surface_total"]))
-				s=", "
-			
-			if "surface_built" in extr and extr["surface_built"]!='':
-				str_surface+="%sconstr: %dmp" % (s, int(extr["surface_built"]))
-				s=", "
+			if data_extracted:
+				extr = {}
+				for k in data_extracted:
+					extr[k[0]] = k[1]
 				
-			if "price_per_mp_built" in extr and extr["price_per_mp_built"]!='':
-				str_surface+="%s%dEUR/mp" % (s, float(extr["price_per_mp_built"]))
-				s=", "
+				str_surface = ""
+				s = ""
+				if "surface_total" in extr and extr["surface_total"]!='':
+					str_surface+="%ssupraf. tot: %dmp" % (s, int(extr["surface_total"]))
+					s=", "
 				
-			if "rooms" in extr and extr["rooms"]!='':
-				str_surface+="%s%d camere" % (s, int(extr["rooms"]))
-				s=", "
-				
-			if str_surface!="":
-				sys.stdout.write("      %s\n" % (str_surface))
-			
-			
-			"""	
-			for k in data_extracted:
-				sys.stdout.write("      %s: %s\n" % (k[0], k[1]))
-			"""
-			
-		if data_contacts:
-			for k in data_contacts:
-				if k[0]=="phone":
-					sys.stdout.write("      %s: %s" % (k[0], re.sub("(.+)([0-9]{3})([0-9]{4})$", r'\1.\2.\3', k[1])))
-				else:
-					sys.stdout.write("      %s: %s" % (k[0], k[1]))
+				if "surface_built" in extr and extr["surface_built"]!='':
+					str_surface+="%sconstr: %dmp" % (s, int(extr["surface_built"]))
+					s=", "
+					
+				if "price_per_mp_built" in extr and extr["price_per_mp_built"]!='':
+					str_surface+="%s%dEUR/mp" % (s, float(extr["price_per_mp_built"]))
+					s=", "
+					
+				if "rooms" in extr and extr["rooms"]!='':
+					str_surface+="%s%d camere" % (s, int(extr["rooms"]))
+					s=", "
+					
+				if str_surface!="":
+					sys.stdout.write("      %s\n" % (str_surface))
 				
 				
-		if newStatus is not None:
-			self.db.execute("UPDATE `data` SET `status`='%s' WHERE `id`='%s'" % (newStatus, id))
-			self.db.flushRandom(0.001)
-			sys.stdout.write("\n      ~UPDATED to '%s'\n" % (newStatus))
-		
-		sys.stdout.write("\n\n")
+				"""	
+				for k in data_extracted:
+					sys.stdout.write("      %s: %s\n" % (k[0], k[1]))
+				"""
+				
+			if data_contacts:
+				for k in data_contacts:
+					if k[0]=="phone":
+						sys.stdout.write("      %s: %s" % (k[0], re.sub("(.+)([0-9]{3})([0-9]{4})$", r'\1.\2.\3', k[1])))
+					else:
+						sys.stdout.write("      %s: %s" % (k[0], k[1]))
+						
+					
+			if newStatus is not None:
+				self.db.execute("UPDATE `data` SET `status`='%s' WHERE `id`='%s'" % (newStatus, id))
+				self.db.flushRandom(0.001)
+				sys.stdout.write("\n      ~UPDATED to '%s'\n" % (newStatus))
+			
+			sys.stdout.write("\n\n")
+		elif args.outputFormat=="csv":
+			if self.csvfile is None:
+				self.csvfile = open('output.csv', 'wb')
+				self.csvwriter = csv.writer(self.csvfile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+				self.csvwriter.writerow(['id', 'category', 'source', 'status', 'description', 'url', 'price', 'addDate', 'updateDate'])
+			
+			self.csvwriter.writerow([
+				unicode(data[5]),
+				unicode(data[0]),
+				unicode(data[1]),
+				unicode(data[6]),
+				unicode(data[2]),
+				unicode(data[3]),
+				"%d EUR" % (data[4]),
+				datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'),
+				datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')
+			])
 	
 	
 	def filter(self, args):
@@ -174,9 +195,12 @@ class View:
 		print "-----------------------------------------------"
 		
 		results = self.db.selectAll(sql)
+		total=0
 		for row in results:
-			self.printRow(row[0], args.newStatus)
+			total+=1
+			self.printRow(row[0], args, args.newStatus)
 			
+		print "\n\nTotal: %d" % (total)
 		self.db.close()
 
 	
@@ -197,6 +221,7 @@ parser.add_argument('-status', 		dest='status', 		action='append', 	type=str, de
 parser.add_argument('--profile', 	dest='profile', 	action='store', 	type=str, default="default",help='internal profile to use')
 parser.add_argument('--newStatus', 	dest='newStatus', 	action='store', 	type=str, default=None,		help='?')
 parser.add_argument('--mark', 		dest='newStatus', 	action='store', 	type=str, default=None,		help='?')
+parser.add_argument('--outputFormat',dest='outputFormat',action='store', 	type=str, default="default",help='?')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
@@ -212,19 +237,19 @@ if args.profile=="none":
 elif args.profile=="default":
 	args.maxPrice = 70000
 	args.minPrice = 30000
-elif args.profile=="casa-leonida":
+elif args.profile=="case-leonida":
 	args.area = [ "Aparatorii Patriei", "Leonida", "Berceni", "Oltenitei", "Alexandru Obregia", "Obregia", "Popesti Leordeni" ]
 	#args.text = [ "metrou" ]
 	args.category = [ "case-vile" ]
 	args.maxPrice = 70000
 	args.minPrice = 30000
-elif args.profile=="casa-titan":
-	args.area = [ "Titan", "Auchan", "Cora", "Dristor", "1 Decembrie", "23 August", "Baba Novac", "Grigorescu", "Nic% grigorescu", "Republica" ] # "Pantelimon", 
+elif args.profile=="case-titan":
+	args.area = [ "Titan", "Auchan", "Cora", "Dristor", "1 Decembrie", "23 August", "Baba Novac", "Grigorescu", "Nic% grigorescu", "Republica", "IOR", "I.O.R." ] # "Pantelimon", 
 	#args.text = [ "metrou" ]
 	args.category = [ "case-vile" ]
 	args.maxPrice = 70000
 	args.minPrice = 30000
-elif args.profile=="casa-1mai":
+elif args.profile=="case-1mai":
 	args.area = [ "Bucuresti Noi", "1 Mai", "Parc Bazilescu", "Bazilescu", "Pajura" ]
 	#args.text = [ "metrou" ]
 	args.category = [ "case-vile" ]
@@ -232,7 +257,11 @@ elif args.profile=="casa-1mai":
 	args.minPrice = 30000
 elif args.profile=="case-noi":
 	#args.text = [ "metrou" ]
-	args.narea = [ "Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin" ]
+	args.narea = [
+				"Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin", 
+				"Branesti", "Islaz", "Vlasiei", "Peris", "Snagov", "Domnesti", "Telega", "Cernica", "Cucuieti", "Plataresti", "Vlasca", "Mihailesti", "Mogosoaia", "Urziceni", "Ciocanesti", "Buftea", "Ciolpani", 
+				"Frumusani", "Clinceni", "Buturugeni", "Vidra", "Baneasa", "Otopeni", "Tanganu", "Ordoreanu", "Bolintin", "Darasti", "Tamadaul Mare", "Corbeanca"
+	]
 	args.ntext = [ "comuna" ]
 	args.category = [ "case-vile" ]
 	args.maxPrice = 70000
@@ -240,7 +269,11 @@ elif args.profile=="case-noi":
 	args.agea = 1.5
 elif args.profile=="case-noi-metrou":
 	#args.text = [ "metrou" ]
-	args.narea = [ "Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin" ]
+	args.narea = [
+				"Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin", 
+				"Branesti", "Islaz", "Vlasiei", "Peris", "Snagov", "Domnesti", "Telega", "Cernica", "Cucuieti", "Plataresti", "Vlasca", "Mihailesti", "Mogosoaia", "Urziceni", "Ciocanesti", "Buftea", "Ciolpani", 
+				"Frumusani", "Clinceni", "Buturugeni", "Vidra", "Baneasa", "Otopeni", "Tanganu", "Ordoreanu", "Bolintin", "Darasti", "Tamadaul Mare", "Corbeanca" 
+	]
 	args.ntext = [ "comuna" ]
 	args.text = [ "metrou" ]
 	args.category = [ "case-vile" ]
@@ -249,9 +282,27 @@ elif args.profile=="case-noi-metrou":
 	args.agea = 1.5
 elif args.profile=="case-valide":
 	#args.text = [ "metrou" ]
-	args.narea = [ "Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin" ]
+	args.narea = [ 	
+				"Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin", 
+				"Branesti", "Islaz", "Vlasiei", "Peris", "Snagov", "Domnesti", "Telega", "Cernica", "Cucuieti", "Plataresti", "Vlasca", "Mihailesti", "Mogosoaia", "Urziceni", "Ciocanesti", "Buftea", "Ciolpani", 
+				"Frumusani", "Clinceni", "Buturugeni", "Vidra", "Baneasa", "Otopeni", "Tanganu", "Ordoreanu", "Bolintin", "Darasti", "Tamadaul Mare", "Corbeanca"
+	]
 	args.ntext = [ "comuna" ]
 	args.category = [ "case-vile" ]
+	args.maxPrice = 70000
+	args.minPrice = 30000
+	args.age = 1.5
+	args.agea = 90
+elif args.profile=="apt-4-cam:metrou":
+	args.text = [ "metrou" ]
+	args.category = [ "apt-4-cam" ]
+	args.maxPrice = 70000
+	args.minPrice = 30000
+	args.age = 1.5
+	args.agea = 90
+elif args.profile=="apt-3-cam:metrou":
+	args.text = [ "metrou" ]
+	args.category = [ "apt-3-cam" ]
 	args.maxPrice = 70000
 	args.minPrice = 30000
 	args.age = 1.5
