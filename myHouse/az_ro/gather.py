@@ -118,7 +118,10 @@ class newGatherer(base.gather.Extractor ):
                 try:
                     locations =     re.sub(" (-|\/) Ilfov", "", re.sub("Localitate", "", self.xpath_getTexts(tree, ".//*[@id='specs']/li/strong[contains(text(), 'Localitate')]/../*/text()"))).strip()
                     m = re.match("(?P<loc1>[^\n]+)\n(?P<loc2>[^\n]+)", locations)
-                    location = m.group("loc2") + " - " + m.group("loc1")
+                    location = ""
+                    if m:
+                        location =  m.group("loc2") + " - " + m.group("loc1")
+                        
                     text =          re.sub("[\s]+", " ", location + ", " + self.xpath_getTexts(tree, ".//div[contains(@class, 'az-content-body')]//text()"))
                     contact =       self.xpath_getOne(tree, ".//div[contains(@class, 'az-content-contact')]/span[contains(@class, 'act-phone')]/a/text()")
                     pret =          re.sub("[^0-9]", "", re.sub("Pret:", "", self.xpath_getOne(tree, ".//div[contains(@class, 'az-price')]/text()")))
