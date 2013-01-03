@@ -192,7 +192,7 @@ class Cleanup:
 		
 		for index in range(len(rows)):
 			row = rows[index]
-			updated = "."
+			updated = ""
 			delete = False
 			
 			if index in duplicateRowsIndexesToHide:
