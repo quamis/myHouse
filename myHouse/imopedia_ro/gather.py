@@ -11,13 +11,8 @@ class newGatherer(base.gather.Extractor ):
     def __init__(self, category, url, db, cache, args):
         super(newGatherer, self).__init__(category, url, db, cache, args)
         
-        self.db.tableCreate("imopedia_ro_links", { 
-            "id":             "VARCHAR(256)",
-            "url":            "VARCHAR(256)",
-        }, ["id"])
-        
         self.db.tableCreate("imopedia_ro_data", { 
-            "id":             "VARCHAR(64)",
+            "id":             "VARCHAR(32)",
             "category":       "VARCHAR(64)",
             "url":            "VARCHAR(256)",
             "location":       "VARCHAR(256)",
@@ -27,6 +22,8 @@ class newGatherer(base.gather.Extractor ):
             "addDate":        "INT",
             "updateDate":     "INT",
         }, ["id"])
+        
+        self.table_data = "imopedia_ro_data"
         
         
     def extractPaginationUrls(self, html):
@@ -124,7 +121,8 @@ class newGatherer(base.gather.Extractor ):
                 self.debug_print("wget-cached", link)
                 
                 
-            if(html): # TODO: in wget do a throw-exception, thats why we have the above try-catch!!
+            idstr = self.hash(link)
+            if html and self.updateIfExists(idstr, timestamp):
                 # extract data from the selected page
                 try:
                     tree   = etree.HTML(html)
@@ -160,7 +158,6 @@ class newGatherer(base.gather.Extractor ):
                     if re.search("^[\s]*$", description):
                         raise Exception("This description is empty. Ignoring")
     
-                    idstr = self.hash(link)
                     self.writeItem({ 
                         "id":             idstr,
                         "category":       self.category,
@@ -175,11 +172,3 @@ class newGatherer(base.gather.Extractor ):
                 except Exception:
                     self.debug_print("parse-failed")
 
-
-    def writeItem(self, item):
-        if(self.db.itemExists("imopedia_ro_data", item['id'])):
-            self.db.itemUpdate("imopedia_ro_data",{ "id": item['id'], "updateDate":     item['updateDate'], })
-        else:
-            self.db.itemInsert("imopedia_ro_data", item)
-            self.db.flushRandom(0.025)
-        

@@ -18,6 +18,8 @@ class Extractor(object):
         self.br = None
         self.conv_EURRON = 4.55
         
+        self.table_data = None
+        
         self.lastCallTime = datetime.datetime.now()
         
     def xpath_getOne(self, tree, xpath):
@@ -87,18 +89,34 @@ class Extractor(object):
         digest = ident.hexdigest()
         number = int(digest, 16) % 0xffffffff
         return numconv.int2str(number, 64)
-            
+
+
+
+    def updateIfExists(self, idstr, updateDate):
+        if(self.db.itemExists(self.table_data, idstr)):
+            self.db.itemUpdate(self.table_data,{ "id": idstr,   "updateDate":     updateDate, })
+            return False
+        return True
+    
+    def writeItem(self, item):
+        if(self.db.itemExists(self.table_data, item['id'])):
+            self.db.itemUpdate(self.table_data,{ "id": item['id'], "updateDate":     item['updateDate'], })
+        else:
+            self.db.itemInsert(self.table_data, item)
+            self.db.flushRandom(0.010)
+        
+                    
     
     def wait(self, reason): 
         # TODO: configure sleep period from the command-line/system specific args
         if reason=="new-page" or reason=="new-offer":
-			try:
-				now = datetime.datetime.now()
-				remainingSleep = max(0, self.args.sleep - (now - self.lastCallTime).total_seconds())
-				self.lastCallTime = now 
-				time.sleep(remainingSleep)
-			except AttributeError:
-				time.sleep(random.random()*self.args.sleep)
+            try:
+                now = datetime.datetime.now()
+                remainingSleep = max(0, self.args.sleep - (now - self.lastCallTime).total_seconds())
+                self.lastCallTime = now 
+                time.sleep(remainingSleep)
+            except AttributeError:
+                time.sleep(random.random()*self.args.sleep)
         else:
             time.sleep(random.random()*self.args.sleep)
             
@@ -143,6 +161,12 @@ class Extractor(object):
             
         self.debug_print("wget-done")
         return html
+    
+    
+    
+    
+    
+    
     
     def debug_print(self, result, extra=None):
         # 0 = none, 1: only importans, 2: dots, 3: debug

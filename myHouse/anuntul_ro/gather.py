@@ -10,21 +10,18 @@ class newGatherer(base.gather.Extractor ):
     def __init__(self, category, url, db, cache, args):
         super(newGatherer, self).__init__(category, url, db, cache, args)
         
-        self.db.tableCreate("anuntul_ro_links", { 
-            "id":             "VARCHAR(256)",
-            "url":             "VARCHAR(256)",
+        self.db.tableCreate("anuntul_ro_data", { 
+            "id":               "VARCHAR(32)",
+            "category":         "VARCHAR(64)",
+            "url":              "VARCHAR(256)",
+            "contact":          "VARCHAR(256)",
+            "price":            "INT",
+            "description":      "TEXT",
+            "addDate":          "INT",
+            "updateDate":       "INT",
         }, ["id"])
         
-        self.db.tableCreate("anuntul_ro_data", { 
-            "id":             "VARCHAR(64)",
-            "category":     "VARCHAR(64)",
-            "url":             "VARCHAR(256)",
-            "contact":         "VARCHAR(256)",
-            "price":         "INT",
-            "description":     "TEXT",
-            "addDate":         "INT",
-            "updateDate":     "INT",
-        }, ["id"])
+        self.table_data = "anuntul_ro_data"
         
         
     def extractPaginationUrls(self, html):
@@ -106,7 +103,8 @@ class newGatherer(base.gather.Extractor ):
                 self.debug_print("wget-cached", link)
                 
             # extract data from the selected page
-            if(html):
+            idstr = self.hash(link)
+            if html and self.updateIfExists(idstr, timestamp):
                 strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
                 html = strip_unicode.sub('', html)
                 tree   = etree.HTML(html)
@@ -133,11 +131,4 @@ class newGatherer(base.gather.Extractor ):
                     })
                 except IndexError as e:
                     self.debug_print("parse-failed", e)
-
-    def writeItem(self, item):
-        if(self.db.itemExists("anuntul_ro_data", item['id'])):
-            self.db.itemUpdate("anuntul_ro_data",{ "id": item['id'], "updateDate":     item['updateDate'], })
-        else:
-            self.db.itemInsert("anuntul_ro_data", item)
-            self.db.flushRandom(0.025)
-        
+    
