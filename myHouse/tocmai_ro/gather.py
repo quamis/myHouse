@@ -81,6 +81,8 @@ class newGatherer(base.gather.Extractor ):
         cachePrefix = self.getCachePrefix("links")
         while gotNewPage:
             gotNewPage = False
+            self.sortPagesList(completePagesList)
+            
             for link in completePagesList:
                 if not self.linkAlreadyLoaded(link, gotPagesList): 
                     html = self.cache.get(cachePrefix+link)

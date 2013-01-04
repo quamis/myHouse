@@ -1,5 +1,6 @@
 import logging
 import sys
+import re
 import random, time
 import mechanize
 import cookielib
@@ -46,6 +47,20 @@ class Extractor(object):
         else:
             return ""
     
+    
+    def _custom_sort_natcasesort(self, text):
+        def xxatoi(text):
+            return int(text) if text.isdigit() else text.lower()
+        
+        '''
+        alist.sort(key=natural_keys) sorts in human order
+        http://nedbatchelder.com/blog/200712/human_sorting.html
+        (See Toothy's implementation in the comments)
+        @see http://stackoverflow.com/questions/14162838/python-equivalent-to-php-natcasesort
+        @see http://stackoverflow.com/questions/4836710/does-python-have-a-built-in-function-for-string-natural-sort
+        '''    
+        return [ xxatoi(c) for c in re.split('(\d+)', text) ]
+    
     def removeDuplicates(self, pagesList):
         keys = {}
         for e in pagesList:
@@ -54,6 +69,10 @@ class Extractor(object):
         pagesList.sort()
         return pagesList
     
+    def sortPagesList(self, pagesList):
+        pagesList.sort( key=self._custom_sort_natcasesort )
+        return pagesList
+        
     def printPagesList(self, pagesList):
         for link in pagesList:
             print link

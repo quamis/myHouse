@@ -63,6 +63,8 @@ class newGatherer(base.gather.Extractor ):
         cachePrefix = self.getCachePrefix("page")
         while gotNewPage:
             gotNewPage = False
+            self.sortPagesList(completePagesList)
+            
             for link in completePagesList:
                 if re.match("^http", link) is None:
                     link = "http://imopedia.ro"+link

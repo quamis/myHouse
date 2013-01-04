@@ -52,6 +52,8 @@ class newGatherer(base.gather.Extractor ):
         cachePrefix = self.getCachePrefix("links")
         while gotNewPage:
             gotNewPage=False
+            self.sortPagesList(completePagesList)
+            
             for link in completePagesList:
                 if link not in gotPagesList: 
                     html = self.cache.get(cachePrefix+link)
@@ -79,6 +81,7 @@ class newGatherer(base.gather.Extractor ):
                         
                     gotNewPage = True
                     #gotNewPage = False
+
         return [completePagesList, detailedPagesList]
         
     
