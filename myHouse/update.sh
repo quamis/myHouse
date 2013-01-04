@@ -229,7 +229,6 @@ if [ "$CLEANUP" == "default" ]; then
     printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup\n"
     #./cleanup.py -v=5 -vacuum=1
     ./cleanup.py -v=1 -nodescription=1 -fixstatus=1 
-    ./cleanup.py -v=5 -deleteOldItems=1 
     
     for src in "${SOURCES[@]}";do
         printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup: %s\n" "$src"
@@ -238,5 +237,7 @@ if [ "$CLEANUP" == "default" ]; then
         ./cleanup.py -module="${src}"
     done
     printf "\n"
+    
+    ./cleanup.py -v=5 -deleteOldItems=1
 fi
 
