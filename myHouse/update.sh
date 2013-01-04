@@ -142,6 +142,7 @@ while test $# -gt 0; do
             ;;
         *)
             echo "Invalid argument: $1"
+            exit
             ;;
     esac
     shift
