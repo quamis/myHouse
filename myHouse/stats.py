@@ -98,12 +98,12 @@ class Stats:
 	def printGeneralData(self, stats):
 		sys.stdout.write("\n\n Sources: ")
 		s = ""
-		for src in stats['source']:
+		for src in sorted(stats['source'].iterkeys()):
 			sys.stdout.write("%s %s(%s)" % (s, src, locale.format("%.*f", (0, stats['source'][src]), True)))
 			s = ","
 			
 		sys.stdout.write("\n\n Categories: ")
-		for src in stats['categories']:
+		for src in sorted(stats['categories'].iterkeys()):
 			sys.stdout.write("\n\t%s: \t% 5s \tmedia % 7s EUR (% 7s EUR)" % (src, 
 				locale.format("%.*f", (0, stats['categories'][src]), True), 
 				locale.format("%.*f", (0, stats['price_per_category:mean'][src]), True),
