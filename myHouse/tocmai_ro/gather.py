@@ -84,7 +84,7 @@ class newGatherer(base.gather.Extractor ):
             self.sortPagesList(completePagesList)
             
             for link in completePagesList:
-                if not self.linkAlreadyLoaded(link, gotPagesList): 
+                if not self.linkAlreadyLoaded(link, gotPagesList):
                     html = self.cache.get(cachePrefix+link)
                     if(html is None):
                         try:
@@ -123,7 +123,6 @@ class newGatherer(base.gather.Extractor ):
             linkIndex+=1
             html = self.cache.get(cachePrefix+link)
             if(html is None):
-#                
                 try:
                     html = self.wget(link)
                     self.cache.set(cachePrefix+link, html)
