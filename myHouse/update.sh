@@ -39,7 +39,7 @@ function gather_anuntul_ro(){
 
 
 function gather_imobiliare_ro(){
-    local SLEEP="0.5"
+    local SLEEP="0.75"
     local V=5
     do_lock "imobiliare_ro" "case-vile"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="real" -module "imobiliare_ro" -category "case-vile" -url "http://www.imobiliare.ro/vanzare-case-vile/bucuresti"
@@ -50,7 +50,7 @@ function gather_imobiliare_ro(){
     do_lock "imobiliare_ro" "apt-3-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="real" -module "imobiliare_ro" -category "apt-3-cam" -url "http://www.imobiliare.ro/vanzare-apartamente/bucuresti?nrcamere=3"
     
-    do_lock "imobiliare_ro" "apt-2-cam"
+    do_lock "imobiliare_ro" "apt-4-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="real" -module "imobiliare_ro" -category "apt-4-cam" -url "http://www.imobiliare.ro/vanzare-apartamente/bucuresti?nrcamere=4"
     
     do_unlock "imobiliare_ro"
@@ -66,10 +66,10 @@ function gather_tocmai_ro(){
     do_lock "tocmai_ro" "apt-2-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "tocmai_ro" -category "apt-2-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=2&img=1"
     
-    do_lock "tocmai_ro" "apt-2-cam"
+    do_lock "tocmai_ro" "apt-3-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "tocmai_ro" -category "apt-3-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=3&img=1"
     
-    do_lock "tocmai_ro" "apt-2-cam"
+    do_lock "tocmai_ro" "apt-4-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "tocmai_ro" -category "apt-4-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=4&img=1"
     
     do_unlock "tocmai_ro"
@@ -159,6 +159,7 @@ echo "[$DT] updater started"
 SOURCES=( "anuntul_ro" "imobiliare_ro" "tocmai_ro" "mercador_ro" "imopedia_ro" "az_ro" )
 #SOURCES=( "anuntul_ro" )
 #SOURCES=( "imopedia_ro" )
+#SOURCES=( "tocmai_ro" )
 
 
 if [ "$GATHER" == "default" -o "$GATHER" == "linear" ]; then
@@ -227,17 +228,24 @@ fi;
 
 if [ "$CLEANUP" == "default" ]; then
     printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup\n"
-    #./cleanup.py -v=5 -vacuum=1
-    ./cleanup.py -v=1 -nodescription=1 -fixstatus=1 
+    ./cleanup.py -v=5 -nodescription=1 -fixstatus=1 
+    ./cleanup.py -v=5 -deleteOldItems=1
+    ./cleanup.py -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=1 -dup_minAutoMatch=0.999
+    
+else if [ "$CLEANUP" == "thorough" ]; then
+    printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup\n"
+    #./cleanup.py -v=5 -vacuum=1        <-- this actually deletes items from the DB, dont use it!!!
+    ./cleanup.py -v=5 -nodescription=1 -fixstatus=1 
     
     for src in "${SOURCES[@]}";do
         printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup: %s\n" "$src"
         
         # do the actual call
-        ./cleanup.py -module="${src}"
+        ./cleanup.py -module="${src}" -vacuum=1
     done
     printf "\n"
     
     ./cleanup.py -v=5 -deleteOldItems=1
+    ./cleanup.py -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=10 -dup_minAutoMatch=0.990
 fi
-
+fi
