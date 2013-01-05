@@ -242,19 +242,19 @@ class Cleanup:
 
 	
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
-parser.add_argument('-nodescription', 	dest='nodescription', 	action='store', 	type=int, default=0,	help='remove items with no description')
-parser.add_argument('-fixstatus', 		dest='fixstatus', 		action='store', 	type=int, default=0,	help='fix status=None')
-parser.add_argument('-deleteOldItems', 	dest='deleteOldItems', 	action='store', 	type=int, default=0,	help='delete old items')
-parser.add_argument('-vacuum', 			dest='vacuum', 			action='store', 	type=int, default=0,	help='delete old items')
+parser.add_argument('-nodescription', 	dest='nodescription', 	action='store', 	type=int, default=0,			help='remove items with no description')
+parser.add_argument('-fixstatus', 		dest='fixstatus', 		action='store', 	type=int, default=0,			help='fix status=None')
+parser.add_argument('-deleteOldItems', 	dest='deleteOldItems', 	action='store', 	type=int, default=0,			help='delete old items')
+parser.add_argument('-vacuum', 			dest='vacuum', 			action='store', 	type=int, default=0,			help='delete old items')
 
-parser.add_argument('-dup_apply',		dest='dup_apply',		action='store', 	type=int, default=1,help='debug swith to be able to disabele applying updated to duplicates found')
-parser.add_argument('-dup_algorithm_c',	dest='dup_algorithm_c', action='store', 	type=str, default='disabled',help='used algorithm for duplicates detection(cleanup method), defaults to disabled. values: disabled, desc:0, desc:1, desc:2')
-parser.add_argument('-dup_algorithm_s',	dest='dup_algorithm_s', action='store', 	type=str, default='disabled',help='used algorithm for duplicates detection(sort algorithm), defaults to disabled. values: disabled, 1.7.2, 7.2, len')
-parser.add_argument('-dup_windowSize', 	dest='dup_windowSize', 	action='store', 	type=int, default=5,	help='duplicates window size(will get doubled internally)')
-parser.add_argument('-dup_minAutoMatch',dest='dup_minAutoMatch',action='store', 	type=float, default=0.99,help='duplicates match percent(DO NOT SET THIS BELOW 0.80)')
+parser.add_argument('-dup_apply',		dest='dup_apply',		action='store', 	type=int, default=1,			help='debug swith to be able to disabele applying updated to duplicates found')
+parser.add_argument('-dup_algorithm_c',	dest='dup_algorithm_c', action='store', 	type=str, default='disabled',	help='used algorithm for duplicates detection(cleanup method), defaults to disabled. values: disabled, desc:0, desc:1, desc:2')
+parser.add_argument('-dup_algorithm_s',	dest='dup_algorithm_s', action='store', 	type=str, default='disabled',	help='used algorithm for duplicates detection(sort algorithm), defaults to disabled. values: disabled, 1.7.2, 7.2, len')
+parser.add_argument('-dup_windowSize', 	dest='dup_windowSize', 	action='store', 	type=int, default=5,			help='duplicates window size(will get doubled internally)')
+parser.add_argument('-dup_minAutoMatch',dest='dup_minAutoMatch',action='store', 	type=float, default=0.99,		help='duplicates match percent(DO NOT SET THIS BELOW 0.80)')
 
-parser.add_argument('-module',  dest='module',        action='store', type=str, default=None,     help='used module')
-parser.add_argument('-v',       		dest='verbosity',     	action='store', 	type=int, default='1', help='[default: 1] verbosity')
+parser.add_argument('-module',  		dest='module',        	action='store', 	type=str, default=None,     	help='used module')
+parser.add_argument('-v',       		dest='verbosity',     	action='store', 	type=int, default='1', 			help='[default: 1] verbosity')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
