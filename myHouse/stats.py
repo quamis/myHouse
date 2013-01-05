@@ -73,8 +73,7 @@ class Stats:
 		stats['timeSinceDisappeared'] = numpy.mean(timeSinceDisappeared)/(60*60*24)
 		
 		self.db.selectEnd(rows)
-		print stats
-		self.printStats(stats)
+		return stats
 		
 	def printStats(self, stats):
 		sys.stdout.write("\n\n Sources: ")
@@ -124,7 +123,7 @@ class Stats:
 		sys.stdout.write("\n\n Times: %d days alive, appeared %d days ago, dissapeared %d days ago" % (stats['alivePeriod'], stats['timeSinceAppeared'], stats['timeSinceDisappeared']))
 	
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
-parser.add_argument('-minPrice', 	dest='minPrice', 	action='store', 	type=int, default=30000,	help='min price to match')
+parser.add_argument('-byDate', 	dest='byDate', 	action='store', 	type=str, default="day",	help='')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
@@ -135,6 +134,6 @@ sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 db = DB("../db/main.sqlite")
 stats = Stats(db)
-stats.extract(args)
+stats.printStats(stats.extract(args))
 sys.stdout.write("\n")
 raise SystemExit
