@@ -17,12 +17,12 @@ import datetime
 import csv
 
 class View:
-	def __init__(self, db):
+	def __init__(self, db, args):
 		self.db = db
-		self.csvfile = None
-		self.csvwriter = None
+		self.args = args
+		self.heap = {}
 		
-	def printRow(self, id, args, newStatus=None):
+	def printRow(self, id):
 		#                                 0           1         2              3      4        5     6         7          8
 		data = self.db.selectAll("SELECT `category`, `source`, `description`, `url`, `price`, `id`, `status`, `addDate`, `updateDate`  FROM `data` WHERE `id`='%s'" %(id))[0]
 		data_contacts = self.db.selectAll("SELECT `key`, `value` FROM `data_contacts` WHERE `idOffer`='%s' ORDER BY `key` ASC, `value` ASC" %(id))
@@ -33,7 +33,7 @@ class View:
 		#print data_extracted
 		#print "[%2s]\t% 9s\t %s" % (row[0], row[5], row[2])
 		
-		if args.outputFormat=="default":
+		if self.args.outputFormat=="default":
 			sys.stdout.write(unicode(
 				"[% 9s]%s %s\n"+
 				"  %s\n"
@@ -87,121 +87,129 @@ class View:
 						sys.stdout.write("      %s: %s" % (k[0], k[1]))
 						
 					
-			if newStatus is not None:
-				self.db.execute("UPDATE `data` SET `status`='%s' WHERE `id`='%s'" % (newStatus, id))
+			if self.args.newStatus is not None:
+				self.db.execute("UPDATE `data` SET `status`='%s' WHERE `id`='%s'" % (self.args.newStatus, id))
 				self.db.flushRandom(0.001)
-				sys.stdout.write("\n      ~UPDATED to '%s'\n" % (newStatus))
+				sys.stdout.write("\n      ~UPDATED to '%s'\n" % (self.args.newStatus))
 			
 			sys.stdout.write("\n\n")
-		elif args.outputFormat=="csv":
-			if self.csvfile is None:
-				self.csvfile = open('output.csv', 'wb')
-				self.csvwriter = csv.writer(self.csvfile, delimiter=';', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-				self.csvwriter.writerow(['id', 'category', 'source', 'status', 'description', 'url', 'price', 'addDate', 'updateDate'])
+		elif self.args.outputFormat=="csv":
+			fmt = "'%s','%s','%s','%s','%s','%s','%s','%s','%s'\n"
+			if 'headerWritten' not in self.heap:
+				sys.stdout.write(fmt % ('id', 'category', 'source', 'status', 'description', 'url', 'price', 'addDate', 'updateDate'))
 			
-			self.csvwriter.writerow([
-				unicode(data[5]),
-				unicode(data[0]),
-				unicode(data[1]),
-				unicode(data[6]),
-				unicode(data[2]),
-				unicode(data[3]),
-				"%d EUR" % (data[4]),
-				datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'),
-				datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')
-			])
+			def format(text):
+				return re.sub("'", "\\'", unicode(text))
+			
+			sys.stdout.write(fmt % (
+				format(data[5]),
+				format(data[0]),
+				format(data[1]),
+				format(data[6]),
+				format(data[2]),
+				format(data[3]),
+				format("%d EUR" % (data[4])),
+				format(datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d')),
+				format(datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d'))
+			))
+			
+	def printHeader(self):
+		pass
+
+	def printFooter(self, stats):
+		if self.args.outputFormat=="default":
+			print "\n\nTotal: %d" % (stats['total'])
 	
-	
-	def filter(self, args):
+	def filter(self):
 		#              0     1           2         3        4          5             6         7
 		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`  FROM `data` WHERE 1" \
 			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide', 'old') )" \
 		
-		if(args.id):
+		if(self.args.id):
 			sql+=" AND( 0 "
-			for k in args.id:
+			for k in self.args.id:
 				sql+=" OR `id` LIKE '%s'" % (k)
 			sql+=")"
 		else:
-			if(args.area):
+			if(self.args.area):
 				sql+="/*area*/ AND( 0 "
-				for k in args.area:
+				for k in self.args.area:
 					sql+=" OR `description` LIKE '%s%%'" % (k)
 				sql+=")"
 				
-			if(args.narea):
+			if(self.args.narea):
 				sql+="/*narea*/ AND( 1 "
-				for k in args.narea:
+				for k in self.args.narea:
 					sql+=" AND `description` NOT LIKE '%s%%'" % (k)
 				sql+=")"
 				
-			if(args.text):
+			if(self.args.text):
 				sql+="/*text*/ AND( 0 "
-				for k in args.text:
+				for k in self.args.text:
 					sql+=" OR `description` LIKE '%%%s%%'" % (k)
 				sql+=")"
 					
-			if(args.ntext):
+			if(self.args.ntext):
 				sql+="/*ntext*/ AND( 1 "
-				for k in args.ntext:
+				for k in self.args.ntext:
 					sql+=" AND `description` NOT LIKE '%%%s%%'" % (k)
 				sql+=")"
 			
-			if(args.ftext):
+			if(self.args.ftext):
 				sql+="/*ftext*/ AND( 1 "
-				for k in args.ftext:
+				for k in self.args.ftext:
 					sql+=" AND `description` LIKE '%%%s%%'" % (k)
 				sql+=")"
 				
-			if(args.category):
+			if(self.args.category):
 				sql+="/*category*/ AND( 0 "
-				for k in args.category:
+				for k in self.args.category:
 					sql+=" OR `category`='%s'" % (k)
 				sql+=")"
 			
-			if(args.ncategory):
+			if(self.args.ncategory):
 				sql+="/*ncategory*/ AND( 0 "
-				for k in args.ncategory:
+				for k in self.args.ncategory:
 					sql+=" OR NOT(`category`='%s')" % (k)
 				sql+=")"
 			
 			
-			if(args.minPrice):
-				sql+=" AND `price` > '%d'" % (args.minPrice)
+			if(self.args.minPrice):
+				sql+=" AND `price` > '%d'" % (self.args.minPrice)
 				
-			if(args.maxPrice):
-				sql+=" AND `price` < '%d'" % (args.maxPrice)
+			if(self.args.maxPrice):
+				sql+=" AND `price` < '%d'" % (self.args.maxPrice)
 				
 				
-			if(args.age):
-				dt = date.today()-timedelta(days=args.age)
+			if(self.args.age):
+				dt = date.today()-timedelta(days=self.args.age)
 				sql+=" AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
 			
-			if(args.agea):
-				dt = date.today()-timedelta(days=args.agea)
+			if(self.args.agea):
+				dt = date.today()-timedelta(days=self.args.agea)
 				sql+=" AND `addDate`>%d" % (time.mktime(dt.timetuple()))
 				
 				
-			if(args.status and args.status!=""):
+			if(self.args.status and self.args.status!=""):
 				sql+="/*status*/ AND( 0 "
-				for k in args.status:
+				for k in self.args.status:
 					sql+=" OR `status`='%s'" % (k)
 				sql+=")"
 		
 		
 		sql+= " ORDER BY `price` ASC, `description` ASC"
 		
-		print sql
-		print "-----------------------------------------------"
-		
+		stats = {}
 		results = self.db.selectAll(sql)
-		total=0
+		stats['total'] = 0
+		self.printHeader()
 		for row in results:
-			total+=1
-			self.printRow(row[0], args, args.newStatus)
-			
-		print "\n\nTotal: %d" % (total)
-		self.db.close()
+			stats['total']+=1
+			self.printRow(row[0])
+		
+		self.db.close()	
+		self.printFooter(stats)
+	
 
 	
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
@@ -316,7 +324,7 @@ else:
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 db = DB("../db/main.sqlite")
-viewer = View(db)
-viewer.filter(args)
+viewer = View(db, args)
+viewer.filter()
 
 raise SystemExit
