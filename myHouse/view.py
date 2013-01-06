@@ -96,6 +96,7 @@ class View:
 		elif self.args.outputFormat=="csv":
 			fmt = "'%s','%s','%s','%s','%s','%s','%s','%s','%s'\n"
 			if 'headerWritten' not in self.heap:
+				self.heap['headerWritten'] = True
 				sys.stdout.write(fmt % ('id', 'category', 'source', 'status', 'description', 'url', 'price', 'addDate', 'updateDate'))
 			
 			def format(text):
