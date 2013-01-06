@@ -94,13 +94,35 @@ class View:
 			
 			sys.stdout.write("\n\n")
 		elif self.args.outputFormat=="csv":
-			fmt = "'%s','%s','%s','%s','%s','%s','%s','%s','%s'\n"
+			fmt = '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"'+"\n"
 			if 'headerWritten' not in self.heap:
 				self.heap['headerWritten'] = True
-				sys.stdout.write(fmt % ('id', 'category', 'source', 'status', 'description', 'url', 'price', 'addDate', 'updateDate'))
+				sys.stdout.write(fmt % ('id', 'category', 'source', 'status', 'description', 'url', 'price', 'currency', 'addDate', 'updateDate'))
+			
+			def smart_truncate(content, length=100, suffix='...'):
+			    if len(content) <= length:
+			        return content
+			    else:
+			        return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+			
+			def wordwrap(text, width):
+			    """
+			    A word-wrap function that preserves existing line breaks
+			    and most spaces in the text. Expects that existing line
+			    breaks are posix newlines (\n).
+			    """
+			    return reduce(lambda line, word, width=width: '%s%s%s' %
+					 (line,
+					  ' \n'[(len(line)-line.rfind('\n')-1
+					        + len(word.split('\n',1)[0]
+					             ) >= width)],
+					  word),
+					 text.split(' ')
+					)
 			
 			def format(text):
-				return re.sub("'", "\\'", unicode(text))
+				text = re.sub("'", "\\'", unicode(text))
+				return wordwrap(text, 100)
 			
 			sys.stdout.write(fmt % (
 				format(data[5]),
@@ -109,7 +131,8 @@ class View:
 				format(data[6]),
 				format(data[2]),
 				format(data[3]),
-				format("%d EUR" % (data[4])),
+				format(data[4]),
+				format('EUR'),
 				format(datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d')),
 				format(datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d'))
 			))
