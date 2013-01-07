@@ -18,6 +18,9 @@ class newGatherer(base.gather.Extractor ):
             "location":       "VARCHAR(256)",
             "price":          "INT",
             "surface_total":  "INT",
+            "surface_built":  "INT",
+            "year_built":     "INT",
+            "rooms":          "INT",
             "description":    "TEXT",
             "addDate":        "INT",
             "updateDate":     "INT",
@@ -124,25 +127,32 @@ class newGatherer(base.gather.Extractor ):
                 
                 
             idstr = self.hash(link)
-            if html and self.updateIfExists(idstr, timestamp):
+            #if html and self.updateIfExists(idstr, timestamp):
+            if html:
                 # extract data from the selected page
+                tree   = etree.HTML(html)
                 try:
-                    tree   = etree.HTML(html)
-                    
                     location =      self.xpath_getOne(tree, ".//div[contains(@class, 'det')]//strong[contains(text(), 'Zona')]/span/text()")
                     
                     price =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//div[contains(@class, 'pret_1')]/strong/text()"))
                     
+                    surface_built = ""
                     if self.category=="case-vile":
-                        surface_total = re.sub("[^0-9.]", "", self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li[contains(text(), 'total teren')]/text()"))
+                        surface_total =     re.sub("[^0-9.]", "", self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li[contains(text(), 'total teren')]/text()"))
+                        surface_built  =    re.sub("[^0-9.]", "", self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li[contains(text(), 'teren liber')]/text()"))
                     else: # apt
                         surface_total = re.sub("[^0-9.]", "", self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li//*[contains(text(), 'suprafata utila')]/../text()"))
                         if not surface_total:
-                            surface_total = re.sub("[^0-9.]", "", self.xpath_getOne(tree, "//div[@id='informatii']//ul/li//*[contains(text(), 'suprafata construita')]/../text()"))
+                            surface_total = re.sub("[^0-9.]", "", self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li//*[contains(text(), 'suprafata construita')]/../text()"))
                             
-
+                            
+                    year_built =    self.extractYear(self.xpath_getOne(tree, ".//div[@id='informatii']//ul/li[contains(text(), 'construit in')]/text()"))
+    
                     description =   self.xpath_getTexts(tree, ".//div[contains(@class, 'alte_informatii')]//text()")
-
+                    
+                    t = re.search("(?P<rooms>[0-9]+) camere", self.xpath_getTexts(tree, ".//*[@id='info_oferta']//div[contains(@class, 'info_2')]/text()"))
+                    rooms =         t.groups('rooms')[0] if t else None
+    
                     # add info from the end info tables                    
                     lis = tree.xpath(".//*[@id='informatii']//div[contains(text(), 'utile')]/../ul/li")
                     description+= "\n"
@@ -161,16 +171,19 @@ class newGatherer(base.gather.Extractor ):
                         raise Exception("This description is empty. Ignoring")
     
                     self.writeItem({ 
-                        "id":             idstr,
-                        "category":       self.category,
-                        "url":            link,
-                        "location":       location,
-                        "description":    description,
-                        "price":          price,
-                        "surface_total":  surface_total,
-                        "addDate":        timestamp,
-                        "updateDate":     timestamp,
-                    })
-                except Exception:
+                        "id":               idstr,
+                        "category":         self.category,
+                        "url":              link,
+                        "location":         location,
+                        "description":      description,
+                        "price":            price,
+                        "surface_total":    surface_total,
+                        "surface_built":    surface_built,
+                        "year_built":       year_built,
+                        "rooms":            rooms,
+                        "addDate":          timestamp,
+                        "updateDate":       timestamp,
+                        })
+                except Exception, e:
+                    print e
                     self.debug_print("parse-failed")
-

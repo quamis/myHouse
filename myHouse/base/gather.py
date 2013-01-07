@@ -182,6 +182,13 @@ class Extractor(object):
         return html
     
     
+    def extractYear(self, text):
+        years = self.removeEmptyValues(re.split("[^0-9]+", text))
+        return min(years) if years else None
+    
+    def removeEmptyValues(self, list):
+        return filter(None, list)
+    
     
     
     
