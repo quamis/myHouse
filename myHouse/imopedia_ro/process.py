@@ -27,6 +27,9 @@ class doProcess(base.process.Processor ):
             
         if row[8]:
             extr['surface_built'] = row[8]
+    
+        if row[9]:
+            extr['rooms'] = row[9]
 
         if newRow['price']!="" and "surface_built" in extr:
             extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_total']), 0)
