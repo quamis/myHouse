@@ -105,7 +105,6 @@ class newGatherer(base.gather.Extractor ):
             linkIndex+=1
             html = self.cache.get(cachePrefix+link)
             if(html is None):
-#                
                 try:
                     html = self.wget(link)
                     self.cache.set(cachePrefix+link, html)
@@ -120,7 +119,7 @@ class newGatherer(base.gather.Extractor ):
             # extract data from the selected page
             idstr = self.hash(link)
             if html and self.updateIfExists(idstr, timestamp):
-                strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
+                strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)")
                 html = strip_unicode.sub('', html)
                 tree   = etree.HTML(html)
                 
@@ -128,17 +127,16 @@ class newGatherer(base.gather.Extractor ):
                 location = re.search("^(?P<loc>[^,]+)", location_full).groups("loc")[0]
                 
                 price =             re.sub("[^0-9]", "", tree.xpath("//*[@id='b_detalii_titlu']/div/div/div/text()")[0].strip())
-                #price_currency =    tree.xpath("//*[@id='b_detalii_titlu']/div/div/div/div/text()")[0].strip()
                 
                 if self.category=="case-vile":
-                    surface_total =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'teren')]/text()"))
-                    surface_built =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'util')]/text()"))
-                    
-                    year_built =       re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()"))
                     x_rooms =          tree.xpath("//*[@id='b_detalii_caracteristici']//table//tr/td[1][contains(text(), 'camere')]/../td[2]/text()")
-                    rooms = 0
-                    if x_rooms:
-                        rooms = x_rooms[0]
+                    rooms = x_rooms[0] if x_rooms else None 
+                        
+                    surface_total =     re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'teren')]/text()"))
+                    surface_built =     re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'util')]/text()")) or \
+                                        re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'construit')]/text()")) 
+                    year_built =        re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()"))
+                    
                     
                     details =    location_full+". "+re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
                     self.writeItem({ 
