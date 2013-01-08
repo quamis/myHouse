@@ -49,7 +49,5 @@ class doProcess(base.process.Processor ):
         if newRow['category']=="case-vile":
             newRow['extracted'] = self._extractData_houses(newRow, row)
         
-                
-        #print newRow
         return newRow
     

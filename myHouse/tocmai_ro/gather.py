@@ -135,18 +135,24 @@ class newGatherer(base.gather.Extractor ):
                 
                 
             idstr = self.hash(link)
-            if html and self.updateIfExists(idstr, timestamp):
-                # extract data from the selected page
+            #if html and self.updateIfExists(idstr, timestamp):
+            if html:
                 try:
+                    # extract data from the selected page
                     strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
                     html = strip_unicode.sub('', html)
                     tree   = etree.HTML(html)
                     
-                    location1 =     tree.xpath(".//*[@id='main']//div/p/b[contains(text(), 'Localitate')]/../text()")[0].strip()
-                    location2 =     tree.xpath(".//*[@id='main']//div/p/b[contains(text(), 'Zona')]/../text()")[0].strip()
-                    location =      "%s, %s" % (location1, location2)
+                    location1 =     self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'Localitate')]/../text()")
+                    location2 =     self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'Zona')]/../text()")
+                    if location1 and location2:
+                        location =      "%s, %s" % (location1, location2)
+                    elif location1:
+                        location =      location1
                     
-                    price =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div[contains(text(), 'Pret')]/text()"))
+                    price =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//span[@itemprop= 'price']/text()"))
+                    if not price:
+                        price =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div[contains(text(), 'Pret')]/text()"))
                     surface_total = re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'Suprafata')]/../text()"))
                     rooms =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'camere')]/../text()"))
     

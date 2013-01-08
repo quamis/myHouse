@@ -95,7 +95,8 @@ class Extractor(object):
         pass
 
     def getAll(self):
-        self._getAll(self.gatherLinks()[1])
+        t = self.gatherLinks()[1]
+        self._getAll(t)
         self.cache.close()
         self.db.close()
     
