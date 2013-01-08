@@ -80,7 +80,32 @@ class Processor(object):
                 continue
             
             if(self.maindb.itemExists("data", newRow['id'])):
-                self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })
+                if self.args.forceUpdate:
+                    self.maindb.execute("DELETE FROM `data_contacts` WHERE `idOffer`='%s'" %(newRow['id']))
+                    self.maindb.execute("DELETE FROM `data_extracted` WHERE `idOffer`='%s'" %(newRow['id']))
+                    
+                    if 'contacts' in newRow:
+                        for c in newRow['contacts']:
+                            self.maindb.itemInsert("data_contacts", { "idOffer":newRow['id'], "key": c['key'], "value": c['value'] })
+                            
+                    if 'extracted' in newRow:
+                        for k,v in newRow['extracted'].items():
+                            self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
+                            
+                    self.maindb.itemUpdate("data", {
+                          "status":     "",
+                          "source":     self.source, 
+                          "id":         newRow['id'],
+                          "category":   newRow['category'], 
+                          "url":        newRow['url'], 
+                          "price":      newRow['price'],
+                          "description":newRow['description'],
+                          "addDate":    timestamp,
+                          "updateDate": timestamp,
+                      })
+                else:
+                    self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })
+                    
                 self.debug_print("loop-old", newRow)
             else:
                 self.debug_print("loop-new", newRow)

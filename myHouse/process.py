@@ -19,6 +19,7 @@ logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
 parser = argparse.ArgumentParser(description='Gather data')
 parser.add_argument('-v',       dest='verbosity',     action='store', type=int, default='1', help='[default: 1] verbosity')
 parser.add_argument('-module',  dest='module',        action='store', type=str, default=None,     help='used module')
+parser.add_argument('-forceUpdate',dest='forceUpdate',action='store', type=str, default=None,     help='TODO')
 args = parser.parse_args()
 
 if args.module is None:
