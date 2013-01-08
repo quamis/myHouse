@@ -225,7 +225,15 @@ if [ "$PROCESS" == "default" ]; then
         ./process.py -v=1 -module="${src}"
     done
     printf "\n"
-fi;
+elif [ "$PROCESS" == "force" ]; then
+    for src in "${SOURCES[@]}";do
+        printf "[`date +"%Y-%m-%d %H:%M:%S"`] Processing: %s\n" "$src"
+        
+        # do the actual call
+        ./process.py -v=1 -module="${src}" -forceUpdate=y
+        done
+        printf "\n"
+fi
 
 
 
@@ -235,7 +243,7 @@ if [ "$CLEANUP" == "default" ]; then
     ./cleanup.py -v=5 -deleteOldItems=1
     ./cleanup.py -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=1 -dup_minAutoMatch=0.999
     
-else if [ "$CLEANUP" == "thorough" ]; then
+elif [ "$CLEANUP" == "thorough" ]; then
     printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup\n"
     #./cleanup.py -v=5 -vacuum=1        <-- this actually deletes items from the DB, dont use it!!!
     ./cleanup.py -v=5 -nodescription=1 -fixstatus=1 
@@ -250,5 +258,4 @@ else if [ "$CLEANUP" == "thorough" ]; then
     
     ./cleanup.py -v=5 -deleteOldItems=1
     ./cleanup.py -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=10 -dup_minAutoMatch=0.990
-fi
 fi
