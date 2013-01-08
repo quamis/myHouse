@@ -127,8 +127,7 @@ class newGatherer(base.gather.Extractor ):
                 
                 
             idstr = self.hash(link)
-            #if html and self.updateIfExists(idstr, timestamp):
-            if html:
+            if html and self.updateIfExists(idstr, timestamp):
                 # extract data from the selected page
                 tree   = etree.HTML(html)
                 try:

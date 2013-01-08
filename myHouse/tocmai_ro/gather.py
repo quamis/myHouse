@@ -135,8 +135,7 @@ class newGatherer(base.gather.Extractor ):
                 
                 
             idstr = self.hash(link)
-            #if html and self.updateIfExists(idstr, timestamp):
-            if html:
+            if html and self.updateIfExists(idstr, timestamp):
                 try:
                     # extract data from the selected page
                     strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
