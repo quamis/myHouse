@@ -186,6 +186,9 @@ if [ "$GATHER" == "default" -o "$GATHER" == "linear" ]; then
             gather_${src} >"${OFILE}${src}" 2>&1 &
         done
         printf "\n"
+        
+        #wait for the processes to actually start. If the system is on a high-load, they wont start this fast
+        sleep 2.5
     fi;
     
     
