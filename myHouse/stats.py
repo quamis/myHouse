@@ -20,10 +20,30 @@ class Stats:
 		self.db = db
 		self.args = args
 	
+	def getItem(self, idStr, fields=('data', 'data_contacts', 'data_extracted')):
+		data = {}
+		data_contacts = {}
+		data_extracted = {}
+		
+		if 'data' in fields:
+			data = self.db.selectAll("SELECT `category`, `source`, `description`, `url`, `price`, `id`, `status`, `addDate`, `updateDate`  FROM `data` WHERE `id`='%s'" %(idStr))[0]
+			
+		if 'data_contacts' in fields:
+			data_contacts = self.db.selectAll("SELECT `key`, `value` FROM `data_contacts` WHERE `idOffer`='%s' ORDER BY `key` ASC, `value` ASC" %(idStr))
+			
+		if 'data_extracted' in fields:
+			dt = self.db.selectAll("SELECT `key`, `value` FROM `data_extracted` WHERE `idOffer`='%s' ORDER BY `key`" %(idStr))
+			for d in dt:
+				data_extracted[d[0]] = d[1]
+			
+		return { 'data': data, 'data_contacts': data_contacts, 'data_extracted':data_extracted }
 	
-	def getSQL(self):
+	def getSQL(self, short=False):
 		#              0     1           2         3        4          5             6         7
-		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`  FROM `data` WHERE 1"
+		if short:
+			sql = "SELECT `id` FROM `data` WHERE 1"
+		else:
+			sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`  FROM `data` WHERE 1"
 		
 		if self.args.category:
 			sql+="/*category*/ AND( 0 "
@@ -218,13 +238,43 @@ class Stats:
 					locale.format("%.*f", (0, stats['updateDate:month'][key]), True) 	if key in stats['updateDate:month'] else 0,)
 		
 		
+		
+		
+	def extractLocationData(self):
+		stats = {}
+		stats[None] = 0
+		
+		#rows = self.db.selectStart(self.getSQL())
+		rows = self.db.selectAll(self.getSQL(True))
+		for row in rows:
+			data = self.getItem(row[0], ('data_extracted'))
+			
+			if 'location' in data['data_extracted']:
+				loc = data['data_extracted']['location']
+				if loc not in stats:
+					stats[loc] = 0
+				stats[loc]+=1
+			else:
+				stats[None]+=1
+
+		return stats
+		
+	def printLocationData(self, stats):
+		fmt = "%-40s: % 3s"
+		print (fmt+" in this location") % ("location", "items")
+					
+		for key in sorted(stats.keys()):
+			print fmt % ( "None" if key is None else key, 
+				locale.format("%.*f", (0, stats[key]), True))
+		
 			
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
-parser.add_argument('-source', 	dest='source', 	action='append', 	type=str, default=None,	help='TODO')
-parser.add_argument('-category',dest='category',action='append', 	type=str, default=None,	help='TODO')
-parser.add_argument('-status',	dest='status',	action='store', 	type=str, default=None,	help='TODO')
+parser.add_argument('-source', 	dest='source', 	action='append', 		type=str, default=None,	help='TODO')
+parser.add_argument('-category',dest='category',action='append', 		type=str, default=None,	help='TODO')
+parser.add_argument('-status',	dest='status',	action='store', 		type=str, default=None,	help='TODO')
 
-parser.add_argument('-byDate', 	dest='byDate', 	action='store', 	type=str, default=None,	help='TODO')
+parser.add_argument('-byDate', 	dest='byDate', 	action='store', 		type=str, default=None,	help='TODO')
+parser.add_argument('-byLocation',dest='byLocation',action='store', 	type=str, default=None,	help='TODO')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
@@ -238,6 +288,8 @@ stats = Stats(db, args)
 
 if args.byDate:
 	stats.printDateData(stats.extractDateData())
+elif args.byLocation:
+	stats.printLocationData(stats.extractLocationData())
 else:
 	stats.printGeneralData(stats.extractGeneralData())
 	
