@@ -251,6 +251,9 @@ class Stats:
 			
 			if 'location' in data['data_extracted']:
 				loc = data['data_extracted']['location']
+				if self.args.byLocation=="simple":
+					loc="+++"
+					
 				if loc not in stats:
 					stats[loc] = 0
 				stats[loc]+=1
