@@ -12,11 +12,18 @@ class doProcess(base.process.Processor ):
     def selectEnd(self, c):
         self.db.selectEnd(c)
         
-    def myTrim(self, regex, text):
+    def reformat(self, text, formulas = { }):
         tx = ""
-        while tx!=text:
-            tx = text
-            text = re.sub(regex, "", tx)
+        
+        if "cleanup:tail" in formulas:
+            while tx!=text:
+                tx = text
+                text = re.sub("[\s]("+"|".join(formulas['cleanup:tail'])+")[\s]*$", "", tx, 0, re.IGNORECASE)
+                
+        if "replace:content" in formulas:
+            for k in formulas["replace:content"].iterkeys():
+                text = re.sub(k, formulas["replace:content"][k], text, 0, re.IGNORECASE)
+                
         return text
     
     def _extractData_houses(self, newRow):
@@ -25,19 +32,40 @@ class doProcess(base.process.Processor ):
         
         m = re.search("^(?P<location>([A-Za-z0-9-\.]+( |(?=,)))+)", desc)
         if m:
-            extr['location'] = self.myTrim("[\s](\
-                                                ocazie|\
-                                                vila|\
-                                                oras|\
-                                                prop(r)?ietar(\.)?|\
-                                                sector [0-9]|\
-                                                stradal|\
-                                                nr(\.)? [0-9]+[A-Z]?|\
-                                                [0-9] km de .+\
-                                                -|\
-                                                [\s])[\s]*$", 
-                                                          m.group('location'))
-        
+            extr['location'] = self.reformat(m.group('location'),
+                {
+                 'replace:content': {
+                    "[\s]*-[\s]*" : " - "
+                 },
+                 'cleanup:tail': (
+                    "ocazie", "urgent", "deosebit(a)", "lux", "ieftin(a)?",
+                    "(constr|construcita|contruit)([\s]*|\.|\,)[0-9]+",
+                    "(supr|supraf|suprafata)", "mp", "[0-9]+[\s]*m", "[0-9]+[\s]*mp", "[0-9]+[\s]*m2",
+                    "de", "in", "la", "cu", "si", "are",
+                    "teren(ul)?",
+                    "metrou", "stati(a|e)",
+                    "vil(a|e)", "cas(a|e)", 
+                    "gars", "garsonier(a|e)", 
+                    "apt", "apart", "apartament(e)?",
+                    "duplex",
+                    "(vand|vanzare)", "schimb", "zona", "foarte", "linistit(a)?", 
+                    "central", "ultracentral(a)?", "central(a)?", 
+                    "bucatarie", "living", "dormitor", "dormitoare",
+                    "utilat(a)?", "mobilat(a)?",   
+                    "[0-9]+ (cam|camera|camere)(\.)?", 
+                    "oras", "sector [0-9]", "intrare",  
+                    "istorie", "istoric(a)?", "valoare",  
+                    "arhitectura", "arhitecturala", 
+                    "prop(r)?ietar(\.)?", "particular",
+                    "acces", "toate", "actele", "locuibil(a)?", "demolabil(a)?", 
+                    "strada", "stradal(a)?", "asfaltat(a)?", "pta", "piata", "p-ta", 
+                    "scoala", "gradinita", "cablu", "tv", "telefon", "curent(a)?", "apa", "canalizare", "gaz", "utilitati(le)?",
+                    "nr(\.)? ([0-9]+[A-Z])?",
+                    "[0-9\.]+ km de (.+)", 
+                    "-", "[\s]", "\."
+                    ) 
+                 })
+            print extr['location']
         
         m = re.search("(?P<rooms>[0-9]+)[\s](dormitoare|camere|cam\.|cam)", desc)
         if m:
