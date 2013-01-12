@@ -168,7 +168,8 @@ class View:
 <head>
 	<title>Anunturi</title>
 	<META http-equiv=Content-Type content="text/html; charset=UTF-8"/>
-	
+</head>
+<body>
 	<style>
 		div.offer{
 			margin-bottom: 1em;
@@ -262,9 +263,6 @@ class View:
 
 	<script type="text/javascript">
 	</script>
-</head>
-<body onload="setupZoom();
-">
 				""")
 
 			extr = {}			
@@ -330,6 +328,8 @@ class View:
 						
 			
 			sys.stdout.write(unicode("</div>"))
+			sys.stdout.write(unicode("</body>"))
+			sys.stdout.write(unicode("</html>"))
 			
 	def printHeader(self):
 		pass
