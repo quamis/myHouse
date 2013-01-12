@@ -18,7 +18,7 @@ class doProcess(base.process.Processor ):
         if "cleanup:tail" in formulas:
             while tx!=text:
                 tx = text
-                text = re.sub("[\s]("+"|".join(formulas['cleanup:tail'])+")[\s]*$", "", tx, 0, re.IGNORECASE)
+                text = re.sub("([\s]|^)("+"|".join(formulas['cleanup:tail'])+")[\s]*$", "", tx, 0, re.IGNORECASE)
                 
         if "replace:content" in formulas:
             for k in formulas["replace:content"].iterkeys():
@@ -32,24 +32,29 @@ class doProcess(base.process.Processor ):
         
         m = re.search("^(?P<location>([A-Za-z0-9-\.]+( |(?=,)))+)", desc)
         if m:
-            extr['location'] = self.reformat(m.group('location'),
+            extr['location']  = m.group('location')
+            t = self.reformat(m.group('location'),
                 {
                  'replace:content': {
-                    "[\s]*-[\s]*" : " - "
+                    "[\s]*-[\s]*" : " - ",
+                    "[^a-z](facultate|facultatea)[^a-z]*" : " Facultate ",
+                    "[^a-z](sos\.)[^a-z]*" : " sos. ",
+                    "[^a-z](metrou)[^a-z]*" : " ",
                  },
                  'cleanup:tail': (
                     "ocazie", "urgent", "deosebit(a)", "lux", "ieftin(a)?",
                     "(constr|construcita|contruit)([\s]*|\.|\,)[0-9]+",
                     "(supr|supraf|suprafata)", "mp", "[0-9]+[\s]*m", "[0-9]+[\s]*mp", "[0-9]+[\s]*m2",
                     "de", "in", "la", "cu", "si", "are",
-                    "teren(ul)?",
+                    "teren(ul)?", "zona", "cheie",
                     "metrou", "stati(a|e)",
                     "vil(a|e)", "cas(a|e)", 
                     "gars", "garsonier(a|e)", 
                     "apt", "apart", "apartament(e)?",
                     "duplex",
                     "(vand|vanzare)", "schimb", "zona", "foarte", "linistit(a)?", 
-                    "central", "ultracentral(a)?", "central(a)?", 
+                    "central", "ultracentral(a)?", "central(a)?",
+                    "caramida", "bca", "paianta", "pamant",    
                     "bucatarie", "living", "dormitor", "dormitoare",
                     "utilat(a)?", "mobilat(a)?",   
                     "[0-9]+ (cam|camera|camere)(\.)?", 
@@ -57,7 +62,7 @@ class doProcess(base.process.Processor ):
                     "istorie", "istoric(a)?", "valoare",  
                     "arhitectura", "arhitecturala", 
                     "prop(r)?ietar(\.)?", "particular",
-                    "acces", "toate", "actele", "locuibil(a)?", "demolabil(a)?", 
+                    "acces", "toate", "actele", "locuibil(a)?", "demolabil(a)?", "facilitati(le)?",  
                     "strada", "stradal(a)?", "asfaltat(a)?", "pta", "piata", "p-ta", 
                     "scoala", "gradinita", "cablu", "tv", "telefon", "curent(a)?", "apa", "canalizare", "gaz", "utilitati(le)?",
                     "nr(\.)? ([0-9]+[A-Z])?",
@@ -65,8 +70,7 @@ class doProcess(base.process.Processor ):
                     "-", "[\s]", "\."
                     ) 
                  })
-            print extr['location']
-        
+            
         m = re.search("(?P<rooms>[0-9]+)[\s](dormitoare|camere|cam\.|cam)", desc)
         if m:
             extr['rooms'] = m.group('rooms')
