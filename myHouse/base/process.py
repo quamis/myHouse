@@ -99,7 +99,6 @@ class Processor(object):
                           "url":        newRow['url'], 
                           "price":      newRow['price'],
                           "description":newRow['description'],
-                          "addDate":    timestamp,
                           "updateDate": timestamp,
                       })
                 else:
