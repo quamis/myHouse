@@ -58,7 +58,7 @@ class View:
 		
 		if self.args.outputFormat=="default":
 			sys.stdout.write(unicode(
-				"[% 9s]%s %s\n"+
+				"[% 9s]%s %s\n"
 				"  %s\n"
 				"  % 7s EUR, \tid: %s (add:%s, upd:%s)\n") % (
 				unicode(data[0]), 
@@ -76,15 +76,15 @@ class View:
 				for k in data_extracted:
 					extr[k[0]] = k[1]
 				
-				text_surface = collections.OrderedDict()
-				text_surface['surface_total'] = 		self.printRow_extraData('surface', 	extr, 'surface_total', 		'supraf. tot: %dmp')
-				text_surface['surface_built'] = 		self.printRow_extraData('surface', 	extr, 'surface_built', 		'constr: %dmp')
-				text_surface['price_per_mp_built'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_built', '%dEUR/mp', 'float')
-				text_surface['price_per_mp_surface'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_surface','%dEUR/mp', 'float')
-				text_surface['rooms'] = 				self.printRow_extraData('rooms', 	extr, 'rooms', 				'%d camere')
+				surf = collections.OrderedDict()
+				surf['surface_total'] = 		self.printRow_extraData('surface', 	extr, 'surface_total', 		'supraf. tot: %dmp')
+				surf['surface_built'] = 		self.printRow_extraData('surface', 	extr, 'surface_built', 		'constr: %dmp')
+				surf['price_per_mp_built'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_built', '%dEUR/mp', 'float')
+				surf['price_per_mp_surface'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_surface','%dEUR/mp', 'float')
+				surf['rooms'] = 				self.printRow_extraData('rooms', 	extr, 'rooms', 				'%d camere')
 				
-				if text_surface:
-					sys.stdout.write("      %s\n" % (", ".join(filter(None, text_surface.values()))))
+				if surf:
+					sys.stdout.write("      %s\n" % (", ".join(filter(None, surf.values()))))
 				
 				
 				hist = collections.OrderedDict()
@@ -97,7 +97,7 @@ class View:
 				
 				pre = "UNSTRUCTURED DATA: "
 				for k in data_extracted:
-					if k[0] not in text_surface.keys() and k[0] not in hist.keys():
+					if k[0] not in surf.keys() and k[0] not in hist.keys():
 						sys.stdout.write("%s" % (pre))
 						sys.stdout.write("%s: %s, " % (k[0], k[1]))
 						pre = ""
@@ -159,6 +159,177 @@ class View:
 				format(datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d')),
 				format(datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d'))
 			))
+		elif self.args.outputFormat=="html":
+			if 'headerWritten' not in self.heap:
+				self.heap['headerWritten'] = True
+				sys.stdout.write("""
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<title>Anunturi</title>
+	<META http-equiv=Content-Type content="text/html; charset=UTF-8"/>
+	
+	<style>
+		div.offer{
+			margin-bottom: 1em;
+			border-left: 4px dotted #ccc;
+			border-top: 2px dotted #ccc;
+			padding-left: 0.5em;
+			padding-right: 2px;
+			padding-bottom: 2px;
+			
+			color: #444;
+			min-height: 6em;
+			background-color: #f0f0f0;
+		}
+		div.offer:hover{
+			border-left: 4px solid #888;
+			border-top: 2px solid #888;
+			border-bottom: 2px solid #888;
+			border-right: 2px solid #888;
+			
+			padding-right: 0px;
+			padding-bottom: 0px;
+			background-color: #ffffff;
+		}
+		
+		div.offer .category{
+			float: right;
+			font-size: 1em;
+			color: #888;
+			font-weight: bold;
+			padding-left: 2em; 
+		}
+		
+		div.offer .status{
+			float: right;
+			font-size: 2em;
+			color: #c00;
+			font-weight: bold;
+			padding-right: 1em;
+			padding-left: 1em; 
+		}
+		
+		div.offer .id{
+			float: right;
+			font-size: 0.8em;
+			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+			color: #006;
+		}
+		
+		div.offer .description{
+			display: block;
+		}
+		
+		div.offer a.link{
+			display: block;
+		}
+		
+		div.offer .price{
+			font-size: 1.5em;
+			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+			color: #c00;
+		}
+		
+		div.offer .extraData-history{
+			font-size: 1.25em;
+			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+			color: #888;
+			padding-left: 2em;
+		}
+		div.offer .extraData-surface{
+			font-size: 1.25em;
+			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+			color: #888;
+		}
+		
+		
+		div.offer .addDate{
+			float: right;
+			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+			color: #888;
+			padding-left: 2em;
+		}
+		div.offer .updateDate{
+			float: right;
+			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+			color: #888;
+			padding-left: 2em;
+		}
+
+
+	</style>
+
+	<script type="text/javascript">
+	</script>
+</head>
+<body onload="setupZoom();
+">
+				""")
+
+			extr = {}			
+			if data_extracted:
+				# make the list associative
+				for k in data_extracted:
+					extr[k[0]] = k[1]
+					
+			sys.stdout.write(unicode("<div class='offer'>"))
+			
+				
+			txtList = collections.OrderedDict()
+			txtList['location'] = 				self.printRow_extraData('location', extr, 'location', 			'in %s', 'location')
+			txtList['year_built'] = 			self.printRow_extraData('year', 	extr, 'year_built', 		'constr in: %d', 'year')
+			txtList['surface_total'] = 			self.printRow_extraData('surface', 	extr, 'surface_total', 		'supraf. tot: %dmp')
+			txtList['surface_built'] = 			self.printRow_extraData('surface', 	extr, 'surface_built', 		'constr: %dmp')
+			txtList['price_per_mp_built'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_built', '%dEUR/mp', 'float')
+			txtList['price_per_mp_surface'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_surface','%dEUR/mp', 'float')
+			txtList['rooms'] = 					self.printRow_extraData('rooms', 	extr, 'rooms', 				'%d camere')
+
+			text = ""
+			if txtList:
+				text = "<span class='extraData-surface'><span>%s</span></span>" % ("</span>, <span>".join(filter(None, txtList.values())))
+			
+			
+			sys.stdout.write(unicode(
+				"\n"
+				"<span class='price'>%7s EUR</span>"
+				" %s "
+				"<span class='category'>%s</span>"
+				"<span class='id'> %s </span>"
+				"<span class='status'>%s</span>"
+				"<span class='description'>%s</span>"
+				"<a href='%s'>%s</a>"
+				"<span class='addDate'>%s</span>"
+				"<span class='updateDate'>%s</span> ") % (
+				locale.format(unicode("%.*f"), (0, data[4]), True),
+				text, 
+				unicode(data[0]),
+				data[5], 
+				("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
+				unicode(data[2]), 
+				unicode(data[3]), unicode(data[3]), 
+				datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
+				datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  ))
+
+			pre = "UNSTRUCTURED DATA: "
+			for k in data_extracted:
+				if k[0] not in txtList.keys():
+					if pre: 
+						sys.stdout.write("<div class='extraData-UNSTRUCTURED'> %s" % (pre));
+					sys.stdout.write("<span>%s: %s</span>, " % (k[0], k[1]))
+					pre = ""
+						
+			if data_contacts:
+				sys.stdout.write("<div class='extraData-contacts'>")
+				for k in data_contacts:
+					if k[0]=="phone":
+						sys.stdout.write("<span class='phone'>%s: <b>%s</b></span> " % (k[0], re.sub("(.+)([0-9]{3})([0-9]{4})$", r'\1.\2.\3', k[1])))
+					else:
+						sys.stdout.write("<span class='misc'>%s: <b>%s</b></span> " % (k[0], k[1]))
+				sys.stdout.write("</div>")
+						
+			
+			sys.stdout.write(unicode("</div>"))
 			
 	def printHeader(self):
 		pass
