@@ -4,37 +4,8 @@ import re
 class doProcess(base.process.Processor ):
     def __init__(self, source, maindb, db, cache, args):
         super(doProcess, self).__init__(source, maindb, db, cache, args)
-    
-    def selectStart(self):
-        c = self.db.selectStart("SELECT `category`, `contact`, `description`, `url`, `price`, `id`  FROM `anuntul_ro_data` WHERE 1 ORDER BY `category` ASC, `description` ASC")
-        return c
-    
-    def selectEnd(self, c):
-        self.db.selectEnd(c)
         
-    def reformat(self, text, formulas = { }):
-        tx = ""
-        
-        if "cleanup:tail" in formulas:
-            while tx!=text:
-                tx = text
-                text = re.sub("([\s]|^)("+"|".join(formulas['cleanup:tail'])+")[\s]*$", "", tx, 0, re.IGNORECASE)
-                
-        if "replace:content" in formulas:
-            for k in formulas["replace:content"].iterkeys():
-                text = re.sub(k, formulas["replace:content"][k], text, 0, re.IGNORECASE)
-                
-        return text
-    
-    def _extractData_houses(self, newRow):
-        extr = {}
-        desc = newRow['description']
-        
-        m = re.search("^(?P<location>([A-Za-z0-9-\.]+( |(?=,)))+)", desc)
-        if m:
-            extr['location']  = m.group('location')
-            t = self.reformat(m.group('location'),
-                {
+        self.reformatter = {
                  'replace:content': {
                     "[\s]*-[\s]*" : " - ",
                     "[^a-z](facultate|facultatea)[^a-z]*" : " Facultate ",
@@ -69,7 +40,37 @@ class doProcess(base.process.Processor ):
                     "[0-9\.]+ km de (.+)", 
                     "-", "[\s]", "\."
                     ) 
-                 })
+                 }
+    
+    def selectStart(self):
+        c = self.db.selectStart("SELECT `category`, `contact`, `description`, `url`, `price`, `id`  FROM `anuntul_ro_data` WHERE 1 ORDER BY `category` ASC, `description` ASC")
+        return c
+    
+    def selectEnd(self, c):
+        self.db.selectEnd(c)
+        
+    def reformat(self, text, formulas = { }):
+        tx = ""
+        
+        if "cleanup:tail" in formulas:
+            while tx!=text:
+                tx = text
+                text = re.sub("([\s]|^)("+"|".join(formulas['cleanup:tail'])+")[\s]*$", "", tx, 0, re.IGNORECASE)
+                
+        if "replace:content" in formulas:
+            for k in formulas["replace:content"].iterkeys():
+                text = re.sub(k, formulas["replace:content"][k], text, 0, re.IGNORECASE)
+                
+        return text
+    
+    def _extractData_houses(self, newRow):
+        extr = {}
+        desc = newRow['description']
+        
+        m = re.search("^(?P<location>([A-Za-z0-9-\.]+( |(?=,)))+)", desc)
+        if m:
+            extr['location']  = m.group('location')
+            t = self.reformat(m.group('location'), self.reformatter)
             
         m = re.search("(?P<rooms>[0-9]+)[\s](dormitoare|camere|cam\.|cam)", desc)
         if m:
@@ -123,6 +124,54 @@ class doProcess(base.process.Processor ):
             extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_built']), 0)
             
         return extr
+    
+    def _extractData_apt(self, newRow):
+        extr = {}
+        desc = newRow['description']
+        
+        m = re.search("^(?P<location>([A-Za-z0-9-\.]+( |(?=,)))+)", desc)
+        if m:
+            extr['location']  = m.group('location')
+            t = self.reformat(m.group('location'),self.reformatter)
+            
+        m = re.search("(?P<rooms>[0-9]+)[\s](dormitoare|camere|cam\.|cam)", desc)
+        if m:
+            extr['rooms'] = m.group('rooms')
+            
+
+        # extract surface_built
+        if "surface_built" not in extr:        
+            m = re.search("(utili|suprafata( de)?.|construita( de)?.)[\s]?(?P<supr>[0-9]+)[\s]?(mpu|mp|m\.p\.)", desc)
+            if m:
+                extr['surface_built'] = m.group('supr')
+                
+        if "surface_built" not in extr:        
+            m = re.search("[\s]?(?P<supr>[0-9]+)[\s]?(mpu|mpc)", desc)
+            if m:
+                extr['surface_built'] = m.group('supr')
+                
+        if "surface_built" not in extr:        
+            m = re.search("[\s]?(?P<supr>[0-9]+)[\s]?(mp|m\.p\.) (|utili|construiti|constr(\.)?)", desc)
+            if m:
+                extr['surface_built'] = m.group('supr')
+                
+                
+        # extract surface_total
+        if "surface_total" not in extr:        
+            m = re.search("(?P<supr>[0-9\.]+)[\s]?(mp|m\.p\.) (total)", desc)
+            if m:
+                extr['surface_total'] = re.sub("(\.|\,)", "", m.group('supr'))
+                
+        if "surface_total" not in extr:        
+            m = re.search("(?P<supr>[0-9\.]+)[\s]?(mp|m\.p\.)", desc)
+            if m:
+                extr['surface_total'] = re.sub("(\.|\,)", "", m.group('supr'))
+                extr['surface_built'] = re.sub("(\.|\,)", "", m.group('supr'))
+                
+        if "surface_built" in extr and float(extr['surface_built'])>0:
+            extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_built']), 0)
+            
+        return extr
         
     def _processRow(self, row):
         newRow = {}
@@ -142,6 +191,8 @@ class doProcess(base.process.Processor ):
         # extract data
         if newRow['category']=="case-vile":
             newRow['extracted'] = self._extractData_houses(newRow)
+        else:
+            newRow['extracted'] = self._extractData_apt(newRow)
         
                 
             #raise SystemExit  
