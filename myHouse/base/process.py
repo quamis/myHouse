@@ -52,10 +52,15 @@ class Processor(object):
             
     
     def debug_print_1(self, result, extra=None):
+        if(result=="loop-error"):
+            sys.stdout.write("\n # %s -> %s" % ("error on", extra['url']))
+            
         if(result=="loop-step"):
             pass
         
         if(result=="loop-new"):
+            if not extra['price']:
+                extra['price'] = 1
             sys.stdout.write("\n    % 9dEUR %s" % (extra['price'], extra['url']))
             
         if(result=="loop-old"):

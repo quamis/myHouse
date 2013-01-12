@@ -48,20 +48,15 @@ class doProcess(base.process.Processor ):
         newRow['price'] =   row[5]
         newRow['id'] =      row[9]
         
-        """
-        contact = []
-        for c in row[1].split("/"): 
-            c = re.sub("[\.\s\-]", "", c)
-            contact.append({ "key":"phone", "value":c })
-        newRow['contacts'] = contact
-        """
-        
+        if not newRow['price']:
+            self.debug_print("loop-error", newRow)
+            return None
         
         # extract data
         if newRow['category']=="case-vile":
             newRow['extracted'] = self._extractData_houses(newRow, row)
         
-                
+        
             #raise SystemExit  
         
         #raise SystemExit
