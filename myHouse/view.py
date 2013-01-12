@@ -15,12 +15,35 @@ import locale
 import argparse
 import datetime
 import csv
+import collections
 
 class View:
 	def __init__(self, db, args):
 		self.db = db
 		self.args = args
 		self.heap = {}
+		
+	def printRow_extraData(self, type, extr, tag, fmt=None, valType='int'):
+		if tag in extr and extr[tag]!='':
+			val = extr[tag]
+			if valType==None:
+				val = val
+			elif valType=='int':
+				val = int(val)
+			elif valType=='float':
+				val = float(val)
+			elif valType=='year':
+				val = int(val)
+			elif valType=='location':
+				val = str(val)
+			else:
+				raise Exception("invalid 'valType'")
+			
+			if fmt:
+				return fmt % (val)
+			else:
+				pass
+		return None
 		
 	def printRow(self, id):
 		#                                 0           1         2              3      4        5     6         7          8
@@ -49,36 +72,39 @@ class View:
 			
 			if data_extracted:
 				extr = {}
+				# make the list associative
 				for k in data_extracted:
 					extr[k[0]] = k[1]
 				
-				str_surface = ""
-				s = ""
-				if "surface_total" in extr and extr["surface_total"]!='':
-					str_surface+="%ssupraf. tot: %dmp" % (s, int(extr["surface_total"]))
-					s=", "
+				text_surface = collections.OrderedDict()
+				text_surface['surface_total'] = 		self.printRow_extraData('surface', 	extr, 'surface_total', 		'supraf. tot: %dmp')
+				text_surface['surface_built'] = 		self.printRow_extraData('surface', 	extr, 'surface_built', 		'constr: %dmp')
+				text_surface['price_per_mp_built'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_built', '%dEUR/mp', 'float')
+				text_surface['price_per_mp_surface'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_surface','%dEUR/mp', 'float')
+				text_surface['rooms'] = 				self.printRow_extraData('rooms', 	extr, 'rooms', 				'%d camere')
 				
-				if "surface_built" in extr and extr["surface_built"]!='':
-					str_surface+="%sconstr: %dmp" % (s, int(extr["surface_built"]))
-					s=", "
-					
-				if "price_per_mp_built" in extr and extr["price_per_mp_built"]!='':
-					str_surface+="%s%dEUR/mp" % (s, float(extr["price_per_mp_built"]))
-					s=", "
-					
-				if "rooms" in extr and extr["rooms"]!='':
-					str_surface+="%s%d camere" % (s, int(extr["rooms"]))
-					s=", "
-					
-				if str_surface!="":
-					sys.stdout.write("      %s\n" % (str_surface))
+				if text_surface:
+					sys.stdout.write("      %s\n" % (", ".join(filter(None, text_surface.values()))))
 				
 				
-				"""	
+				
+				
+				
+				hist = collections.OrderedDict()
+				hist['location'] = 						self.printRow_extraData('location', extr, 'location', 			'in %s', 'location')
+				hist['year_built'] = 					self.printRow_extraData('year', 	extr, 'year_built', 		'constr in: %d', 'year')
+				
+				if hist:
+					sys.stdout.write("      %s\n" % (", ".join(filter(None, hist.values()))))
+				
+				
+				pre = "UNSTRUCTURED DATA: "
 				for k in data_extracted:
-					sys.stdout.write("      %s: %s\n" % (k[0], k[1]))
-				"""
-				
+					if k[0] not in text_surface.keys() and k[0] not in hist.keys():
+						sys.stdout.write("%s" % (pre))
+						sys.stdout.write("%s: %s, " % (k[0], k[1]))
+						pre = ""
+						
 			if data_contacts:
 				for k in data_contacts:
 					if k[0]=="phone":
