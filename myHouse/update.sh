@@ -247,7 +247,7 @@ if [ "$CLEANUP" == "default" ]; then
     ./cleanup.py -v=5 -deleteOldItems=1
     
     printf "[`date +"%Y-%m-%d %H:%M:%S"`]       Delete very close duplicates\n"
-    ./cleanup.py -v=5 -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=1 -dup_minAutoMatch=0.999
+    ./cleanup.py -v=1 -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=1 -dup_minAutoMatch=0.999
     printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup done\n"
     
 elif [ "$CLEANUP" == "thorough" ]; then
