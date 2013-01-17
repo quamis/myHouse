@@ -322,7 +322,7 @@ stats = Stats(db, args)
 
 if args.byAddDate:
 	stats.printDateData(stats.extractDateData())
-if args.byBuildDate:
+elif args.byBuildDate:
 	stats.printBuildDateData(stats.extractBuildDateData())
 elif args.byLocation:
 	stats.printLocationData(stats.extractLocationData())
