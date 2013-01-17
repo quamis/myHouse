@@ -161,7 +161,6 @@ class Cleanup:
 			+ " AND ( `status` IS NULL OR `status` IN ('deleted', 'duplicate', 'hide', 'hide-badArea', 'hide-badConstruction', 'hide-badPayment', 'old', 'checked-notOk') )" \
 			+ " ORDER BY `price` ASC, `description` ASC"
 		
-		print sql
 		rows = self.db.selectAll(sql)
 		for index in range(len(rows)):
 			row = rows[index]
@@ -182,7 +181,6 @@ class Cleanup:
 			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide', 'hide-badArea', 'hide-badConstruction', 'hide-badPayment', 'old', 'checked-notOk') )" \
 			+ " ORDER BY `price` ASC, `description` ASC"
 		
-		print sql
 		rows = self.db.selectAll(sql)
 		
 		duplicateRowsIndexesToHide = self.findDuplicateItems(rows, args)

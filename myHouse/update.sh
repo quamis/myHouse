@@ -239,13 +239,22 @@ fi
 
 if [ "$CLEANUP" == "default" ]; then
     printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup\n"
-    ./cleanup.py -v=5 -nodescription=1 -fixstatus=1 
+    
+    printf "[`date +"%Y-%m-%d %H:%M:%S"`]       Check for empty descriptions & empty statuses\n"
+    ./cleanup.py -v=5 -nodescription=1 -fixstatus=1
+    
+    printf "[`date +"%Y-%m-%d %H:%M:%S"`]       Delete old items\n"
     ./cleanup.py -v=5 -deleteOldItems=1
-    ./cleanup.py -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=1 -dup_minAutoMatch=0.999
+    
+    printf "[`date +"%Y-%m-%d %H:%M:%S"`]       Delete very close duplicates\n"
+    ./cleanup.py -v=5 -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=1 -dup_minAutoMatch=0.999
+    printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup done\n"
     
 elif [ "$CLEANUP" == "thorough" ]; then
     printf "[`date +"%Y-%m-%d %H:%M:%S"`] Cleanup\n"
     #./cleanup.py -v=5 -vacuum=1        <-- this actually deletes items from the DB, dont use it!!!
+    
+    printf "[`date +"%Y-%m-%d %H:%M:%S"`]       Check for empty descriptions & empty statuses\n"
     ./cleanup.py -v=5 -nodescription=1 -fixstatus=1 
     
     for src in "${SOURCES[@]}";do
@@ -256,6 +265,9 @@ elif [ "$CLEANUP" == "thorough" ]; then
     done
     printf "\n"
     
+    printf "[`date +"%Y-%m-%d %H:%M:%S"`]       Delete old items\n"
     ./cleanup.py -v=5 -deleteOldItems=1
+    
+    printf "[`date +"%Y-%m-%d %H:%M:%S"`]       Delete duplicates\n"
     ./cleanup.py -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=10 -dup_minAutoMatch=0.990
 fi
