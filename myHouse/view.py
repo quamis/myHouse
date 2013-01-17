@@ -3,10 +3,10 @@
 
 # @see http://lxml.de/lxmlhtml.html#parsing-html
 # @see https://gist.github.com/823821
-
-import sys, time, codecs
+import os, sys, time, codecs, importlib
 import re
 from datetime import date, timedelta
+
 
 from DB import DB
 from CACHE import CACHE
@@ -18,330 +18,30 @@ import csv
 import collections
 
 class View:
-	def __init__(self, db, args):
+	def __init__(self, db, viewer, args):
 		self.db = db
 		self.args = args
-		self.heap = {}
+		self.viewer = viewer
 		
-	def printRow_extraData(self, type, extr, tag, fmt=None, valType='int'):
-		if tag in extr and extr[tag]!='':
-			val = extr[tag]
-			if valType==None:
-				val = val
-			elif valType=='int':
-				val = int(val)
-			elif valType=='float':
-				val = float(val)
-			elif valType=='year':
-				val = int(val)
-			elif valType=='location':
-				val = str(val)
-			else:
-				raise Exception("invalid 'valType'")
-			
-			if fmt:
-				return fmt % (val)
-			else:
-				pass
-		return None
-		
+	
 	def printRow(self, id):
 		#                                 0           1         2              3      4        5     6         7          8
 		data = self.db.selectAll("SELECT `category`, `source`, `description`, `url`, `price`, `id`, `status`, `addDate`, `updateDate`  FROM `data` WHERE `id`='%s'" %(id))[0]
 		data_contacts = self.db.selectAll("SELECT `key`, `value` FROM `data_contacts` WHERE `idOffer`='%s' ORDER BY `key` ASC, `value` ASC" %(id))
 		data_extracted = self.db.selectAll("SELECT `key`, `value` FROM `data_extracted` WHERE `idOffer`='%s' ORDER BY `key`" %(id))
 
-		#print data
-		#print data_contacts
-		#print data_extracted
-		#print "[%2s]\t% 9s\t %s" % (row[0], row[5], row[2])
+		self.viewer.printItem(data, data_contacts, data_extracted)
 		
-		if self.args.outputFormat=="default":
-			sys.stdout.write(unicode(
-				"[% 9s]%s %s\n"
-				"  %s\n"
-				"  % 7s EUR, \tid: %s (add:%s, upd:%s)\n") % (
-				unicode(data[0]), 
-				("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
-				unicode(data[2]), 
-				unicode(data[3]), 
-				locale.format(unicode("%.*f"), (0, data[4]), True),
-				data[5],
-				datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
-				datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  ))
+		if self.args.newStatus is not None:
+			self.db.execute("UPDATE `data` SET `status`='%s' WHERE `id`='%s'" % (self.args.newStatus, id))
+			self.db.flushRandom(0.001)
+			sys.stdout.write("\n      ~UPDATED to '%s'\n" % (self.args.newStatus))
 			
-			if data_extracted:
-				extr = {}
-				# make the list associative
-				for k in data_extracted:
-					extr[k[0]] = k[1]
-				
-				surf = collections.OrderedDict()
-				surf['surface_total'] = 		self.printRow_extraData('surface', 	extr, 'surface_total', 		'supraf. tot: %dmp')
-				surf['surface_built'] = 		self.printRow_extraData('surface', 	extr, 'surface_built', 		'constr: %dmp')
-				surf['price_per_mp_built'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_built', '%dEUR/mp', 'float')
-				surf['price_per_mp_surface'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_surface','%dEUR/mp', 'float')
-				surf['rooms'] = 				self.printRow_extraData('rooms', 	extr, 'rooms', 				'%d camere')
-				
-				if surf:
-					sys.stdout.write("      %s\n" % (", ".join(filter(None, surf.values()))))
-				
-				
-				hist = collections.OrderedDict()
-				hist['location'] = 						self.printRow_extraData('location', extr, 'location', 			'in %s', 'location')
-				hist['year_built'] = 					self.printRow_extraData('year', 	extr, 'year_built', 		'constr in: %d', 'year')
-				
-				if hist:
-					sys.stdout.write("      %s\n" % (", ".join(filter(None, hist.values()))))
-				
-				
-				pre = "UNSTRUCTURED DATA: "
-				for k in data_extracted:
-					if k[0] not in surf.keys() and k[0] not in hist.keys():
-						sys.stdout.write("%s" % (pre))
-						sys.stdout.write("%s: %s, " % (k[0], k[1]))
-						pre = ""
-						
-			if data_contacts:
-				for k in data_contacts:
-					if k[0]=="phone":
-						sys.stdout.write("      %s: %s" % (k[0], re.sub("(.+)([0-9]{3})([0-9]{4})$", r'\1.\2.\3', k[1])))
-					else:
-						sys.stdout.write("      %s: %s" % (k[0], k[1]))
-						
-					
-			if self.args.newStatus is not None:
-				self.db.execute("UPDATE `data` SET `status`='%s' WHERE `id`='%s'" % (self.args.newStatus, id))
-				self.db.flushRandom(0.001)
-				sys.stdout.write("\n      ~UPDATED to '%s'\n" % (self.args.newStatus))
-			
-			sys.stdout.write("\n\n")
-		elif self.args.outputFormat=="csv":
-			fmt = '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"'+"\n"
-			if 'headerWritten' not in self.heap:
-				self.heap['headerWritten'] = True
-				sys.stdout.write(fmt % ('id', 'category', 'source', 'status', 'description', 'url', 'price', 'currency', 'addDate', 'updateDate'))
-			
-			def smart_truncate(content, length=100, suffix='...'):
-			    if len(content) <= length:
-			        return content
-			    else:
-			        return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
-			
-			def wordwrap(text, width):
-			    """
-			    A word-wrap function that preserves existing line breaks
-			    and most spaces in the text. Expects that existing line
-			    breaks are posix newlines (\n).
-			    """
-			    return reduce(lambda line, word, width=width: '%s%s%s' %
-					 (line,
-					  ' \n'[(len(line)-line.rfind('\n')-1
-					        + len(word.split('\n',1)[0]
-					             ) >= width)],
-					  word),
-					 text.split(' ')
-					)
-			
-			def format(text):
-				text = re.sub("'", "\\'", unicode(text))
-				return wordwrap(text, 100)
-			
-			sys.stdout.write(fmt % (
-				format(data[5]),
-				format(data[0]),
-				format(data[1]),
-				format(data[6]),
-				format(data[2]),
-				format(data[3]),
-				format(data[4]),
-				format('EUR'),
-				format(datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d')),
-				format(datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d'))
-			))
-		elif self.args.outputFormat=="html":
-			if 'headerWritten' not in self.heap:
-				self.heap['headerWritten'] = True
-				sys.stdout.write("""
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
-<head>
-	<title>Anunturi</title>
-	<META http-equiv=Content-Type content="text/html; charset=UTF-8"/>
-</head>
-<body>
-	<style>
-		div.offer{
-			margin-bottom: 1em;
-			border-left: 4px dotted #ccc;
-			border-top: 2px dotted #ccc;
-			padding-left: 0.5em;
-			padding-right: 2px;
-			padding-bottom: 2px;
-			
-			color: #444;
-			min-height: 6em;
-			background-color: #f0f0f0;
-		}
-		div.offer:hover{
-			border-left: 4px solid #888;
-			border-top: 2px solid #888;
-			border-bottom: 2px solid #888;
-			border-right: 2px solid #888;
-			
-			padding-right: 0px;
-			padding-bottom: 0px;
-			background-color: #ffffff;
-		}
-		
-		div.offer .category{
-			float: right;
-			font-size: 1em;
-			color: #888;
-			font-weight: bold;
-			padding-left: 2em; 
-		}
-		
-		div.offer .status{
-			float: right;
-			font-size: 2em;
-			color: #c00;
-			font-weight: bold;
-			padding-right: 1em;
-			padding-left: 1em; 
-		}
-		
-		div.offer .id{
-			float: right;
-			font-size: 0.8em;
-			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-			color: #006;
-		}
-		
-		div.offer .description{
-			display: block;
-		}
-		
-		div.offer a.link{
-			display: block;
-		}
-		
-		div.offer .price{
-			font-size: 1.5em;
-			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-			color: #c00;
-		}
-		
-		div.offer .extraData-history{
-			font-size: 1.25em;
-			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-			color: #888;
-			padding-left: 2em;
-		}
-		div.offer .extraData-surface{
-			font-size: 1.25em;
-			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-			color: #888;
-		}
-		
-		
-		div.offer .addDate{
-			float: right;
-			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-			color: #888;
-			padding-left: 2em;
-		}
-		div.offer .updateDate{
-			float: right;
-			font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
-			color: #888;
-			padding-left: 2em;
-		}
-
-
-	</style>
-
-	<script type="text/javascript">
-	</script>
-				""")
-
-			extr = {}			
-			if data_extracted:
-				# make the list associative
-				for k in data_extracted:
-					extr[k[0]] = k[1]
-					
-			sys.stdout.write(unicode("<div class='offer'>"))
-			
-				
-			txtList = collections.OrderedDict()
-			txtList['location'] = 				self.printRow_extraData('location', extr, 'location', 			'in %s', 'location')
-			txtList['year_built'] = 			self.printRow_extraData('year', 	extr, 'year_built', 		'constr in: %d', 'year')
-			txtList['surface_total'] = 			self.printRow_extraData('surface', 	extr, 'surface_total', 		'supraf. tot: %dmp')
-			txtList['surface_built'] = 			self.printRow_extraData('surface', 	extr, 'surface_built', 		'constr: %dmp')
-			txtList['price_per_mp_built'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_built', '%dEUR/mp', 'float')
-			txtList['price_per_mp_surface'] = 	self.printRow_extraData('surface', 	extr, 'price_per_mp_surface','%dEUR/mp', 'float')
-			txtList['rooms'] = 					self.printRow_extraData('rooms', 	extr, 'rooms', 				'%d camere')
-
-			text = ""
-			if txtList:
-				text = "<span class='extraData-surface'><span>%s</span></span>" % ("</span>, <span>".join(filter(None, txtList.values())))
-			
-			
-			sys.stdout.write(unicode(
-				"\n"
-				"<span class='price'>%7s EUR</span>"
-				" %s "
-				"<span class='category'>%s</span>"
-				"<span class='id'> %s </span>"
-				"<span class='status'>%s</span>"
-				"<span class='description'>%s</span>"
-				"<a href='%s'>%s</a>"
-				"<span class='addDate'>%s</span>"
-				"<span class='updateDate'>%s</span> ") % (
-				locale.format(unicode("%.*f"), (0, data[4]), True),
-				text, 
-				unicode(data[0]),
-				data[5], 
-				("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
-				unicode(data[2]), 
-				unicode(data[3]), unicode(data[3]), 
-				datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
-				datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  ))
-
-			pre = "UNSTRUCTURED DATA: "
-			for k in data_extracted:
-				if k[0] not in txtList.keys():
-					if pre: 
-						sys.stdout.write("<div class='extraData-UNSTRUCTURED'> %s" % (pre));
-					sys.stdout.write("<span>%s: %s</span>, " % (k[0], k[1]))
-					pre = ""
-						
-			if data_contacts:
-				sys.stdout.write("<div class='extraData-contacts'>")
-				for k in data_contacts:
-					if k[0]=="phone":
-						sys.stdout.write("<span class='phone'>%s: <b>%s</b></span> " % (k[0], re.sub("(.+)([0-9]{3})([0-9]{4})$", r'\1.\2.\3', k[1])))
-					else:
-						sys.stdout.write("<span class='misc'>%s: <b>%s</b></span> " % (k[0], k[1]))
-				sys.stdout.write("</div>")
-						
-			
-			sys.stdout.write(unicode("</div>"))
-			sys.stdout.write(unicode("</body>"))
-			sys.stdout.write(unicode("</html>"))
-			
-	def printHeader(self):
-		pass
-
-	def printFooter(self, stats):
-		if self.args.outputFormat=="default":
-			print "\n\nTotal: %d" % (stats['total'])
 	
 	def filter(self):
 		#              0     1           2         3        4          5             6         7
 		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`  FROM `data` WHERE 1" \
-			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide', 'old') )" \
+			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide', 'hide-badArea', 'hide-badConstruction', 'hide-badPayment', 'old', 'checked-notOk') )" \
 		
 		if(self.args.id):
 			sql+=" AND( 0 "
@@ -420,13 +120,13 @@ class View:
 		stats = {}
 		results = self.db.selectAll(sql)
 		stats['total'] = 0
-		self.printHeader()
+		self.viewer.printHeader()
 		for row in results:
 			stats['total']+=1
 			self.printRow(row[0])
 		
 		self.db.close()	
-		self.printFooter(stats)
+		self.viewer.printFooter(stats)
 	
 
 	
@@ -542,7 +242,17 @@ else:
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 db = DB("../db/main.sqlite")
-viewer = View(db, args)
+
+sys.path.insert(0, os.path.abspath("views/"+args.outputFormat))
+module = importlib.import_module("views."+args.outputFormat+".view")
+outputFormatter = module.newView(args)
+
+#import views.base.view
+#import views.default.view
+#outputFormatter = views.default.view.newView(args)
+
+
+viewer = View(db, outputFormatter, args)
 viewer.filter()
 
 raise SystemExit
