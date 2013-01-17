@@ -5,7 +5,6 @@ import re
 import time
 
 import urllib2 # to be able to catch Browser expcetions
-from Scientific.Mathematica import surfacePlot
 
 class newGatherer(base.gather.Extractor ):
     def __init__(self, category, url, db, cache, args):
@@ -31,7 +30,6 @@ class newGatherer(base.gather.Extractor ):
         
     def extractPaginationUrls(self, html):
         ret=[]
-        parser = etree.HTMLParser()
         tree   = etree.HTML(html)
         hrefs = tree.xpath(".//div[contains(@class, 'listing_paginare')]//div[contains(@class, 'paginare')]//a/@href")
         for a in hrefs:
@@ -41,7 +39,6 @@ class newGatherer(base.gather.Extractor ):
     
     def extractOffersUrls(self, html):
         ret=[]
-        parser = etree.HTMLParser()
         tree   = etree.HTML(html)
         hrefs = tree.xpath(".//div[contains(@class, 'listing_item')]//div[contains(@class, 'title')]//a/@href")
         for a in hrefs:

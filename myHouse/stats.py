@@ -4,12 +4,10 @@
 # @see http://lxml.de/lxmlhtml.html#parsing-html
 # @see https://gist.github.com/823821
 
-import sys, time, os, codecs
-import re
+import sys, time, codecs
 import datetime
 
 from DB import DB
-from CACHE import CACHE
 import logging
 import locale
 import argparse
