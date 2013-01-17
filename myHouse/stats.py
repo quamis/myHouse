@@ -173,11 +173,11 @@ class Stats:
 		stats['addDate'] = {}
 		stats['updateDate'] = {}
 		
-		if self.args.byDate=="week":
+		if self.args.byAddDate=="week":
 			stats['addDate:week'] = {}
 			stats['updateDate:week'] = {}
 			
-		if self.args.byDate=="month":
+		if self.args.byAddDate=="month":
 			stats['addDate:month'] = {}
 			stats['updateDate:month'] = {}
 		
@@ -189,14 +189,14 @@ class Stats:
 			stats['addDate'] = 		self._incDict(stats['addDate'], addDate)
 			stats['updateDate'] = 	self._incDict(stats['updateDate'], updateDate)
 			
-			if self.args.byDate=="week":
+			if self.args.byAddDate=="week":
 				addDate = datetime.datetime.fromtimestamp(row[4]).strftime('%Y-%U')
 				updateDate = datetime.datetime.fromtimestamp(row[5]).strftime('%Y-%U')
 				
 				stats['addDate:week'] = 	self._incDict(stats['addDate:week'], addDate)
 				stats['updateDate:week'] = 	self._incDict(stats['updateDate:week'], updateDate)
 				
-			if self.args.byDate=="month":
+			if self.args.byAddDate=="month":
 				addDate = datetime.datetime.fromtimestamp(row[4]).strftime('%Y-%m')
 				updateDate = datetime.datetime.fromtimestamp(row[5]).strftime('%Y-%m')
 				
@@ -207,7 +207,7 @@ class Stats:
 		
 	def printDateData(self, stats):
 		
-		if self.args.byDate=="day":
+		if self.args.byAddDate=="day":
 			allKeys = list(set( stats['addDate'].keys() + stats['updateDate'].keys() ))
 			fmt = "%-12s: % 9s % 9s"
 			print (fmt+" offers") % ("date", "added", "updated")
@@ -217,7 +217,7 @@ class Stats:
 					locale.format("%.*f", (0, stats['addDate'][key]), True) 	if key in stats['addDate'] 		else 0, 
 					locale.format("%.*f", (0, stats['updateDate'][key]), True) 	if key in stats['updateDate'] 	else 0,)
 				
-		elif self.args.byDate=="week":
+		elif self.args.byAddDate=="week":
 			allKeys = list(set( stats['addDate:week'].keys() + stats['updateDate:week'].keys() ))
 			fmt = "%-12s: % 9s % 9s"
 			print (fmt+" offers") % ("date", "added", "updated")
@@ -227,7 +227,7 @@ class Stats:
 					locale.format("%.*f", (0, stats['addDate:week'][key]), True) 		if key in stats['addDate:week'] 	else 0, 
 					locale.format("%.*f", (0, stats['updateDate:week'][key]), True) 	if key in stats['updateDate:week'] 	else 0,)
 				
-		elif self.args.byDate=="month":
+		elif self.args.byAddDate=="month":
 			allKeys = list(set( stats['addDate:month'].keys() + stats['updateDate:month'].keys() ))
 			fmt = "%-12s: % 9s % 9s"
 			print (fmt+" offers") % ("date", "added", "updated")
@@ -238,6 +238,36 @@ class Stats:
 					locale.format("%.*f", (0, stats['updateDate:month'][key]), True) 	if key in stats['updateDate:month'] else 0,)
 		
 		
+		
+	
+	def extractBuildDateData(self):
+		stats = {}
+		stats[None] = 0
+		
+		rows = self.db.selectAll(self.getSQL(True))
+		for row in rows:
+			data = self.getItem(row[0], ('data_extracted'))
+			
+			if 'year_built' in data['data_extracted']:
+				yr = data['data_extracted']['year_built']
+				if self.args.byBuildDate=="simple":
+					yr="+++"
+					
+				if yr not in stats:
+					stats[yr] = 0
+				stats[yr]+=1
+			else:
+				stats[None]+=1
+			
+		return stats
+		
+	def printBuildDateData(self, stats):
+		fmt = "%04s: % 3s"
+		print (fmt+" in year") % ("year", "offers")
+					
+		for key in sorted(stats.keys()):
+			print fmt % ( "None" if key is None else key, 
+				locale.format("%.*f", (0, stats[key]), True))
 		
 		
 	def extractLocationData(self):
@@ -264,7 +294,7 @@ class Stats:
 		
 	def printLocationData(self, stats):
 		fmt = "%-40s: % 3s"
-		print (fmt+" in this location") % ("location", "items")
+		print (fmt+" in this location") % ("location", "offers")
 					
 		for key in sorted(stats.keys()):
 			print fmt % ( "None" if key is None else key, 
@@ -276,8 +306,9 @@ parser.add_argument('-source', 	dest='source', 	action='append', 		type=str, def
 parser.add_argument('-category',dest='category',action='append', 		type=str, default=None,	help='TODO')
 parser.add_argument('-status',	dest='status',	action='store', 		type=str, default=None,	help='TODO')
 
-parser.add_argument('-byDate', 	dest='byDate', 	action='store', 		type=str, default=None,	help='TODO')
-parser.add_argument('-byLocation',dest='byLocation',action='store', 	type=str, default=None,	help='TODO')
+parser.add_argument('-byAddDate', 		dest='byAddDate', 		action='store', 	type=str, default=None,	help='TODO')
+parser.add_argument('-byBuildDate', 	dest='byBuildDate',		action='store', 	type=str, default=None,	help='TODO')
+parser.add_argument('-byLocation',		dest='byLocation',		action='store', 	type=str, default=None,	help='TODO')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
@@ -289,8 +320,10 @@ sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 db = DB("../db/main.sqlite")
 stats = Stats(db, args)
 
-if args.byDate:
+if args.byAddDate:
 	stats.printDateData(stats.extractDateData())
+if args.byBuildDate:
+	stats.printBuildDateData(stats.extractBuildDateData())
 elif args.byLocation:
 	stats.printLocationData(stats.extractLocationData())
 else:
