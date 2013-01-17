@@ -1,0 +1,279 @@
+@import url(http://fonts.googleapis.com/css?family=Arbutus);
+
+
+body {
+	counter-reset: offer 0;           /* Set the section counter to 0 */
+}
+
+div.filters{
+	border: 1px solid #5B1A15;
+	background-color: #C5B38B;
+	min-height: 5em;
+        position: relative;
+}
+div.filters select{
+	width: 25%;
+	text-align: left;
+	margin-left: 1em;
+	margin-right: 1em;
+}
+
+div.filters div.stats{
+    position: absolute;
+    bottom: 0;
+    font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+    margin-left: 2em;
+}
+
+div.filters div.stats table tr td.label{
+    text-align: left;
+    font-weight: bold;
+    color: #888;
+}
+div.filters div.stats table tr td{
+    text-align: left;
+    color: #444;
+}
+
+div.filters div.stats table tr td.int{
+    text-align: left;
+}
+
+
+
+div.offer{
+	margin-bottom: 1em;
+	border-left: 4px dotted #ccc;
+	border-top: 2px dotted #ccc;
+	padding-left: 0.5em;
+	padding-right: 2px;
+	padding-bottom: 2px;
+	
+	color: #444;
+	min-height: 6em;
+	background-color: #f0f0f0;
+}
+div.offer:hover{
+	border-left: 4px solid #888;
+	border-top: 2px solid #888;
+	border-bottom: 2px solid #888;
+	border-right: 2px solid #888;
+	
+	padding-right: 0px;
+	padding-bottom: 0px;
+	background-color: #ffffff;
+}
+div.offer.loading{
+	border-left: 4px double #f00;
+	border-top: 2px double #f00;
+	border-bottom: 2px double #f00;
+	border-right: 2px double #f00;
+	background-color: #fff0f0;
+}
+
+/*
+div.offer .price:before{
+	counter-increment: offer;     
+	content: "#" counter(offer) ""; 
+	font-size: 16px;
+	color: #000;
+	width: 4em;
+	display: block;
+	text-align: right;
+	
+	border-right: 4px dotted #ccc;
+	border-left: 4px dotted #ccc;
+	border-top: 2px dotted #ccc;
+	margin-top: -16px;
+}
+div.offer:hover .price:before{
+	border-right: 4px solid #666;
+	border-bottom: 2px solid #666;
+	background-color: #666;
+	color: #FFFFFF;
+}
+*/
+
+div.offer .category{
+	float: right;
+	font-size: 1em;
+	color: #888;
+	font-weight: bold;
+	padding-left: 2em; 
+}
+
+div.offer .status{
+	float: right;
+	font-size: 2.75em;
+	color: #fff;
+	padding-right: 1em;
+	padding-left: 1em; 
+	width: 10em;
+	
+	top: -0.50em;
+	position: relative;
+	z-index: 90;
+	
+	font-family: 'Arbutus', cursive;
+}
+
+div.offer .status .shadowed{
+	right: 0;
+	top: 0;
+	position: absolute;
+	text-shadow: #888 0px 0px 0.05em;
+}
+
+
+div.offer .id{
+	float: right;
+	font-size: 0.8em;
+	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+	color: #006;
+}
+
+div.offer .description{
+	display: block;
+	margin-bottom: 2em;
+	position: relative;
+	z-index: 100;
+}
+
+div.offer a.link{
+	display: block;
+}
+
+div.offer .price{
+	font-size: 1.5em;
+	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+	color: #c00;
+}
+
+div.offer .data01{
+	position: relative;
+	z-index: 100;
+	font-weight: bold;
+}
+
+
+div.offer .date {
+	float: right;
+	font-family:Consolas,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New, monospace;
+	color: #888;
+	font-size: 0.5em;
+	padding-left: 2em;
+}
+
+div.offer a{
+    color: #00c;
+}
+div.offer a:hover{
+    color: #c00;
+    border-bottom: 1px solid #c00;
+}
+div.offer a:visited{
+    color: #888;
+}
+
+
+/** http://colorschemedesigner.com/#0362nrGrbw0w0 **/
+div.offer div.operations{
+	visibility: hidden;
+}
+div.offer:hover div.operations{
+	visibility: visible;
+}
+
+div.offer button{
+    min-width: 10em;
+    height: 2em;
+    vertical-align: middle;
+    border-radius: 0.75em;
+    
+    border: 2px solid #ccc;
+    background-color: #000;
+    color: #fff;
+    white-space: nowrap;
+}
+div.offer button span{
+    font-size: 2em;
+    line-height: 0.75em;
+    padding-top: 0.15em;
+}
+div.offer button.back{  
+	min-width: 4em;
+}
+
+div.offer button.None{          /** http://colorschemedesigner.com/#3p62nrGrbw0w0 */
+    border: 1px solid #074458;
+    background-color: #6AADC3;
+    color: #280B60;
+}
+
+
+div.offer button.todo{
+    border: 1px solid #8D1309;
+    background-color: #B4FFB9;
+    color: #8D1309;
+}
+
+div.offer.todo, div.offer.todo-call, div.offer.todo-talk, div.offer.todo-view{
+    color: #000;
+    background-color: #B4FFB9;
+}
+div.offer.todo:hover{
+    background-color: #77FF80;
+}
+
+/*********************************************/
+div.offer button.checked{
+    border: 1px solid #280B60;
+    background-color: #9173C9;
+    color: #280B60;
+}
+div.offer button.checked-ok{
+    border: 1px solid #076C19;
+    background-color: #6ED280;
+    color: #42085E;
+}
+div.offer button.checked-notok{
+    border: 1px solid #8D130A;
+    background-color: #EC847C;
+    color: #8D130A;
+}
+div.offer.checked{
+    color: #000;
+    background-color: #E1FFB4;
+}
+div.offer.checked:hover{
+    background-color: #D6FF99;
+}
+div.offer.checked-ok{
+    color: #800;
+    background-color: #6ED280;
+}
+div.offer.checked-notok{
+    color: #800;
+    background-color: #EC847C;
+}
+
+/*********************************************/
+div.offer button.hide{          /* http://colorschemedesigner.com/#0362nhhhxw0w0 */
+    border: 1px dashed #cccccc;
+    background-color: #F0F0F0;
+    color: #800000;
+}
+div.offer.hide{
+    color: #ccc;
+    background-color: #F0F0F0;
+}
+div.offer.hide-badArea, div.offer.hide-badConstruction, div.offer.hide-badPayment, div.offer.hide-badCategory{
+    color: #ccc;
+    background-color: #F0F0F0;
+    font-style: italic;
+}
+
+div.offer.hide,div.offer.hide-badArea, div.offer.hide-badConstruction, div.offer.hide-badPayment, div.offer.hide-badCategory a{
+    color: #888;
+}
+
