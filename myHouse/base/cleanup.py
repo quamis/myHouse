@@ -1,9 +1,5 @@
 import time
-import sys
 from datetime import date, timedelta
-import difflib
-import random
-
 
 class Cleanup(object):
     def __init__(self, source, db, cache, args):

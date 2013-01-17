@@ -70,7 +70,6 @@ class doProcess(base.process.Processor ):
         m = re.search("^(?P<location>([A-Za-z0-9-\.]+( |(?=,)))+)", desc)
         if m:
             extr['location']  = m.group('location')
-            t = self.reformat(m.group('location'), self.reformatter)
             
         m = re.search("(?P<rooms>[0-9]+)[\s](dormitoare|camere|cam\.|cam)", desc)
         if m:
@@ -132,7 +131,6 @@ class doProcess(base.process.Processor ):
         m = re.search("^(?P<location>([A-Za-z0-9-\.]+( |(?=,)))+)", desc)
         if m:
             extr['location']  = m.group('location')
-            t = self.reformat(m.group('location'),self.reformatter)
             
         m = re.search("(?P<rooms>[0-9]+)[\s](dormitoare|camere|cam\.|cam)", desc)
         if m:

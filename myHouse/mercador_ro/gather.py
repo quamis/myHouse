@@ -39,7 +39,6 @@ class newGatherer(base.gather.Extractor ):
     
     def extractOffersUrls(self, html):
         ret=[]
-        parser = etree.HTMLParser()
         tree   = etree.HTML(html)
         hrefs = tree.xpath(".//*[@id='offers_table']//td[contains(@class, 'offer')]//h3//a[contains(@class, 'link')]/@href")
         for a in hrefs:
@@ -74,7 +73,7 @@ class newGatherer(base.gather.Extractor ):
                             html = self.wget(link)
                             self.cache.set(cachePrefix+link, html)
                             self.wait("new-page")
-                        except urllib2.URLError, e:
+                        except urllib2.URLError:
                             self.debug_print("wget-failed")
                             continue
                     else:
