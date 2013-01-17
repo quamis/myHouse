@@ -158,7 +158,7 @@ class Cleanup:
 	
 	def vacuum(self, args):
 		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`, `url`  FROM `data` WHERE 1" \
-			+ " AND ( `status` IS NULL OR `status` IN ('deleted', 'duplicate', 'hide', 'old') )" \
+			+ " AND ( `status` IS NULL OR `status` IN ('deleted', 'duplicate', 'hide', 'hide-badArea', 'hide-badConstruction', 'hide-badPayment', 'old', 'checked-notOk') )" \
 			+ " ORDER BY `price` ASC, `description` ASC"
 		
 		print sql
@@ -179,7 +179,7 @@ class Cleanup:
 		
 		#              0     1           2         3        4          5             6         7              8
 		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`, `url`  FROM `data` WHERE 1" \
-			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide', 'old') )" \
+			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide', 'hide-badArea', 'hide-badConstruction', 'hide-badPayment', 'old', 'checked-notOk') )" \
 			+ " ORDER BY `price` ASC, `description` ASC"
 		
 		print sql

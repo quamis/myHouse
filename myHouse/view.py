@@ -87,18 +87,6 @@ class View:
 					sys.stdout.write("      %s\n" % (", ".join(filter(None, surf.values()))))
 				
 				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
-				
 				hist = collections.OrderedDict()
 				hist['location'] = 						self.printRow_extraData('location', extr, 'location', 			'in %s', 'location')
 				hist['year_built'] = 					self.printRow_extraData('year', 	extr, 'year_built', 		'constr in: %d', 'year')

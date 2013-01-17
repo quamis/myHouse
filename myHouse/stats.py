@@ -92,7 +92,9 @@ class Stats:
 			
 			if row[1] not in prices:
 				prices[row[1]] = []
-			prices[row[1]].append(int(row[3]))
+				
+			if row[3]:
+				prices[row[1]].append(int(row[3]))
 			
 			alivePeriods.append(int(row[5]) - int(row[4]))
 			timeSinceAppeared.append(timestamp - int(row[4]))
