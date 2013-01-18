@@ -12,6 +12,8 @@ import logging
 import locale
 import argparse
 import numpy 
+import collections
+
 
 class Stats:
 	def __init__(self, db, args):
@@ -60,6 +62,14 @@ class Stats:
 		
 		sql += " ORDER BY `price` ASC, `description` ASC"
 		return sql
+	
+	def roundInInterval(self, value, interval):
+		for v in interval:
+			if value<v[0]:
+				value = int(round(value/v[1])*v[1])
+				return value
+				
+		return None
 	
 	def extractGeneralData(self):
 		timestamp = time.time()
@@ -299,6 +309,55 @@ class Stats:
 		for key in sorted(stats.keys()):
 			print fmt % ( "None" if key is None else key, 
 				locale.format("%.*f", (0, stats[key]), True))
+			
+			
+	def extractSurfaceData(self):
+		stats = {}
+		stats[None] = 0
+		
+		#rows = self.db.selectStart(self.getSQL())
+		rows = self.db.selectAll(self.getSQL(True))
+		for row in rows:
+			data = self.getItem(row[0], ('data_extracted'))
+			
+			surf=None
+			if args.bySurface=="total":
+				if 'surface_total' in data['data_extracted']:
+					surf = data['data_extracted']['surface_total']
+					
+			if args.bySurface=="built":
+				if 'surface_built' in data['data_extracted']:
+					surf = data['data_extracted']['surface_built']
+			
+			# round the surface to 10mp increments
+			if surf:
+				if "apt-2-cam" in args.category:
+					surf = self.roundInInterval(float(surf), ((20, 5), (150, 10), (500, 50)))
+				elif "apt-3-cam" in args.category or "apt-4-cam" in args.category:
+					surf = self.roundInInterval(float(surf), ((20, 5), (250, 10), (500, 50)))
+				else:
+					surf = self.roundInInterval(float(surf), ((30, 10), (750, 50), (2500, 100), (10000, 500), (100000, 10000), (10000000, 100000)))
+					
+			
+			if surf not in stats:
+				stats[surf] = 0
+			stats[surf]+=1
+
+		return stats
+		
+	def printSurfaceData(self, stats):
+		fmt = "%-40s: % 8s"
+		print (fmt) % ("surface(mp)", "offers")
+		
+		def sort_fcn(x):
+			if x:
+				return float(x)
+			
+			return x
+		
+		for key in sorted(stats.keys(), key=sort_fcn):
+			print fmt % ( "None" if key is None else key, 
+				locale.format("%.*f", (0, stats[key]), True))
 		
 			
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
@@ -309,6 +368,7 @@ parser.add_argument('-status',	dest='status',	action='store', 		type=str, defaul
 parser.add_argument('-byAddDate', 		dest='byAddDate', 		action='store', 	type=str, default=None,	help='TODO')
 parser.add_argument('-byBuildDate', 	dest='byBuildDate',		action='store', 	type=str, default=None,	help='TODO')
 parser.add_argument('-byLocation',		dest='byLocation',		action='store', 	type=str, default=None,	help='TODO')
+parser.add_argument('-bySurface',		dest='bySurface',		action='store', 	type=str, default=None,	help='TODO')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
@@ -326,6 +386,8 @@ elif args.byBuildDate:
 	stats.printBuildDateData(stats.extractBuildDateData())
 elif args.byLocation:
 	stats.printLocationData(stats.extractLocationData())
+elif args.bySurface:
+	stats.printSurfaceData(stats.extractSurfaceData())
 else:
 	stats.printGeneralData(stats.extractGeneralData())
 	
