@@ -20,8 +20,11 @@ class doProcess(base.process.Processor ):
         print ""
         print desc
         extr = self.processor_helper.extract_location(extr, desc)
+        extr = self.processor_helper.convert_location(extr, desc)
         
         extr = self.processor_helper.extract_rooms(extr, desc)
+        
+        extr = self.processor_helper.extract_year(extr, desc)
         
         extr = self.processor_helper.extract_surface(extr, desc, "case-vile")
         
@@ -37,8 +40,11 @@ class doProcess(base.process.Processor ):
         print ""
         print desc
         extr = self.processor_helper.extract_location(extr, desc)
+        extr = self.processor_helper.convert_location(extr, desc)
         
         extr = self.processor_helper.extract_rooms(extr, desc)
+        
+        extr = self.processor_helper.extract_year(extr, desc)
             
         extr = self.processor_helper.extract_surface(extr, desc, "apt")
 

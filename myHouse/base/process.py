@@ -202,11 +202,16 @@ class Processor_helper(object):
         match = None
         m=None
         if "match:content" in formulas:
+            if "match" in formulas:
+                rx_match = "[\s]*(?P<match>"+formulas['match']+")[\s]*"
+            else:
+                rx_match = "[\s]*(?P<match>[0-9\.]+)[\s]*"
+                
             rx="([\s]|^)"\
                  "("+"|".join(formulas['match:content'][0])+")"\
-                 "[\s]*(?P<match>[0-9\.]+)[\s]*"\
+                 +rx_match+\
                  "("+"|".join(formulas['match:content'][1])+")"\
-                 "(\.|\,|[\s]|=|$)"
+                 "(\.|\,|[\s]|=|\)|\(|$)"
             m = re.search(rx, text, re.IGNORECASE)
             
         elif "match:raw" in formulas:
@@ -272,6 +277,48 @@ class Processor_helper(object):
             extr['rooms'] = s
             
         return extr
+    
+    def convert_location(self, extr, text):
+        return extr
+    
+    def extract_year(self, extr, text):
+        s = None    
+        # remove the location from the text, basically we might get distracted by area like "1 decembrie 1918"
+        if 'location' in extr: 
+            text = re.sub(extr['location'], "", text)
+            
+        if s is None:
+            s = self.extract_withFormula(text, {
+                  'type':'int',
+                  'match':'(18|19|20)[0-9]{2}',
+                  'match:content':((
+                        "construit(a)", 
+                        "constructie",
+                        "bloc",  
+                        "in",
+                        "din",
+                   ), ()),
+            })
+            if s:
+                print "extract: year_built #1: %s" % (s)
+        
+        if s is None:
+            s = self.extract_withFormula(text, {
+                  'type':'int',
+                  'match':'(18|19|20)[0-9]{2}',
+                  'match:content':((), ()),
+            })
+            if s:
+                print "extract: year_built #2: %s" % (s)
+                
+        if s is None:
+            print "extract: year_built: NOT FOUND"
+        
+        if s:
+            extr['year_built'] = s
+            
+        return extr
+    
 
     def extract_surface(self, extr, text, profile):
         
