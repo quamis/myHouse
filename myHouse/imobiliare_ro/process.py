@@ -14,13 +14,6 @@ class doProcess(base.process.Processor ):
     def selectEnd(self, c):
         self.db.selectEnd(c)
         
-    def myTrim(self, regex, text):
-        tx = ""
-        while tx!=text:
-            tx = text
-            text = re.sub(regex, "", tx)
-        return text
-    
     def _extractData_houses(self, newRow, row):
         extr = {}
         if row[1]:

@@ -71,7 +71,6 @@ class doProcess(base.process.Processor ):
         # extract data
         if newRow['category']=="case-vile":
             newRow['extracted'] = self._extractData_houses(newRow)
-            pass
         else:
             newRow['extracted'] = self._extractData_apt(newRow)
         
