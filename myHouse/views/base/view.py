@@ -27,11 +27,11 @@ class baseView(object):
             if valType==None:
                 val = val
             elif valType=='int':
-                val = int(val)
+                val = int(float(val))
             elif valType=='float':
                 val = float(val)
             elif valType=='year':
-                val = int(val)
+                val = int(float(val))
             elif valType=='location':
                 val = str(val)
             else:
