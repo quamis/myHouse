@@ -12,12 +12,47 @@ class doProcess(base.process.Processor ):
     def selectEnd(self, c):
         self.db.selectEnd(c)
         
-    def myTrim(self, regex, text):
-        tx = ""
-        while tx!=text:
-            tx = text
-            text = re.sub(regex, "", tx)
-        return text
+    def _extractData_houses(self, newRow):
+        extr = {}
+        #desc = re.sub("\xa0|\d20ac", "", newRow['description'])
+        desc = newRow['description']
+        
+        print ""
+        print desc
+        extr = self.processor_helper.extract_location(extr, desc)
+        extr = self.processor_helper.convert_location(extr, desc)
+        
+        extr = self.processor_helper.extract_rooms(extr, desc)
+        
+        extr = self.processor_helper.extract_year(extr, desc)
+        
+        extr = self.processor_helper.extract_surface(extr, desc, "case-vile")
+        
+        if newRow['price'] and "surface_built" in extr and float(extr['surface_built'])>1:
+            extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_built']), 0)
+
+        return extr
+    
+    def _extractData_apt(self, newRow):
+        extr = {}
+        desc = newRow['description']
+        
+        print ""
+        print desc
+        extr = self.processor_helper.extract_location(extr, desc)
+        extr = self.processor_helper.convert_location(extr, desc)
+        
+        extr = self.processor_helper.extract_rooms(extr, desc)
+        
+        extr = self.processor_helper.extract_year(extr, desc)
+            
+        extr = self.processor_helper.extract_surface(extr, desc, "apt")
+
+        if "surface_built" in extr and float(extr['surface_built'])>0:
+            extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_built']), 0)
+            
+        return extr
+    
         
     def _processRow(self, row):
         newRow = {}
@@ -32,12 +67,13 @@ class doProcess(base.process.Processor ):
         
         if newRow['price']<2:
             newRow['price'] = 0
-            
-        """
-        if re.match("^http", newRow['url']) is None:
-            newRow['url'] = "http://az.ro"+newRow['url']
-        """
+
+        if newRow['category']=="case-vile":
+            newRow['extracted'] = self._extractData_houses(newRow)
+        else:
+            newRow['extracted'] = self._extractData_apt(newRow)
         
+            
         contact = []
         contact.append({ "key":"phone", "value":row[1] })
         newRow['contacts'] = contact

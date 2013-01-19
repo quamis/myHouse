@@ -218,6 +218,8 @@ class Processor_helper(object):
             rx=formulas["match:raw"]
             m = re.search(rx, text, re.IGNORECASE)
             
+        if 'debug' in formulas:
+            print "DEBUG, regex:  %s -> %s" % (rx, m.groups() if m else None)
 
         if m:
             s = m.group('match')
@@ -245,7 +247,7 @@ class Processor_helper(object):
     
     def extract_location(self, extr, text):
         s = None
-        m = re.search("^(?P<location>([A-Za-z0-9-\.]+( |(?=,)))+)", text)
+        m = re.search("^(?P<location>([\w\-\.\(\)]+( |(?=,)))+)", text, re.UNICODE)
         if m:
             extr['location']  = m.group('location')
             s = self.reformat(extr['location'], self.presets['case-vile']['reformatter']['extractLocation'])
@@ -347,6 +349,7 @@ class Processor_helper(object):
                     print "extract: surface_built #1: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
+                      'match': '[0-9]{,4}',
                       'match:content':((
                           "utili|utila", 
                           "amprenta", 
@@ -361,7 +364,7 @@ class Processor_helper(object):
                           []
                      )})
                 if s:
-                    print "extract: surface_built #1: %s" % (s)
+                    print "extract: surface_built #2: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:content':((), 
@@ -370,14 +373,14 @@ class Processor_helper(object):
                            )
                      )})
                 if s:
-                    print "extract: surface_built #2: %s" % (s)
+                    print "extract: surface_built #3: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:content':((), 
                           mpu
                      )})
                 if s:
-                    print "extract: surface_built #3: %s" % (s)
+                    print "extract: surface_built #4: %s" % (s)
                 
             if s is None:
                 print "extract: surface_built: NOT FOUND"
