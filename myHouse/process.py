@@ -10,7 +10,10 @@ from DB import DB
 from CACHE import CACHE
 import argparse
 import importlib
-    
+
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 sys.path.insert(0, "base")
 
 
