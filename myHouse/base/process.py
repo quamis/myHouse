@@ -1,4 +1,5 @@
 import time, sys, re, string
+import UnicodeCsvReader
 
 class Processor(object):
     def __init__(self, source, maindb, db, cache, args):
@@ -34,6 +35,7 @@ class Processor(object):
             "key":          "VARCHAR(16)",
             "value":        "VARCHAR(256)",
         }, [], ["id"])
+        
 
     def selectStart(self):
         pass
@@ -184,6 +186,12 @@ class Processor_helper(object):
                     ) 
                  }
         
+        
+        self.locationsAssoc = {}
+        for row in UnicodeCsvReader.UnicodeCsvReader(open("base/locations assoc.csv")):
+            self.locationsAssoc[row[0].strip()] = row[2].strip()
+            
+        
     def reformat(self, text, formulas = { }):
         tx = ""
         
@@ -282,6 +290,19 @@ class Processor_helper(object):
         return extr
     
     def convert_location(self, extr, text):
+        if 'location' in extr: 
+            extr['location'] = extr['location'].strip()
+            loc = extr['location']
+            
+            if loc in self.locationsAssoc and self.locationsAssoc[loc]:
+                loc = self.locationsAssoc[loc]
+                extr['location_raw'] = extr['location']
+                extr['location'] = loc
+                #print "convert: location #1: '%s' => '%s'" % (extr['location_raw'], extr['location'])
+            else:
+                extr['location'] = loc  # at least we stripped the location of spaces:)
+                #print "convert: location: NOT FOUND('%s')" % (loc)
+                
         return extr
     
     def extract_year(self, extr, text):
