@@ -1,4 +1,4 @@
-import time, sys, re
+import time, sys, re, string
 
 class Processor(object):
     def __init__(self, source, maindb, db, cache, args):
@@ -218,8 +218,8 @@ class Processor_helper(object):
             rx=formulas["match:raw"]
             m = re.search(rx, text, re.IGNORECASE)
             
-        if 'debug' in formulas:
-            print "DEBUG, regex:  %s -> %s" % (rx, m.groups() if m else None)
+        #if 'debug' in formulas:
+        #    print "DEBUG, regex:  %s -> %s" % (rx, m.groups() if m else None)
 
         if m:
             s = m.group('match')
@@ -252,13 +252,14 @@ class Processor_helper(object):
             extr['location']  = m.group('location')
             s = self.reformat(extr['location'], self.presets['case-vile']['reformatter']['extractLocation'])
             if s:
-                print "extract: location #2: %s" % (s)
+                #print "extract: location #2: %s" % (s)
                 extr['location'] = s
             else:
-                print "extract: location #1: %s" % (s)
+                #print "extract: location #1: %s" % (s)
+                pass
         
-        if s is None:
-            print "extract: location: NOT FOUND"        
+        #if s is None:
+        #    print "extract: location: NOT FOUND"        
                 
         return extr
             
@@ -269,11 +270,11 @@ class Processor_helper(object):
                   'type':'int',
                   'match:raw': "(?P<match>[0-9]+)[\s]*("+"|".join([ "dormitoare", "dorm", "camere", "cam\.", "cam"])+")"
             })
-            if s:
-                print "extract: rooms #1: %s" % (s)
+            #if s:
+            #    print "extract: rooms #1: %s" % (s)
                 
-        if s is None:
-            print "extract: rooms: NOT FOUND"
+        #if s is None:
+        #    print "extract: rooms: NOT FOUND"
         
         if s:
             extr['rooms'] = s
@@ -287,7 +288,7 @@ class Processor_helper(object):
         s = None    
         # remove the location from the text, basically we might get distracted by area like "1 decembrie 1918"
         if 'location' in extr: 
-            text = re.sub(extr['location'], "", text)
+            text = string.replace(text, extr['location'], "")
             
         if s is None:
             s = self.extract_withFormula(text, {
@@ -301,8 +302,8 @@ class Processor_helper(object):
                         "din",
                    ), ()),
             })
-            if s:
-                print "extract: year_built #1: %s" % (s)
+            #if s:
+            #    print "extract: year_built #1: %s" % (s)
         
         if s is None:
             s = self.extract_withFormula(text, {
@@ -310,11 +311,11 @@ class Processor_helper(object):
                   'match':'(18|19|20)[0-9]{2}',
                   'match:content':((), ()),
             })
-            if s:
-                print "extract: year_built #2: %s" % (s)
+            #if s:
+            #    print "extract: year_built #2: %s" % (s)
                 
-        if s is None:
-            print "extract: year_built: NOT FOUND"
+        #if s is None:
+        #    print "extract: year_built: NOT FOUND"
         
         if s:
             extr['year_built'] = s
@@ -345,8 +346,8 @@ class Processor_helper(object):
                           "construita( de)?."), 
                           mpu
                      )})
-                if s:
-                    print "extract: surface_built #1: %s" % (s)
+                #if s:
+                #    print "extract: surface_built #1: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match': '[0-9]{,4}',
@@ -363,8 +364,8 @@ class Processor_helper(object):
                           "(construita|constructie|constructia)( de)?."), 
                           []
                      )})
-                if s:
-                    print "extract: surface_built #2: %s" % (s)
+                #if s:
+                #    print "extract: surface_built #2: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:content':((), 
@@ -372,18 +373,18 @@ class Processor_helper(object):
                             "("+ "|".join(("amprenta", "utili", "construiti", "constr(\.)?")) + ")",
                            )
                      )})
-                if s:
-                    print "extract: surface_built #3: %s" % (s)
+                #if s:
+                #    print "extract: surface_built #3: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:content':((), 
                           mpu
                      )})
-                if s:
-                    print "extract: surface_built #4: %s" % (s)
+                #if s:
+                #    print "extract: surface_built #4: %s" % (s)
                 
-            if s is None:
-                print "extract: surface_built: NOT FOUND"
+            #if s is None:
+            #    print "extract: surface_built: NOT FOUND"
                 
             if s:
                 extr['surface_built'] = s
@@ -403,8 +404,8 @@ class Processor_helper(object):
                           "construita( de)?."), 
                           mpu
                      )})
-                if s:
-                    print "extract: surface_built #1: %s" % (s)
+                #if s:
+                #    print "extract: surface_built #1: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:content':((), 
@@ -412,18 +413,18 @@ class Processor_helper(object):
                             "("+ "|".join(("utili", "construiti", "constr(\.)?")) + ")",
                            )
                      )})
-                if s:
-                    print "extract: surface_built #2: %s" % (s)
+                #if s:
+                #    print "extract: surface_built #2: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:content':((), 
                           mpu
                      )})
-                if s:
-                    print "extract: surface_built #3: %s" % (s)
+                #if s:
+                #    print "extract: surface_built #3: %s" % (s)
                 
-            if s is None:
-                print "extract: surface_built: NOT FOUND"
+            #if s is None:
+            #    print "extract: surface_built: NOT FOUND"
                 
             if s:
                 extr['surface_built'] = s
@@ -446,8 +447,8 @@ class Processor_helper(object):
                         ), 
                           [ "|".join(mpt)]
                      )})
-                if s:
-                    print "extract: surface_total #1: %s" % (s)
+                #if s:
+                #    print "extract: surface_total #1: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:content':((), 
@@ -455,24 +456,24 @@ class Processor_helper(object):
                             "("+ "|".join(("total teren", "tot(\.)? teren", "de teren", "teren", "total(a)", "curte")) + ")",
                            )
                      )})
-                if s:
-                    print "extract: surface_total #2: %s" % (s)
+                #if s:
+                #    print "extract: surface_total #2: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:content':((), 
                           mpt
                      )})
-                if s:
-                    print "extract: surface_total #3: %s" % (s)
+                #if s:
+                #    print "extract: surface_total #3: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:raw': "(?P<match>[0-9\.]+)[\s]*("+"|".join(mpt)+")"
                 })
-                if s:
-                    print "extract: surface_total #4: %s" % (s)
+                #if s:
+                #    print "extract: surface_total #4: %s" % (s)
                     
-            if s is None:
-                print "extract: surface_total: NOT FOUND"
+            #if s is None:
+            #    print "extract: surface_total: NOT FOUND"
                 
             if s:
                 extr['surface_total'] = s
@@ -483,17 +484,17 @@ class Processor_helper(object):
                       'match:content':((), 
                           mpt
                      )})
-                if s:
-                    print "extract: surface_total #1: %s" % (s)
+                #if s:
+                #    print "extract: surface_total #1: %s" % (s)
             if s is None:
                 s = self.extract_withFormula(text, {
                       'match:raw': "(?P<match>[0-9\.]+)[\s]*("+"|".join(mpt)+")"
                 })
-                if s:
-                    print "extract: surface_total #2: %s" % (s)
+                #if s:
+                #    print "extract: surface_total #2: %s" % (s)
                     
-            if s is None:
-                print "extract: surface_total: NOT FOUND"
+            #if s is None:
+            #    print "extract: surface_total: NOT FOUND"
                 
             if s:
                 extr['surface_total'] = s

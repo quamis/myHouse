@@ -17,8 +17,8 @@ class doProcess(base.process.Processor ):
         #desc = re.sub("\xa0|\d20ac", "", newRow['description'])
         desc = newRow['description']
         
-        print ""
-        print desc
+        #print ""
+        #print desc
         extr = self.processor_helper.extract_location(extr, desc)
         extr = self.processor_helper.convert_location(extr, desc)
         
@@ -37,8 +37,8 @@ class doProcess(base.process.Processor ):
         extr = {}
         desc = newRow['description']
         
-        print ""
-        print desc
+        #print ""
+        #print desc
         extr = self.processor_helper.extract_location(extr, desc)
         extr = self.processor_helper.convert_location(extr, desc)
         
