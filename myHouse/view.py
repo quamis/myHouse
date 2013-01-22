@@ -17,6 +17,9 @@ import datetime
 import csv
 import collections
 
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
 class View:
 	def __init__(self, db, viewer, args):
 		self.db = db
