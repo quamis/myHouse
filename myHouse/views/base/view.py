@@ -16,7 +16,7 @@ class baseView(object):
         pass
     
     def format_number(self, number):
-        return locale.format(unicode("%.*f"), (0, number), True)
+        return locale.format("%.*f", (0, number), True)
     
     def format_timestamp(self, timestamp, fmt='%Y-%m-%d'):
         return datetime.datetime.fromtimestamp(timestamp).strftime(fmt)
@@ -33,7 +33,7 @@ class baseView(object):
             elif valType=='year':
                 val = int(float(val))
             elif valType=='location':
-                val = str(val)
+                val = unicode(val)
             else:
                 raise Exception("invalid 'valType'")
             

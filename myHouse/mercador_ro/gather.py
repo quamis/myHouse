@@ -121,8 +121,6 @@ class newGatherer(base.gather.Extractor ):
             if html and self.updateIfExists(idstr, timestamp):
                 # extract data from the selected page
                 try:
-                    strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
-                    html = strip_unicode.sub('', html)
                     tree   = etree.HTML(html)
                     
                     location =      self.xpath_getOne(tree, "..//p[contains(@class, 'addetails')]//strong[contains(@class, 'brrighte5')]/text()")

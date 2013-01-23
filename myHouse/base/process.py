@@ -245,7 +245,7 @@ class Processor_helper(object):
                             elif formulas['type']=='float':
                                 match = int(s)
                             elif formulas['type']=='str':
-                                match = str(s)
+                                match = unicode(s)
                         else:
                             match = float(s)
                     except ValueError, e:

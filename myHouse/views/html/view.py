@@ -138,11 +138,11 @@ class newView(views.base.view.baseView):
         views.base.view.baseView.printHeader(self)
         
     def printFooter(self, stats):
-        sys.stdout.write(unicode("<div class='stats'>"))
-        sys.stdout.write(unicode("<div class='total'> Total: %s </div>" % (self.format_number(stats['total']))))
+        sys.stdout.write("<div class='stats'>")
+        sys.stdout.write("<div class='total'> Total: %s </div>" % (self.format_number(stats['total'])))
         
-        sys.stdout.write(unicode("</body>"))
-        sys.stdout.write(unicode("</html>"))
+        sys.stdout.write("</body>")
+        sys.stdout.write("</html>")
     
     def printItem(self, data, data_contacts, data_extracted):
         extr = {}            
@@ -151,7 +151,7 @@ class newView(views.base.view.baseView):
             for k in data_extracted:
                 extr[k[0]] = k[1]
                 
-        sys.stdout.write(unicode("<div class='offer'>"))
+        sys.stdout.write("<div class='offer'>")
         
         txtList = collections.OrderedDict()
         txtList['location'] =                 self.printRow_extraData('location', extr, 'location',             'in %s', 'location')
@@ -167,7 +167,7 @@ class newView(views.base.view.baseView):
             text = "<span class='extraData-surface'><span>%s</span></span>" % ("</span>, <span>".join(filter(None, txtList.values())))
         
         
-        sys.stdout.write(unicode(
+        sys.stdout.write((
             "\n"
             "<span class='price'>%7s EUR</span>"
             " %s "
@@ -178,15 +178,15 @@ class newView(views.base.view.baseView):
             "<a href='%s'>%s</a>"
             "<span class='addDate'>%s</span>"
             "<span class='updateDate'>%s</span> ") % (
-            locale.format(unicode("%.*f"), (0, data[4]), True),
+            locale.format("%.*f", (0, data[4]), True),
             text, 
-            unicode(data[0]),
+            data[0],
             data[5], 
-            ("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
-            unicode(data[2]), 
-            unicode(data[3]), unicode(data[3]), 
+            "#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
+            data[2], 
+            data[3], data[3], 
             datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
-            datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  ))
+            datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  )
 
         pre = "UNSTRUCTURED DATA: "
         for k in data_extracted:
@@ -205,4 +205,4 @@ class newView(views.base.view.baseView):
                     sys.stdout.write("<span class='misc'>%s: <b>%s</b></span> " % (k[0], k[1]))
             sys.stdout.write("</div>")
                     
-        sys.stdout.write(unicode("</div>"))
+        sys.stdout.write("</div>")

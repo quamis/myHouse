@@ -136,8 +136,6 @@ class newGatherer(base.gather.Extractor ):
             if html and self.updateIfExists(idstr, timestamp):
                 try:
                     # extract data from the selected page
-                    strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)");
-                    html = strip_unicode.sub('', html)
                     tree   = etree.HTML(html)
                     
                     location1 =     self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'Localitate')]/../text()")

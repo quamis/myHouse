@@ -23,15 +23,15 @@ class newView(views.base.view.baseView):
         views.base.view.baseView.printFooter(self, stats)
             
     def printItem(self, data, data_contacts, data_extracted):
-        sys.stdout.write(unicode(
+        sys.stdout.write((
                 "[% 9s]%s %s\n"
                 "  %s\n"
                 "  % 7s EUR, \tid: %s (add:%s, upd:%s)\n") % (
-                unicode(data[0]), 
-                ("#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
-                unicode(data[2]), 
-                unicode(data[3]), 
-                locale.format(unicode("%.*f"), (0, data[4]), True),
+                data[0], 
+                "#[%s]"%(data[6]) if data[6]!=None and data[6]!="" else "",
+                data[2], 
+                data[3], 
+                locale.format("%.*f", (0, data[4]), True),
                 data[5],
                 datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
                 datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  ))

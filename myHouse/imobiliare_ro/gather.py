@@ -119,8 +119,6 @@ class newGatherer(base.gather.Extractor ):
             # extract data from the selected page
             idstr = self.hash(link)
             if html and self.updateIfExists(idstr, timestamp):
-                strip_unicode = re.compile("([^-_a-zA-Z0-9!@#%&=,/'\";:~`\$\^\*\(\)\+\[\]\.\{\}\|\?\<\>\\]+|[^\s]+)")
-                html = strip_unicode.sub('', html)
                 tree   = etree.HTML(html)
                 
                 location_full =     tree.xpath("//div[contains(@class, 'titlu')]//span/text()")[0].strip()

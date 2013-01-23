@@ -44,11 +44,11 @@ class newView(views.base.view.baseView):
 
         output['data'] = collections.OrderedDict()
         output['data']['price'] = self.format_number(data[4])
-        output['data']['text'] = unicode(data[2])
-        output['data']['category'] = unicode(data[0])
-        output['data']['id'] = unicode(data[5])
-        output['data']['status'] = unicode(data[6])
-        output['data']['href'] = unicode(data[3])
+        output['data']['text'] = data[2]
+        output['data']['category'] = data[0]
+        output['data']['id'] = data[5]
+        output['data']['status'] = data[6]
+        output['data']['href'] = data[3]
         output['data']['addDate'] = self.format_timestamp(data[7])
         output['data']['updateDate'] = self.format_timestamp(data[8])
         
