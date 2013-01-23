@@ -9,12 +9,7 @@ import urllib2 # to be able to catch Browser expcetions
 class newGatherer(base.gather.Extractor ):
     def __init__(self, category, url, db, cache, args):
         super(newGatherer, self).__init__(category, url, db, cache, args)
-        
-        self.db.tableCreate("az_ro_links", { 
-            "id":             "VARCHAR(256)",
-            "url":             "VARCHAR(256)",
-        }, ["id"])
-        
+
         self.db.tableCreate("az_ro_data", { 
             "id":             "VARCHAR(64)",
             "category":       "VARCHAR(64)",
@@ -25,6 +20,8 @@ class newGatherer(base.gather.Extractor ):
             "addDate":        "INT",
             "updateDate":     "INT",
         }, ["id"])
+        
+        self.table_data = "az_ro_data"
         
         
     def extractPaginationUrls(self, html):
@@ -140,10 +137,3 @@ class newGatherer(base.gather.Extractor ):
                 except IndexError as e:
                     self.debug_print("parse-failed", e)
 
-    def writeItem(self, item):
-        if(self.db.itemExists("az_ro_data", item['id'])):
-            self.db.itemUpdate("az_ro_data",{ "id": item['id'], "updateDate":     item['updateDate'], })
-        else:
-            self.db.itemInsert("az_ro_data", item)
-            self.db.flushRandom(0.025)
-        
