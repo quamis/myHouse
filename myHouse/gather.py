@@ -1,10 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# @see http://lxml.de/lxmlhtml.html#parsing-html
-# @see https://gist.github.com/823821
-
-import sys, os
+import sys, os, codecs
 import logging
 from DB import DB
 from CACHE import CACHE
@@ -46,6 +43,9 @@ if args.UA=="real":
 moduleStr = args.module
 startUrl = args.url
 category = args.category
+
+# change the output encoding to utf8
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 db = DB("../db/"+moduleStr+".sqlite")
 cache = CACHE(moduleStr)

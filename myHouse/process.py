@@ -4,15 +4,12 @@
 # @see http://lxml.de/lxmlhtml.html#parsing-html
 # @see https://gist.github.com/823821
 
-import os, sys
+import os, sys, codecs
 import logging
 from DB import DB
 from CACHE import CACHE
 import argparse
 import importlib
-
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
 sys.path.insert(0, "base")
 
@@ -30,6 +27,9 @@ if args.module is None:
     raise SystemExit
 
 moduleStr = args.module
+
+# change the output encoding to utf8
+sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 
 maindb = DB("../db/main.sqlite")
 db = DB("../db/"+moduleStr+".sqlite")
