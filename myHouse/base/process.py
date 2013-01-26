@@ -34,7 +34,7 @@ class Processor(object):
             "description":  "TEXT",
             "addDate":      "INT",
             "updateDate":   "INT",
-        }, ["id"])
+        }, ["id"], ["status", "category", "source", "price", "addDate", "updateDate"])
         
         self.maindb.tableCreate("data_contacts", { 
             "idOffer":      "VARCHAR(64)",
