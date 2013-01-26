@@ -8,6 +8,7 @@ import hashlib
 import numconv
 import warnings
 import datetime
+import zlib
 
 class Extractor(object):
     def __init__(self, category, url, db, cache, args):
@@ -125,8 +126,7 @@ class Extractor(object):
             self.db.itemInsert(self.table_data, item)
             self.db.flushRandom(0.010)
         
-                    
-    
+
     def wait(self, reason): 
         # TODO: configure sleep period from the command-line/system specific args
         if reason=="new-page" or reason=="new-offer":

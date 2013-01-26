@@ -14,9 +14,7 @@ class newGatherer(base.gather.Extractor ):
             "id":               "VARCHAR(32)",
             "category":         "VARCHAR(64)",
             "url":              "VARCHAR(256)",
-            "contact":          "VARCHAR(256)",
-            "price":            "INT",
-            "description":      "TEXT",
+            "html":             "TEXT",
             "addDate":          "INT",
             "updateDate":       "INT",
         }, ["id"])
@@ -108,28 +106,11 @@ class newGatherer(base.gather.Extractor ):
             # extract data from the selected page
             idstr = self.hash(link)
             if html and self.updateIfExists(idstr, timestamp):
-                tree   = etree.HTML(html)
-                try:
-                    text =         tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/text()")[0]
-                    location =     tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/strong/text()")[0]
-                    #addDate =      tree.xpath("//table[@id='detalii_anunt']//div[@class='detalii_txt']/span[@class='data']/text()")[0]
-                    contact =      tree.xpath("//table[@id='detalii_anunt']//div[@class='contact']/text()")[0]
-                    pret =         tree.xpath("//table[@id='detalii_anunt']//span[@class='pret']/text()")[0]
-                    if pret:
-                        pret = pret.replace("Pret:", "").replace(".", "")
-                        pret =         re.sub("[^0-9]", "", pret)
-                    
-                    idstr = self.hash(link)
-                    self.writeItem({ 
-                        "id":             idstr,
-                        "price":         pret,
-                        "category":     self.category,
-                        "url":             link,
-                        "description":     location+" "+text,
-                        "contact":         contact,
-                        "addDate":         timestamp,
-                        "updateDate":     timestamp,
-                    })
-                except IndexError as e:
-                    self.debug_print("parse-failed", e)
-    
+                self.writeItem({ 
+                    "id":           idstr,
+                    "category":     self.category,
+                    "url":          link,
+                    "html":         self.db.compress( unicode(html.decode("latin-1")) ),
+                    "addDate":      timestamp,
+                    "updateDate":   timestamp,
+                })

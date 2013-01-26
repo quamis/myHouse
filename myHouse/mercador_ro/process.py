@@ -1,48 +1,56 @@
 import base.process
+import base.HTML 
+import re, time
 
-import re
-
-class doProcess(base.process.Processor ):
+class doProcess( base.process.Processor ):
     def __init__(self, source, maindb, db, cache, args):
         super(doProcess, self).__init__(source, maindb, db, cache, args)
     
     def selectStart(self):
-        #                                 0          1           2        3      4              5        6                7    
-        c = self.db.selectStart("SELECT `category`, `location`, `rooms`, `url`, `description`, `price`, `surface_total`, `id` FROM `mercador_ro_data` WHERE 1 ORDER BY `category` ASC, `description` ASC")
+        c = self.db.selectStart("SELECT `id`, `category`, `html`, `url` FROM `mercador_ro_data` WHERE 1")
         return c
     
     def selectEnd(self, c):
         self.db.selectEnd(c)
     
-    def _extractData_houses(self, newRow, row):
-        extr = {}
-        if row[1]:
-            extr['location'] = row[1]
-            
-        if row[2]:
-            extr['rooms'] = row[2]
-            
-        if row[6]:
-            extr['surface_total'] = row[6]
-
-        if newRow['price']!="" and "surface_built" in extr:
-            extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_total']), 0)
-            
-        return extr
-        
     def _processRow(self, row):
         newRow = {}
-        newRow['category'] = row[0]
-        newRow['description'] = re.sub("[\s]+", " ", row[4])
+        newRow['id'] =      row[0]
+        newRow['category'] =row[1]
         newRow['url'] =     row[3]
-        newRow['price'] =   row[5]
-        newRow['id'] =      row[7]
+
+        tree = base.HTML.HTML(self.db.decompress(row[2]))
         
-        # extract data
-        if newRow['category']=="case-vile":
-            newRow['extracted'] = self._extractData_houses(newRow, row)
+        newRow['location'] =      tree.first("..//p[contains(@class, 'addetails')]//strong[contains(@class, 'brrighte5')]/text()")
         
-                
-        #print newRow
+        p = tree.first(".//div[contains(@class, 'pricelabel')]/strong[contains(@class, 'xxxx-large')]/text()")
+        if re.search("lei", p):
+            m = re.search("^(?P<price>[0-9]+)", re.sub("[\s]", "", p))
+            p = round(self.currencyConverter.RONEUR(float(m.group('price'))))
+        else:
+            m = re.search("^(?P<price>[0-9]+)", re.sub("[\s]", "", p))
+            p = float(m.group('price'))
+            
+        newRow['price'] = p
+        
+        newRow['surface_total'] =  tree.asFloat(".//table[contains(@class, 'details')]//div[contains(text(), 'Suprafata')]/strong/text()")
+        
+        newRow['rooms'] =          int(tree.asFloat(".//table[contains(@class, 'details')]//div[contains(text(), 'Camere')]/strong/*/text()"))
+        
+        newRow['description'] =                 tree.first(".//div[contains(@class, 'offerdescription')]/p[contains(@class, 'large')]/text()")
+        
+        newRow = self.processor_helper.extract_year(newRow, newRow['description'])
+        
+
+        if re.search("apartament", newRow['description']) and re.search("etaj", newRow['description']):
+            print("\nThis is not the correct category(its an apartment). Ignoring")
+            return None
+        
+        if re.search("cumpar", newRow['description']):
+            print("\nThis is not the correct category(this guy buys stuff, not selling). Ignoring")
+            return None
+    
+        newRow = super(doProcess, self).extractData_base(newRow)
+        
         return newRow
     

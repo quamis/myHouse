@@ -16,15 +16,7 @@ class newGatherer(base.gather.Extractor ):
             "id":             "VARCHAR(32)",
             "category":       "VARCHAR(64)",
             "url":            "VARCHAR(256)",
-            "contact":        "VARCHAR(256)",
-            "location":       "VARCHAR(256)",
-            "details":        "TEXT",
-            "rooms":          "INT",
-            "price":          "INT",
-            "surface_total":  "INT",
-            "surface_built":  "INT",
-            "year_built":     "INT",
-            "description":    "TEXT",
+            "html":           "TEXT",
             "addDate":        "INT",
             "updateDate":     "INT",
         }, ["id"])
@@ -119,53 +111,12 @@ class newGatherer(base.gather.Extractor ):
             # extract data from the selected page
             idstr = self.hash(link)
             if html and self.updateIfExists(idstr, timestamp):
-                tree   = etree.HTML(html)
+                self.writeItem({ 
+                    "id":           idstr,
+                    "category":     self.category,
+                    "url":          link,
+                    "html":         self.db.compress( unicode(html.decode("latin-1")) ),
+                    "addDate":      timestamp,
+                    "updateDate":   timestamp,
+                })
                 
-                location_full =     tree.xpath("//div[contains(@class, 'titlu')]//span/text()")[0].strip()
-                location = re.search("^(?P<loc>[^,]+)", location_full).groups("loc")[0]
-                
-                price =             re.sub("[^0-9]", "", tree.xpath("//*[@id='b_detalii_titlu']/div/div/div/text()")[0].strip())
-                
-                if self.category=="case-vile":
-                    x_rooms =          tree.xpath("//*[@id='b_detalii_caracteristici']//table//tr/td[1][contains(text(), 'camere')]/../td[2]/text()")
-                    rooms = x_rooms[0] if x_rooms else None 
-                        
-                    surface_total =     re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'teren')]/text()"))
-                    surface_built =     re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'util')]/text()")) or \
-                                        re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'construit')]/text()")) 
-                    year_built =        re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()"))
-                    
-                    
-                    details =    location_full+". "+re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
-                    self.writeItem({ 
-                        "id":             idstr,
-                        "category":       self.category,
-                        "url":            link,
-                        "location":       location,
-                        "details":        details,
-                        "price":          price,
-                        "rooms":          rooms,
-                        "surface_total":  surface_total,
-                        "surface_built":  surface_built,
-                        "year_built":     year_built,
-                        "addDate":        timestamp,
-                        "updateDate":     timestamp,
-                    })
-                else:
-                    # apt
-                    details =    re.sub("[\s]+", " ", " ".join(tree.xpath(".//*[@id='b_detalii_text']/div/div/*/text()")))
-                    surface_built =    re.sub("[^0-9]", "", self.xpath_getOne(tree, "//*[@id='b_detalii']/div/h3/span[contains(text(), 'Suprafaa construit')]/text()"))
-                    year_built =       re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()"))
-                    self.writeItem({ 
-                        "id":             idstr,
-                        "category":       self.category,
-                        "url":            link,
-                        "location":       location,
-                        "details":        details,
-                        "price":          price,
-                        "surface_built":  surface_built,
-                        "year_built":     year_built,
-                        "addDate":        timestamp,
-                        "updateDate":     timestamp,
-                    })
-            

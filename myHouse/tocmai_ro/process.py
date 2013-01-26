@@ -1,46 +1,55 @@
-import base.process
+# -*- coding: utf-8 -*-
 
-import re
+import base.process
+import base.HTML 
+import re, time
 
 class doProcess(base.process.Processor ):
     def __init__(self, source, maindb, db, cache, args):
         super(doProcess, self).__init__(source, maindb, db, cache, args)
     
     def selectStart(self):
-        #                                 0          1           2        3      4              5        6                7    
-        c = self.db.selectStart("SELECT `category`, `location`, `rooms`, `url`, `description`, `price`, `surface_total`, `id` FROM `tocmai_ro_data` WHERE 1 ORDER BY `category` ASC, `description` ASC")
+        c = self.db.selectStart("SELECT `id`, `category`, `html`, `url` FROM `tocmai_ro_data` WHERE 1")
         return c
     
     def selectEnd(self, c):
         self.db.selectEnd(c)
         
-    def _extractData_houses(self, newRow, row):
-        extr = {}
-        if row[1]:
-            extr['location'] = row[1]
-            
-        if row[2]:
-            extr['rooms'] = row[2]
-            
-        if row[6]:
-            extr['surface_total'] = row[6]
-
-        if newRow['price']!="" and "surface_built" in extr:
-            extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_total']), 0)
-            
-        return extr
-        
     def _processRow(self, row):
         newRow = {}
-        newRow['category'] = row[0]
-        newRow['description'] = re.sub("[\s]+", " ", row[4])
+        newRow['id'] =      row[0]
+        newRow['category'] =row[1]
         newRow['url'] =     row[3]
-        newRow['price'] =   row[5]
-        newRow['id'] =      row[7]
+
+        tree = base.HTML.HTML(self.db.decompress(row[2]))
         
-        # extract data
+        location1 =     tree.first(".//*[@id='main']//div/p/b[contains(text(), 'Localitate')]/../text()")
+        location2 =     tree.first(".//*[@id='main']//div/p/b[contains(text(), 'Zona')]/../text()")
+        if location1 and location2:
+            newRow['location'] =      ", ".join((location1, location2))
+        elif location1:
+            newRow['location'] =      location1
+        elif location2:
+            newRow['location'] =      location2
+            
+        
+        newRow['price'] =   tree.asPrice(".//*[@id='main']//span[@itemprop= 'price']/text()")
+        if not newRow['price']:
+            newRow['price']=tree.asPrice(".//*[@id='main']//div[contains(text(), 'Pret')]/text()")
+            
+        newRow['surface_total'] = tree.asFloat(".//*[@id='main']//div/p/b[contains(text(), 'Suprafata')]/../text()")
+        
+        newRow['rooms'] =         int(tree.asFloat(".//*[@id='main']//div/p/b[contains(text(), 'camere')]/../text()"))
+        
+        newRow['description'] =      tree.concat(".//*[@id='main']//div[contains(@class, 'item-description')]/text()")
+        
+        newRow = self.processor_helper.extract_year(newRow, newRow['description'])
+        
         if newRow['category']=="case-vile":
-            newRow['extracted'] = self._extractData_houses(newRow, row)
+            if re.search("apartament", newRow['description']) and re.search("etaj", newRow['description']):
+                newRow['category'] = "apt-%d" %(max(4, newRow['rooms']))
         
+        newRow = super(doProcess, self).extractData_base(newRow)
+            
         return newRow
     

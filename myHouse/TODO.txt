@@ -1,3 +1,7 @@
+ALTER TABLE "main"."az_ro_data" ADD COLUMN "html" TEXT
+
+
+
 TODO:
  - coloreaza output-ul
  - detecteaza agentiile, adsauga cautare dupa telefon/mail

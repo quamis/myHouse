@@ -77,10 +77,10 @@ function gather_tocmai_ro(){
 
 
 function gather_mercador_ro(){
-    local SLEEP="0.75"
+    local SLEEP="1.5"
     local V=5
     do_lock "mercador_ro" "case-vile(limited-search)"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "mercador_ro" -category "case-vile" -url "http://mercador.ro/imobiliare/case-de-vanzare-si-de-inchiriat/bucuresti/?search[filter_float_price%3Afrom]=20000&search[filter_float_price%3Ato]=90000&search[filter_enum_alege]=vanzare"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "mercador_ro" -category "case-vile" -url "http://mercador.ro/imobiliare/case-de-vanzare-si-de-inchiriat/bucuresti/?search[filter_float_price%3Afrom]=20000&search[filter_float_price%3Ato]=329000&search[filter_enum_alege]=vanzare"
     
     do_unlock "mercador_ro"
 }
@@ -106,17 +106,20 @@ function gather_imopedia_ro(){
 
 
 function gather_az_ro(){
+    local SLEEP="1.5"
+    local V=5
+    
     do_lock "az_ro" "case-vile"
-    ./gather.py -v=1 -sleep=1.0 -user-agent="random" -module "az_ro" -category "case-vile" -url "http://www.az.ro/imobiliare-vanzari/case-vile"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "az_ro" -category "case-vile" -url "http://www.az.ro/imobiliare-vanzari/case-vile"
     
     do_lock "az_ro" "apt-2-cam"
-    ./gather.py -v=1 -sleep=1.0 -user-agent="random" -module "az_ro" -category "apt-2-cam" -url "http://www.az.ro/imobiliare-vanzari/2-camere"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "az_ro" -category "apt-2-cam" -url "http://www.az.ro/imobiliare-vanzari/2-camere"
     
     do_lock "az_ro" "apt-3-cam"
-    ./gather.py -v=1 -sleep=1.0 -user-agent="random" -module "az_ro" -category "apt-3-cam" -url "http://www.az.ro/imobiliare-vanzari/3-camere"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "az_ro" -category "apt-3-cam" -url "http://www.az.ro/imobiliare-vanzari/3-camere"
     
     do_lock "az_ro" "apt-4-cam"
-    ./gather.py -v=1 -sleep=1.0 -user-agent="random" -module "az_ro" -category "apt-4-cam" -url "http://www.az.ro/imobiliare-vanzari/4-camere"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "az_ro" -category "apt-4-cam" -url "http://www.az.ro/imobiliare-vanzari/4-camere"
     
     do_unlock "az_ro"
 }
@@ -157,6 +160,7 @@ echo "[$DT] updater started"
 
 
 SOURCES=( "anuntul_ro" "imobiliare_ro" "tocmai_ro" "mercador_ro" "imopedia_ro" "az_ro" )
+#SOURCES=( "az_ro" )
 #SOURCES=( "anuntul_ro" )
 #SOURCES=( "imopedia_ro" )
 #SOURCES=( "tocmai_ro" )

@@ -2,6 +2,8 @@
 import sqlite3
 import random
 
+import zlib, base64, pickle
+
 class DB:
     def __init__(self, file):
         self.file = file
@@ -9,6 +11,12 @@ class DB:
         self.cursor = None
         self.open()
         
+    def compress(self, text):
+        return buffer(zlib.compress(pickle.dumps(text, pickle.HIGHEST_PROTOCOL), 9))
+        
+    def decompress(self, text):
+        return unicode(pickle.loads(zlib.decompress(text)))
+    
     def open(self):
         self.connection = sqlite3.connect(self.file)
     

@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# @see http://lxml.de/lxmlhtml.html#parsing-html
-# @see https://gist.github.com/823821
-
 import os, sys, codecs
 import logging
 from DB import DB

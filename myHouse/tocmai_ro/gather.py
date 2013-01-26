@@ -11,16 +11,12 @@ class newGatherer(base.gather.Extractor ):
         super(newGatherer, self).__init__(category, url, db, cache, args)
         
         self.db.tableCreate("tocmai_ro_data", { 
-            "id":             "VARCHAR(64)",
-            "category":       "VARCHAR(64)",
-            "url":            "VARCHAR(256)",
-            "location":       "VARCHAR(256)",
-            "rooms":          "INT",
-            "price":          "INT",
-            "surface_total":  "INT",
-            "description":    "TEXT",
-            "addDate":        "INT",
-            "updateDate":     "INT",
+            "id":               "VARCHAR(32)",
+            "category":         "VARCHAR(64)",
+            "url":              "VARCHAR(256)",
+            "html":             "TEXT",
+            "addDate":          "INT",
+            "updateDate":       "INT",
         }, ["id"])
         
         self.table_data = "tocmai_ro_data"
@@ -131,52 +127,14 @@ class newGatherer(base.gather.Extractor ):
             else:
                 self.debug_print("wget-cached", link)
                 
-                
             idstr = self.hash(link)
             if html and self.updateIfExists(idstr, timestamp):
-                try:
-                    # extract data from the selected page
-                    tree   = etree.HTML(html)
-                    
-                    location1 =     self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'Localitate')]/../text()")
-                    location2 =     self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'Zona')]/../text()")
-                    if location1 and location2:
-                        location =      "%s, %s" % (location1, location2)
-                    elif location1:
-                        location =      location1
-                    
-                    price =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//span[@itemprop= 'price']/text()"))
-                    if not price:
-                        price =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div[contains(text(), 'Pret')]/text()"))
-                    surface_total = re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'Suprafata')]/../text()"))
-                    rooms =         re.sub("[^0-9]", "", self.xpath_getOne(tree, ".//*[@id='main']//div/p/b[contains(text(), 'camere')]/../text()"))
-    
-                    #descRows =      tree.xpath(".//*[@id='main']/div[3]/div/div[2]/div[8]/text()")
-                    descRows =      tree.xpath(".//*[@id='main']//div[contains(@class, 'item-description')]/text()")
-                    description = ""
-                    for r in descRows:
-                        description+= r.strip()+"\n"
-                    description = description.strip()
-                    
-                    if self.category=="case-vile":
-                        if re.search("apartament", description) and re.search("etaj", description):
-                            raise Exception("This is not the correct category. Ignoring")
-                    
-                    if re.search("^[\s]*$", description):
-                        raise Exception("This description is empty. Ignoring")
-    
-                    idstr = self.hash(link)
-                    self.writeItem({ 
-                        "id":             idstr,
-                        "category":       self.category,
-                        "url":            link,
-                        "location":       location,
-                        "description":    description,
-                        "price":          price,
-                        "rooms":          rooms,
-                        "surface_total":  surface_total,
-                        "addDate":        timestamp,
-                        "updateDate":     timestamp,
-                    })
-                except Exception:
-                    self.debug_print("parse-failed")
+                self.writeItem({ 
+                    "id":           idstr,
+                    "category":     self.category,
+                    "url":          link,
+                    "html":         self.db.compress( unicode(html.decode("latin-1")) ),
+                    "addDate":      timestamp,
+                    "updateDate":   timestamp,
+                })
+                

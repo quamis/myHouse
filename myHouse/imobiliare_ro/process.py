@@ -1,60 +1,70 @@
-import base.process
+# -*- coding: utf-8 -*-
 
-import re
+import base.process
+import base.HTML 
+import re, time
 
 class doProcess(base.process.Processor ):
     def __init__(self, source, maindb, db, cache, args):
         super(doProcess, self).__init__(source, maindb, db, cache, args)
     
     def selectStart(self):
-        #                                 0              1       2         3      4          5         6                7                8            9
-        c = self.db.selectStart("SELECT `category`, `location`, `rooms`, `url`, `details`, `price`, `surface_total`, `surface_built`, `year_built`, `id` FROM `imobiliare_ro_data` WHERE 1 ORDER BY `category` ASC, `description` ASC")
+        c = self.db.selectStart("SELECT `id`, `category`, `html`, `url` FROM `imobiliare_ro_data` WHERE 1")
         return c
     
     def selectEnd(self, c):
         self.db.selectEnd(c)
         
-    def _extractData_houses(self, newRow, row):
-        extr = {}
-        if row[1]:
-            extr['location'] = row[1]
-            
-        if row[2]:
-            extr['rooms'] = row[2]
-            
-        if row[7]:
-            extr['surface_built'] = row[7]
-            
-        if row[6]:
-            extr['surface_total'] = row[6]
-
-        if newRow['price']!="" and "surface_built" in extr:
-            extr['price_per_mp_built'] = round(float(newRow['price'])/float(extr['surface_built']), 0)
-            
-        return extr
+    def _extractData_houses(self, newRow, row, tree):
+        r = tree.asFloat("//*[@id='b_detalii_caracteristici']//table//tr/td[1][contains(text(), 'camere')]/../td[2]/text()")
+        newRow['rooms'] = int(r) if r else None
+        
+        r = tree.asFloat("//*[@id='b_detalii']/div/h3/span[contains(text(), 'teren')]/text()")
+        newRow['surface_total'] = float(r) if r else None
+        
+        r = tree.asFloat("//*[@id='b_detalii']/div/h3/span[contains(text(), 'util')]/text()") or \
+            tree.asFloat("//*[@id='b_detalii']/div/h3/span[contains(text(), 'construit')]/text()")
+        newRow['surface_built'] = float(r) if r else None
+        
+        r = tree.asYear(".//*[@id='b_detalii']/div/h3/span[contains(text(), 'An constr')]/text()")
+        newRow['year_built'] = int(r) if r else None
+        
+        return newRow
+    
+    def _extractData_apt(self, newRow, row, tree):
+        r = tree.asFloat(unicode("//*[contains(text(), 'Suprafaţa utilă')]/../*[last()]/text()".decode("utf-8")))
+        newRow['surface_built'] = float(r) if r else None
+        
+        r = tree.asFloat(unicode("//*[contains(text(), 'Suprafaţa construită')]/../*[last()]/text()".decode("utf-8")))
+        newRow['surface_total'] = float(r) if r else None
+        
+        r = tree.asYear("//*[contains(text(), 'An const')]/../*[last()]/text()")
+        newRow['year_built'] = int(r) if r else None
+        
+        return newRow
         
     def _processRow(self, row):
         newRow = {}
-        newRow['category'] = row[0]
-        newRow['description'] = re.sub("[\s]+", " ", row[4])
+        newRow['id'] =      row[0]
+        newRow['category'] =row[1]
         newRow['url'] =     row[3]
-        newRow['price'] =   row[5]
-        newRow['id'] =      row[9]
+
+        tree = base.HTML.HTML(self.db.decompress(row[2]))
         
-        if not newRow['price']:
-            self.debug_print("loop-error", newRow)
-            return None
+        newRow['location'] =   ", ".join(re.split("[\s]*,[\s]*", re.sub("[^a-zA-Z0-9](zona|Sector [0-9])[^a-zA-Z0-9]", "", tree.first("//div[contains(@class, 'titlu')]//span/text()"))))
+                
+        newRow['price'] = tree.asPrice("//*[@id='b_detalii_titlu']/div/div/div/text()")
+        
+        newRow['description'] = tree.concat(".//*[@id='b_detalii_text']/div/div/*/text()") or \
+                                tree.concat("//*[@id='b_detalii_specificatii']//div[@class='content']//text()")
         
         # extract data
         if newRow['category']=="case-vile":
-            newRow['extracted'] = self._extractData_houses(newRow, row)
+            newRow = self._extractData_houses(newRow, row, tree)
+        else: #apt
+            newRow = self._extractData_apt(newRow, row, tree)
+            
+        newRow = super(doProcess, self).extractData_base(newRow)
         
-        
-            #raise SystemExit  
-        
-        #raise SystemExit
-        
-        
-        #print newRow
         return newRow
     

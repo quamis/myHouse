@@ -14,9 +14,7 @@ class newGatherer(base.gather.Extractor ):
             "id":             "VARCHAR(64)",
             "category":       "VARCHAR(64)",
             "url":            "VARCHAR(256)",
-            "contact":        "VARCHAR(256)",
-            "price":          "INT",
-            "description":    "TEXT",
+            "html":           "TEXT",
             "addDate":        "INT",
             "updateDate":     "INT",
         }, ["id"])
@@ -110,30 +108,13 @@ class newGatherer(base.gather.Extractor ):
                 self.debug_print("wget-cached", link)
                 
             # extract data from the selected page
-            if(html):
-                tree   = etree.HTML(html)
-                try:
-                    locations =     re.sub(" (-|\/) Ilfov", "", re.sub("Localitate", "", self.xpath_getTexts(tree, ".//*[@id='specs']/li/strong[contains(text(), 'Localitate')]/../*/text()"))).strip()
-                    m = re.match("(?P<loc1>[^\n]+)\n(?P<loc2>[^\n]+)", locations)
-                    location = ""
-                    if m:
-                        location =  m.group("loc2") + " - " + m.group("loc1")
-                        
-                    text =          re.sub("[\s]+", " ", location + ", " + self.xpath_getTexts(tree, ".//div[contains(@class, 'az-content-body')]//text()"))
-                    contact =       self.xpath_getOne(tree, ".//div[contains(@class, 'az-content-contact')]/span[contains(@class, 'act-phone')]/a/text()")
-                    pret =          re.sub("[^0-9]", "", re.sub("Pret:", "", self.xpath_getOne(tree, ".//div[contains(@class, 'az-price')]/text()")))
-                    
-                    idstr = self.hash(link)
-                    self.writeItem({ 
-                        "id":               idstr,
-                        "price":            pret,
-                        "category":         self.category,
-                        "url":              link,
-                        "description":      text,
-                        "contact":          contact,
-                        "addDate":          timestamp,
-                        "updateDate":       timestamp,
+            idstr = self.hash(link)
+            if html and self.updateIfExists(idstr, timestamp):
+                self.writeItem({ 
+                    "id":           idstr,
+                    "category":     self.category,
+                    "url":          link,
+                    "html":         self.db.compress( unicode(html.decode("utf-8")) ),
+                    "addDate":      timestamp,
+                    "updateDate":   timestamp,
                     })
-                except IndexError as e:
-                    self.debug_print("parse-failed", e)
-

@@ -9,7 +9,10 @@ class Processor(object):
         self.maindb = maindb
         self.cache = cache
         
+        
         self.processor_helper = Processor_helper()
+        
+        self.currencyConverter = Processor_currencyConverter()
 
         #email, phones        
         self.maindb.tableCreate("data", { 
@@ -19,6 +22,15 @@ class Processor(object):
             "source":       "VARCHAR(16)",  # anunturi_ro
             "url":          "VARCHAR(256)",
             "price":        "INT",
+
+            "location":     "VARCHAR(256)",
+            "rooms":        "INT",
+            "year_built":   "INT",
+            "surface_total":"FLOAT",
+            "surface_built":"FLOAT",
+            "price_per_mp_total":"FLOAT",
+            "price_per_mp_built":"FLOAT",
+            
             "description":  "TEXT",
             "addDate":      "INT",
             "updateDate":   "INT",
@@ -46,6 +58,16 @@ class Processor(object):
     def _processRow(self, row):
         pass
 
+    def extractData_base(self, newRow):
+        if newRow['price'] and "surface_built" in newRow and newRow["surface_built"]:
+            newRow['price_per_mp_built'] = round(float(newRow['price'])/float(newRow['surface_built']), 0)
+            
+        if newRow['price'] and "surface_total" in newRow and newRow["surface_total"]:
+            newRow['price_per_mp_total'] = round(float(newRow['price'])/float(newRow['surface_total']), 0)
+            
+        return newRow
+
+
     def debug_print(self, result, extra=None):
         # 0 = none, 1: only importans, 2: dots, 3: debug
         if(self.args.verbosity>=1):
@@ -62,9 +84,7 @@ class Processor(object):
             pass
         
         if(result=="loop-new"):
-            if not extra['price']:
-                extra['price'] = 1
-            sys.stdout.write("\n    % 9dEUR %s" % (extra['price'], extra['url']))
+            sys.stdout.write("\n    % 9sEUR %s" % (int(extra['price']) if extra['price'] else "-", extra['url']))
             
         if(result=="loop-old"):
             #sys.stdout.write('.')
@@ -83,7 +103,11 @@ class Processor(object):
         for row in rows:
             self.debug_print("loop-step", { "index": index })
             index+=1
+            #try:
             newRow = self._processRow(row)
+            #except Exception as e:
+            #    print "ex: %s" % (e)
+                
             if newRow is None:
                 continue
             
@@ -101,13 +125,22 @@ class Processor(object):
                             self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
                             
                     self.maindb.itemUpdate("data", {
-                          "source":     self.source, 
-                          "id":         newRow['id'],
-                          "category":   newRow['category'], 
-                          "url":        newRow['url'], 
-                          "price":      newRow['price'],
-                          "description":newRow['description'],
-                          "updateDate": timestamp,
+                          "source":             self.source, 
+                          "id":                 newRow['id'],
+                          "category":           newRow['category'], 
+                          "url":                newRow['url'], 
+                          "price":              newRow['price'],
+                          "description":        newRow['description'],
+                          
+                          "location":           newRow['location'] if 'location' in newRow else None,
+                          "rooms":              newRow['rooms'] if 'rooms' in newRow else None,
+                          "year_built":         newRow['year_built'] if 'year_built' in newRow else None,
+                          "surface_total":      newRow['surface_total'] if 'surface_total' in newRow else None,
+                          "surface_built":      newRow['surface_built'] if 'surface_built' in newRow else None,
+                          "price_per_mp_total": newRow['price_per_mp_total'] if 'price_per_mp_total' in newRow else None,
+                          "price_per_mp_built": newRow['price_per_mp_built'] if 'price_per_mp_built' in newRow else None,
+                          
+                          "updateDate":         timestamp,
                       })
                 else:
                     self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })
@@ -125,21 +158,41 @@ class Processor(object):
                         self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
                         
                 self.maindb.itemInsert("data", {
-                      "status":     "",
-                      "source":     self.source, 
-                      "id":         newRow['id'],
-                      "category":   newRow['category'], 
-                      "url":        newRow['url'], 
-                      "price":      newRow['price'],
-                      "description":newRow['description'],
-                      "addDate":    timestamp,
-                      "updateDate": timestamp,
+                          "status":             "",
+                          "source":             self.source, 
+                          "id":                 newRow['id'],
+                          "category":           newRow['category'], 
+                          "url":                newRow['url'], 
+                          "price":              newRow['price'],
+                          "description":        newRow['description'],
+                          
+                          "location":           newRow['location'] if 'location' in newRow else None,
+                          "rooms":              newRow['rooms'] if 'rooms' in newRow else None,
+                          "year_built":         newRow['year_built'] if 'year_built' in newRow else None,
+                          "surface_total":      newRow['surface_total'] if 'surface_total' in newRow else None,
+                          "surface_built":      newRow['surface_built'] if 'surface_built' in newRow else None,
+                          "price_per_mp_total": newRow['price_per_mp_total'] if 'price_per_mp_total' in newRow else None,
+                          "price_per_mp_built": newRow['price_per_mp_built'] if 'price_per_mp_built' in newRow else None,
+                          
+                          "updateDate":         timestamp,
+                          "addDate":            timestamp,
                   })
                 self.db.flushRandom(0.025, False)
                 
-            
         self.selectEnd(rows)
         self.maindb.close()
+
+
+
+class Processor_currencyConverter(object):
+    def __init__(self, ):
+        self.rates = {
+            'RON' : 1.000,
+            'EUR' : 4.500, 
+        }
+        
+    def RONEUR(self, price):
+        return (float(price)*self.rates['RON']/self.rates['EUR'])
 
 
 
