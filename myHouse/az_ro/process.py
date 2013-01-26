@@ -17,7 +17,6 @@ class doProcess(base.process.Processor ):
         desc = newRow['description']
         
         newRow = self.processor_helper.extract_location(newRow, desc)
-        newRow = self.processor_helper.convert_location(newRow, desc)
         newRow = self.processor_helper.extract_rooms(newRow, desc)
         newRow = self.processor_helper.extract_year(newRow, desc)
         newRow = self.processor_helper.extract_surface(newRow, desc, "case-vile")
@@ -28,7 +27,6 @@ class doProcess(base.process.Processor ):
         desc = newRow['description']
         
         newRow = self.processor_helper.extract_location(newRow, desc)
-        newRow = self.processor_helper.convert_location(newRow, desc)
         newRow = self.processor_helper.extract_rooms(newRow, desc)
         newRow = self.processor_helper.extract_year(newRow, desc)
         newRow = self.processor_helper.extract_surface(newRow, desc, "apt")

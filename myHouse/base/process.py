@@ -112,6 +112,10 @@ class Processor(object):
                 continue
             
             if(self.maindb.itemExists("data", newRow['id'])):
+                
+                newRow['extracted']['location_raw'] = newRow['location'] 
+                newRow = self.processor_helper.convert_location(newRow)
+                
                 if self.args.forceUpdate:
                     self.maindb.execute("DELETE FROM `data_contacts` WHERE `idOffer`='%s'" %(newRow['id']))
                     self.maindb.execute("DELETE FROM `data_extracted` WHERE `idOffer`='%s'" %(newRow['id']))
@@ -342,7 +346,7 @@ class Processor_helper(object):
             
         return extr
     
-    def convert_location(self, extr, text):
+    def convert_location(self, extr):
         if 'location' in extr: 
             extr['location'] = extr['location'].strip()
             loc = extr['location']

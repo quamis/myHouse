@@ -37,7 +37,7 @@ class doProcess( base.process.Processor ):
         
         newRow['rooms'] =          int(tree.asFloat(".//table[contains(@class, 'details')]//div[contains(text(), 'Camere')]/strong/*/text()"))
         
-        newRow['description'] =                 tree.first(".//div[contains(@class, 'offerdescription')]/p[contains(@class, 'large')]/text()")
+        newRow['description'] =    tree.first(".//div[contains(@class, 'offerdescription')]/p[contains(@class, 'large')]/text()")
         
         newRow = self.processor_helper.extract_year(newRow, newRow['description'])
         
