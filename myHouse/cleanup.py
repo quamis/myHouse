@@ -157,9 +157,8 @@ class Cleanup:
 		return duplicateRowsIndexesToHide
 	
 	def vacuum(self, args):
-		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`, `url`  FROM `data` WHERE 1" \
-			+ " AND ( `status` IS NULL OR `status` IN ('deleted', 'duplicate', 'hide', 'hide-badArea', 'hide-badConstruction', 'hide-badPayment', 'old', 'checked-notOk') )" \
-			+ " ORDER BY `price` ASC, `description` ASC"
+		sql = "SELECT `id`, `internalStatus` FROM `data` WHERE 1" \
+			+ " AND ( `internalStatus` IS NULL OR `internalStatus` IN ('deleted', 'duplicate', 'old') )"
 		
 		rows = self.db.selectAll(sql)
 		for index in range(len(rows)):
@@ -176,10 +175,9 @@ class Cleanup:
 		if args.vacuum:
 			self.vacuum(args)
 		
-		#              0     1           2         3        4          5             6         7              8
-		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `status`, `description`, `url`  FROM `data` WHERE 1" \
-			+ " AND ( `status` IS NULL OR `status` NOT IN ('deleted', 'duplicate', 'hide', 'hide-badArea', 'hide-badConstruction', 'hide-badPayment', 'old', 'checked-notOk') )" \
-			+ " ORDER BY `price` ASC, `description` ASC"
+		#              0     1           2         3        4          5             6                 7              8
+		sql = "SELECT `id`, `category`, `source`, `price`, `addDate`, `updateDate`, `internalStatus`, `description`, `url`  FROM `data` WHERE 1" \
+			+ " AND ( `internalStatus` IS NULL OR `internalStatus` NOT IN ('deleted', 'duplicate', 'old') )"
 		
 		rows = self.db.selectAll(sql)
 		
@@ -197,14 +195,14 @@ class Cleanup:
 				updated = "#"
 				self.db.itemUpdate("data", {
 					"id": row[0],
-					"status": 'duplicate',
+					"internalStatus": 'duplicate',
 				})
 			
 			if args.fixstatus and row[6] is None:
 				updated = "*"
 				self.db.itemUpdate("data", {
 					"id": row[0],
-					"status": '',
+					"internalStatus": '',
 				})
 
 			
@@ -215,7 +213,7 @@ class Cleanup:
 				updated = "_"
 				self.db.itemUpdate("data", {
 					"id": row[0],
-					"status": 'old',
+					"internalStatus": 'old',
 				})
 				
 				
@@ -229,7 +227,7 @@ class Cleanup:
 				updated = "X"
 				self.db.itemUpdate("data", {
 					"id": row[0],
-					"status": 'deleted',
+					"internalStatus": 'deleted',
 				})
 				#self.db.itemDelete("data", row[0])
 				

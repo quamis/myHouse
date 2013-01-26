@@ -20,10 +20,10 @@ class newView(views.base.view.baseView):
         self.fmt = fmt = '"%s","%s","%s","%s","%s","%s","%s","%s","%s","%s"'+"\n"
     
     def printHeader(self):
-        sys.stdout.write(self.fmt % ('id', 'category', 'source', 'status', 'description', 'url', 'price', 'currency', 'addDate', 'updateDate'))
+        sys.stdout.write(self.fmt % ('id', 'category', 'source', 'userStatus', 'description', 'url', 'price', 'currency', 'addDate', 'updateDate'))
         views.base.view.baseView.printHeader(self)
     
-    def printItem(self, data, data_contacts, data_extracted):
+    def printItem(self, data):
         def smart_truncate(content, length=100, suffix='...'):
             if len(content) <= length:
                 return content
@@ -50,14 +50,14 @@ class newView(views.base.view.baseView):
             return wordwrap(text, 100)
         
         sys.stdout.write(self.fmt % (
-            format(data[5]),
-            format(data[0]),
-            format(data[1]),
-            format(data[6]),
-            format(data[2]),
-            format(data[3]),
-            format(data[4]),
+            format(data['id']),
+            format(data['category']),
+            format(data['source']),
+            format(data['userStatus']),
+            format(data['description']),
+            format(data['url']),
+            format(data['price']),
             format('EUR'),
-            format(datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d')),
-            format(datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d'))
+            format(datetime.datetime.fromtimestamp(data['addDate']).strftime('%Y-%m-%d')),
+            format(datetime.datetime.fromtimestamp(data['updateDate']).strftime('%Y-%m-%d'))
         ))

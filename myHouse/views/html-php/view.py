@@ -25,46 +25,37 @@ class newView(views.base.view.baseView):
         #print json.dumps(self.items, indent=4, separators=(',', ': '))
         
     
-    def printItem(self, data, data_contacts, data_extracted):
+    def printItem(self, data):
         output = collections.OrderedDict()
-        extr = {}            
-        if data_extracted:
-            # make the list associative
-            for k in data_extracted:
-                extr[k[0]] = k[1]
-                
-        output['data01'] = collections.OrderedDict()
-        output['data01']['location'] =               self.printRow_extraData('location', extr, 'location',             'in %s', 'location')
-        output['data01']['year_built'] =             self.printRow_extraData('year',     extr, 'year_built',         'constr in: %d', 'year')
-        output['data01']['surface_total'] =          self.printRow_extraData('surface',     extr, 'surface_total',         'supraf. tot: %dmp')
-        output['data01']['surface_built'] =          self.printRow_extraData('surface',     extr, 'surface_built',         'constr: %dmp')
-        output['data01']['price_per_mp_built'] =     self.printRow_extraData('surface',     extr, 'price_per_mp_built', '%dEUR/mp', 'float')
-        output['data01']['price_per_mp_surface'] =   self.printRow_extraData('surface',     extr, 'price_per_mp_surface','%dEUR/mp', 'float')
-        output['data01']['rooms'] =                  self.printRow_extraData('rooms',     extr, 'rooms',                 '%d camere')
-
-        output['data'] = collections.OrderedDict()
-        output['data']['price'] = self.format_number(data[4])
-        output['data']['text'] = data[2]
-        output['data']['category'] = data[0]
-        output['data']['id'] = data[5]
-        output['data']['status'] = data[6]
-        output['data']['href'] = data[3]
-        output['data']['addDate'] = self.format_timestamp(data[7])
-        output['data']['updateDate'] = self.format_timestamp(data[8])
+        output['price'] =       self.format_number(data['price'])
+        output['description'] = data['description']
+        output['category'] =    data['category']
+        output['id'] =          data['id']
+        output['userStatus'] =  data['userStatus']
+        output['url'] =         data['url']
+        output['addDate'] =     self.format_timestamp(data['addDate'])
+        output['updateDate'] =  self.format_timestamp(data['updateDate'])
         
-        output['unstructured'] = collections.OrderedDict()
-        for k in data_extracted:
-            if k[0] not in output['data01'].keys():
-                output['unstructured'][k[0]] = k[1]
-                    
+        output['location'] =               self.printRow_extraData('location', data, 'location',            'in %s',        'location')
+        output['year_built'] =             self.printRow_extraData('year',     data, 'year_built',          'constr in: %d','year')
+        output['surface_total'] =          self.printRow_extraData('surface',  data, 'surface_total',       'supraf. tot: %dmp')
+        output['surface_built'] =          self.printRow_extraData('surface',  data, 'surface_built',       'constr: %dmp')
+        output['price_per_mp_built'] =     self.printRow_extraData('surface',  data, 'price_per_mp_built',  '%dEUR/mp',     'float')
+        output['price_per_mp_surface'] =   self.printRow_extraData('surface',  data, 'price_per_mp_surface','%dEUR/mp',     'float')
+        output['rooms'] =                  self.printRow_extraData('rooms',    data, 'rooms',               '%d camere')
+        
+        output['extracted'] = collections.OrderedDict()
+        if 'extracted' in data:
+            output['extracted'] = data['extracted']
+        
         output['contacts'] = collections.OrderedDict()
         output['contacts']['phone'] = []
         output['contacts']['misc'] = []
-        if data_contacts:
-            for k in data_contacts:
+        if 'contacts' in data and data['contacts']:
+            for k in data['contacts']:
                 if k[0]=="phone":
                     output['contacts']['phone'].append(re.sub("(.+)([0-9]{3})([0-9]{4})$", r'\1.\2.\3', k[1]))
                 else:
                     output['contacts']['misc'].append(k[1])
-                    
+         
         self.items.append(output)

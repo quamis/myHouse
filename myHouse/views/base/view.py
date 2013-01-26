@@ -20,9 +20,9 @@ class baseView(object):
     
     def format_timestamp(self, timestamp, fmt='%Y-%m-%d'):
         return datetime.datetime.fromtimestamp(timestamp).strftime(fmt)
-
+    
     def printRow_extraData(self, type, extr, tag, fmt=None, valType='int'):
-        if tag in extr and extr[tag]!='':
+        if tag in extr and extr[tag]:
             val = extr[tag]
             if valType==None:
                 val = val

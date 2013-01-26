@@ -144,23 +144,17 @@ class newView(views.base.view.baseView):
         sys.stdout.write("</body>")
         sys.stdout.write("</html>")
     
-    def printItem(self, data, data_contacts, data_extracted):
-        extr = {}            
-        if data_extracted:
-            # make the list associative
-            for k in data_extracted:
-                extr[k[0]] = k[1]
-                
+    def printItem(self, data):
         sys.stdout.write("<div class='offer'>")
         
         txtList = collections.OrderedDict()
-        txtList['location'] =                 self.printRow_extraData('location', extr, 'location',             'in %s', 'location')
-        txtList['year_built'] =             self.printRow_extraData('year',     extr, 'year_built',         'constr in: %d', 'year')
-        txtList['surface_total'] =             self.printRow_extraData('surface',     extr, 'surface_total',         'supraf. tot: %dmp')
-        txtList['surface_built'] =             self.printRow_extraData('surface',     extr, 'surface_built',         'constr: %dmp')
-        txtList['price_per_mp_built'] =     self.printRow_extraData('surface',     extr, 'price_per_mp_built', '%dEUR/mp', 'float')
-        txtList['price_per_mp_surface'] =     self.printRow_extraData('surface',     extr, 'price_per_mp_surface','%dEUR/mp', 'float')
-        txtList['rooms'] =                     self.printRow_extraData('rooms',     extr, 'rooms',                 '%d camere')
+        txtList['location'] =                 self.printRow_extraData('location',   data, 'location',             'in %s', 'location')
+        txtList['year_built'] =               self.printRow_extraData('year',      data, 'year_built',            'constr in: %d', 'year')
+        txtList['surface_total'] =            self.printRow_extraData('surface',   data, 'surface_total',         'supraf. tot: %dmp')
+        txtList['surface_built'] =            self.printRow_extraData('surface',   data, 'surface_built',         'constr: %dmp')
+        txtList['price_per_mp_built'] =       self.printRow_extraData('surface',   data, 'price_per_mp_built',    '%dEUR/mp', 'float')
+        txtList['price_per_mp_surface'] =     self.printRow_extraData('surface',   data, 'price_per_mp_surface',  '%dEUR/mp', 'float')
+        txtList['rooms'] =                    self.printRow_extraData('rooms',     data, 'rooms',                 '%d camere')
 
         text = ""
         if txtList:
@@ -178,27 +172,27 @@ class newView(views.base.view.baseView):
             "<a href='%s'>%s</a>"
             "<span class='addDate'>%s</span>"
             "<span class='updateDate'>%s</span> ") % (
-            locale.format("%.*f", (0, data[4]), True),
+            locale.format("%.*f", (0, data['price']), True),
             text, 
-            data[0],
-            data[5], 
-            "#[%s]"%(data[6])) if data[6]!=None and data[6]!="" else "",
-            data[2], 
-            data[3], data[3], 
-            datetime.datetime.fromtimestamp(data[7]).strftime('%Y-%m-%d'), 
-            datetime.datetime.fromtimestamp(data[8]).strftime('%Y-%m-%d')  )
+            data['category'],
+            data['id'], 
+            "#[%s]"%(data['userStatus']) if data['userStatus'] else "",
+            data['description'], 
+            data['url'], data['url'], 
+            datetime.datetime.fromtimestamp(data['addDate']).strftime('%Y-%m-%d'), 
+            datetime.datetime.fromtimestamp(data['updateDate']).strftime('%Y-%m-%d')  ))
 
         pre = "UNSTRUCTURED DATA: "
-        for k in data_extracted:
+        for k in data['extracted']:
             if k[0] not in txtList.keys():
                 if pre: 
                     sys.stdout.write("<div class='extraData-UNSTRUCTURED'> %s" % (pre));
                 sys.stdout.write("<span>%s: %s</span>, " % (k[0], k[1]))
                 pre = ""
                     
-        if data_contacts:
+        if data['contacts']:
             sys.stdout.write("<div class='extraData-contacts'>")
-            for k in data_contacts:
+            for k in data['contacts']:
                 if k[0]=="phone":
                     sys.stdout.write("<span class='phone'>%s: <b>%s</b></span> " % (k[0], re.sub("(.+)([0-9]{3})([0-9]{4})$", r'\1.\2.\3', k[1])))
                 else:

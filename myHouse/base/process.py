@@ -17,10 +17,12 @@ class Processor(object):
         #email, phones        
         self.maindb.tableCreate("data", { 
             "id":           "VARCHAR(64)",
-			"status":       "VARCHAR(128)",
+			"internalStatus":"VARCHAR(128)",
+            "userStatus":   "VARCHAR(128)",
             "category":     "VARCHAR(64)",
             "source":       "VARCHAR(16)",  # anunturi_ro
             "url":          "VARCHAR(256)",
+            "description":  "TEXT",
             "price":        "INT",
 
             "location":     "VARCHAR(256)",
@@ -31,22 +33,21 @@ class Processor(object):
             "price_per_mp_total":"FLOAT",
             "price_per_mp_built":"FLOAT",
             
-            "description":  "TEXT",
             "addDate":      "INT",
             "updateDate":   "INT",
-        }, ["id"], ["status", "category", "source", "price", "addDate", "updateDate"])
+        }, ["id"], ["internalStatus", "category", "source", "price", "addDate", "updateDate"])
         
         self.maindb.tableCreate("data_contacts", { 
             "idOffer":      "VARCHAR(64)",
             "key":          "VARCHAR(16)",  # email, telephone, address
             "value":        "VARCHAR(256)",
-        }, [], ["id"])
+        }, [], ["id", "key"])
         
         self.maindb.tableCreate("data_extracted", { 
             "idOffer":      "VARCHAR(64)",
             "key":          "VARCHAR(16)",
             "value":        "VARCHAR(256)",
-        }, [], ["id"])
+        }, [], ["id", "key"])
         
 
     def selectStart(self):
@@ -111,11 +112,13 @@ class Processor(object):
             if newRow is None:
                 continue
             
+            if "extracted" not in newRow:
+                newRow['extracted'] = {}
+                                    
+            newRow = self.processor_helper.convert_location(newRow)
+            
             if(self.maindb.itemExists("data", newRow['id'])):
-                
-                newRow['extracted']['location_raw'] = newRow['location'] 
-                newRow = self.processor_helper.convert_location(newRow)
-                
+
                 if self.args.forceUpdate:
                     self.maindb.execute("DELETE FROM `data_contacts` WHERE `idOffer`='%s'" %(newRow['id']))
                     self.maindb.execute("DELETE FROM `data_extracted` WHERE `idOffer`='%s'" %(newRow['id']))
@@ -162,7 +165,8 @@ class Processor(object):
                         self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
                         
                 self.maindb.itemInsert("data", {
-                          "status":             "",
+                          "internalStatus":     "",
+                          "userStatus":         "",
                           "source":             self.source, 
                           "id":                 newRow['id'],
                           "category":           newRow['category'], 
@@ -246,9 +250,8 @@ class Processor_helper(object):
         
         self.locationsAssoc = {}
         for row in UnicodeCsvReader.UnicodeCsvReader(open("base/locations assoc.csv")):
-            self.locationsAssoc[row[0].strip()] = row[2].strip()
+            self.locationsAssoc[row[0].strip().lower()] = row[2].strip()
             
-        
     def reformat(self, text, formulas = { }):
         tx = ""
         
@@ -310,15 +313,15 @@ class Processor_helper(object):
                 
         return match
     
-    def extract_location(self, extr, text):
+    def extract_location(self, newRow, text):
         s = None
         m = re.search("^(?P<location>([\w\-\.\(\)]+( |(?=,)))+)", text, re.UNICODE)
         if m:
-            extr['location']  = m.group('location')
-            s = self.reformat(extr['location'], self.presets['case-vile']['reformatter']['extractLocation'])
+            newRow['location']  = m.group('location')
+            s = self.reformat(newRow['location'], self.presets['case-vile']['reformatter']['extractLocation'])
             if s:
                 #print "extract: location #2: %s" % (s)
-                extr['location'] = s
+                newRow['location'] = s
             else:
                 #print "extract: location #1: %s" % (s)
                 pass
@@ -326,7 +329,7 @@ class Processor_helper(object):
         #if s is None:
         #    print "extract: location: NOT FOUND"        
                 
-        return extr
+        return newRow
             
     def extract_rooms(self, extr, text):
         s = None    
@@ -346,21 +349,21 @@ class Processor_helper(object):
             
         return extr
     
-    def convert_location(self, extr):
-        if 'location' in extr: 
-            extr['location'] = extr['location'].strip()
-            loc = extr['location']
+    def convert_location(self, newRow):
+        if 'location' in newRow: 
+            newRow['location'] = newRow['location'].strip()
+            loc = newRow['location']
             
-            if loc in self.locationsAssoc and self.locationsAssoc[loc]:
-                loc = self.locationsAssoc[loc]
-                extr['location_raw'] = extr['location']
-                extr['location'] = loc
-                #print "convert: location #1: '%s' => '%s'" % (extr['location_raw'], extr['location'])
+            if loc in self.locationsAssoc and self.locationsAssoc[loc.lower()]:
+                loc = self.locationsAssoc[loc.lower()]
+                newRow['extracted']['location_raw'] = newRow['location']
+                newRow['location'] = loc
+                #print "convert: location #1: '%s' => '%s'" % (newRow['extracted']['location_raw'], newRow['location'])
             else:
-                extr['location'] = loc  # at least we stripped the location of spaces:)
+                newRow['location'] = loc  # at least we stripped the location of spaces:)
                 #print "convert: location: NOT FOUND('%s')" % (loc)
                 
-        return extr
+        return newRow
     
     def extract_year(self, extr, text):
         s = None    

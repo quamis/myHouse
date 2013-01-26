@@ -47,7 +47,7 @@ class doProcess(base.process.Processor ):
         
         if newRow['category']=="case-vile":
             if re.search("apartament", newRow['description']) and re.search("etaj", newRow['description']):
-                newRow['category'] = "apt-%d" %(max(4, newRow['rooms']))
+                newRow['category'] = "apt-%d-cam" %(max(2, min(4, newRow['rooms'])))
         
         newRow = super(doProcess, self).extractData_base(newRow)
             

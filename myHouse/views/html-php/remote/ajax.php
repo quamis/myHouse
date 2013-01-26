@@ -16,7 +16,7 @@ $localStatuses->{$id} = $status;
 file_put_contents("localStatuses.json", json_encode($localStatuses));
 
 foreach($offers as $offer){
-	if($id == $offer->data->id){
+	if($id == $offer->id){
 		$offObj = new offer($offer, $status);
 		$offObj->render();
 		

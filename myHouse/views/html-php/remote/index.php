@@ -51,7 +51,7 @@ if(!$localStatuses){
 	// filter the offers, remove invalid items
 	$filteredOffers = Array();
 	foreach($offers as $offer){
-		$offObj = new offer($offer, $localStatuses->{$offer->data->id});
+		$offObj = new offer($offer, $localStatuses->{$offer->id});
 		$add = true;
 		if($status){
 			$add = false;
@@ -112,7 +112,7 @@ if(!$localStatuses){
 $filteredOffers = array_slice($filteredOffers, $rpp*$pg, $rpp);
 
 foreach($filteredOffers as $offer){
-	$offObj = new offer($offer, $localStatuses->{$offer->data->id});
+	$offObj = new offer($offer, $localStatuses->{$offer->id});
 	$offObj->render();
 } // foreach
 
