@@ -7,7 +7,7 @@
 
 X="$IFS";
 IFS="\n";
-ST=`cat ../db/statuses-output.csv`
+ST="`cat ../db/dev-reimportStatuses-output.csv`"
 IFS="$X";
 
 for line in $ST; do 
