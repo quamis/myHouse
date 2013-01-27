@@ -57,7 +57,6 @@ class View:
     def filter(self):
         sql = "SELECT `id` FROM `data` WHERE 1" \
             + " AND ( `internalStatus` IS NULL OR `internalStatus` NOT IN ('deleted', 'duplicate', 'old') )" \
-            + " AND ( `userStatus` NOT IN ('hide') )" \
         
         if(self.args.id):
             sql+=" AND( 0 "
