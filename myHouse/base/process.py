@@ -18,7 +18,10 @@ class Processor(object):
         self.maindb.tableCreate("data", { 
             "id":           "VARCHAR(64)",
 			"internalStatus":"VARCHAR(128)",
-            "userStatus":   "VARCHAR(128)",
+            
+            "userStatus":       "VARCHAR(128)",
+            "suggestedStatus":   "VARCHAR(128)",
+            
             "category":     "VARCHAR(64)",
             "source":       "VARCHAR(16)",  # anunturi_ro
             "url":          "VARCHAR(256)",
@@ -167,6 +170,7 @@ class Processor(object):
                 self.maindb.itemInsert("data", {
                           "internalStatus":     "",
                           "userStatus":         "",
+                          "suggestedStatus":    "",
                           "source":             self.source, 
                           "id":                 newRow['id'],
                           "category":           newRow['category'], 
