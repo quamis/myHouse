@@ -22,11 +22,14 @@ class Stats:
         self.db = db
         self.args = args
         
+        self.results = {}
+        
+        
         """
         when comon keywords are found(in the TODO & HIDE list), the score is calculated like (TODO-HIDE)*knobs_commonKeywordsmultipler
         the multiply is done because the difference will be very small, and i want to "amplify" it
         """
-        self.knobs_commonKeywordsmultipler = 4
+        self.knobs_commonKeywordsmultipler = 0.5
         
         """
         when finally differentiating the final score to match it into TODO or HIDE, 2 cutoff points are used
@@ -79,23 +82,23 @@ class Stats:
         if 'location' in self.knobs_descriptionsConsidered:
             desc.append(item['location'])
             
-        if 'price' in self.knobs_descriptionsConsidered:
+        if 'price' in self.knobs_descriptionsConsidered and item['price']:
             desc.append("KEYWORDprice%d" % (round(float(item['price'])/5000)*5000))
             
-        if 'surface_built' in self.knobs_descriptionsConsidered:
+        if 'surface_built' in self.knobs_descriptionsConsidered and item['surface_built']:
             desc.append("KEYWORDsurface_built%d" % (round(float(item['surface_built'] if item['surface_built'] else 0)/25)*25))
             
-        if 'surface_total' in self.knobs_descriptionsConsidered:
+        if 'surface_total' in self.knobs_descriptionsConsidered and item['surface_total']:
             desc.append("KEYWORDsurface_total%d" % (round(float(item['surface_total'] if item['surface_total'] else 0)/25)*25))
         
-        if 'year_built' in self.knobs_descriptionsConsidered:
+        if 'year_built' in self.knobs_descriptionsConsidered and item['year_built']:
             desc.append("KEYWORDyear_built%d" % (round(float(item['year_built'] if item['year_built'] else 0)/5)*5))
         
         internal = self.getWords(", ".join(desc))
         
         
         desc = []
-        if 'description' in self.knobs_descriptionsConsidered:
+        if 'description' in self.knobs_descriptionsConsidered and item['description']:
             desc.append(item['description'])
             
         general = self.getWords(", ".join(desc), 'textOnly')
@@ -128,7 +131,7 @@ class Stats:
                 k = re.sub("[0-9]", "", k)
                 
             k = k.strip()                
-            if re.match("^.{3,}$", k):
+            if re.match("^.{4,}$", k):
                 words.append(k.lower())
         
         return words
@@ -208,13 +211,16 @@ class Stats:
     
     def runTest(self):
         if self.args.train:
-            logging.debug('training on the TODO dataset')
+            if self.args.outputFormat=="default":
+                logging.debug('training on the TODO dataset')
             todoReport = self.extractData("datasetTODO")
         
-            logging.debug('training on the HIDE dataset')
+            if self.args.outputFormat=="default":
+                logging.debug('training on the HIDE dataset')
             hideReport = self.extractData("datasetHIDE")
             
-            logging.debug('calculate averages(TODO & HIDE)')
+            if self.args.outputFormat=="default":
+                logging.debug('calculate averages(TODO & HIDE)')
             stats_todo = self.getAvgScore(todoReport, hideReport, "datasetTODO")
             stats_hide = self.getAvgScore(todoReport, hideReport, "datasetHIDE")
             
@@ -226,10 +232,11 @@ class Stats:
         stats_todo['cutoff'] = (self.knobs_cutoffMultiplier*stats_todo['median_score']+stats_hide['median_score'])/(self.knobs_cutoffMultiplier+1)
         stats_hide['cutoff'] = (stats_todo['median_score']+self.knobs_cutoffMultiplier*stats_hide['median_score'])/(self.knobs_cutoffMultiplier+1)
         
-        print("got avegages: \n\t TODO: %+.4f (%+.4f, %+.4f, %+.4f ... %+.4f)\n\t HIDE: %+.4f (%+.4f, %+.4f, %+.4f ... %+.4f)" % (
-            stats_todo['cutoff'], stats_todo['median_score'], stats_todo['avg_score'], stats_todo['min_score'], stats_todo['max_score'],
-            stats_hide['cutoff'], stats_hide['median_score'], stats_hide['avg_score'], stats_hide['min_score'], stats_hide['max_score']
-        ))
+        if self.args.outputFormat=="default":
+            print("got avegages: \n\t TODO: %+.4f (%+.4f, %+.4f, %+.4f ... %+.4f)\n\t HIDE: %+.4f (%+.4f, %+.4f, %+.4f ... %+.4f)" % (
+                stats_todo['cutoff'], stats_todo['median_score'], stats_todo['avg_score'], stats_todo['min_score'], stats_todo['max_score'],
+                stats_hide['cutoff'], stats_hide['median_score'], stats_hide['avg_score'], stats_hide['min_score'], stats_hide['max_score']
+            ))
         
         rows = self.db.selectAll(self.getSQL("datasetTEST"))
         for row in rows:
@@ -239,35 +246,50 @@ class Stats:
                 
                 suggestedCategory = None
                 
-                score = 0
+                score = []
                 for w in words:
                     if w in todoReport['normalized'] and w in hideReport['normalized']:
-                        score+=(todoReport['normalized'][w] - hideReport['normalized'][w])*self.knobs_commonKeywordsmultipler
+                        score.append((todoReport['normalized'][w] - hideReport['normalized'][w])*self.knobs_commonKeywordsmultipler)
                     elif w in todoReport['normalized']:
-                        score+=todoReport['normalized'][w]
+                        score.append(todoReport['normalized'][w])
                     elif w in hideReport['normalized']:
-                        score-=hideReport['normalized'][w]
+                        score.append(-hideReport['normalized'][w])
+                    else:
+                        score.append(0)
                 
-                if score>stats_todo['cutoff']:
+                score_sum = sum(score)
+                if score_sum>stats_todo['cutoff']:
                     suggestedCategory = "todo"
-                elif score<stats_hide['cutoff']:
+                elif score_sum<stats_hide['cutoff']:
                     suggestedCategory = "hide"
-                    
-                print "[%s][%+.4f] \n->%s\n->%s" % (
-                      suggestedCategory.upper() if suggestedCategory else "----", 
-                      score, " ".join(words), item['description'])
-                    
-                print ""
+                
+                if self.args.outputFormat=="default":
+                    wordsFormatted = []
+                    for i,w in enumerate(words):
+                        wordsFormatted.append("%s(%.4f)" % (w, score[i]))
+                        
+                    print "[%s][%+.4f] \n->%s\n->%s" % (
+                          suggestedCategory.upper() if suggestedCategory else "----", 
+                          score_sum, " ".join(wordsFormatted), item['description'])
+                        
+                    print ""
+                elif self.args.outputFormat=="json":
+                    if suggestedCategory:
+                        self.results[row[0]] = suggestedCategory
                 
         
+    def printFooter(self):
+        if self.args.outputFormat=="json":
+            print json.dumps(self.results)
         
             
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
 parser.add_argument('-datasetTEST', dest='datasetTEST',   action='store',   type=str, default=None,     help='TODO')
 parser.add_argument('-datasetTODO', dest='datasetTODO',   action='store',   type=str, default=None,     help='TODO')
 parser.add_argument('-datasetHIDE', dest='datasetHIDE',   action='store',   type=str, default=None,     help='TODO')
+parser.add_argument('--outputFormat', dest='outputFormat',   action='store', type=str, default="default",     help='TODO')
 
-parser.add_argument('-stateFile',   dest='stateFile',   action='store',     type=str, default="/tmp/myHouse/suggestions.picke",     help='TODO')
+parser.add_argument('-stateFile',   dest='stateFile',   action='store',     type=str, default="/tmp/suggestions.pickle",     help='TODO')
 parser.add_argument('-train',       dest='train',       action='store',     type=int,default=None,     help='TODO')
 args = parser.parse_args()
 
@@ -282,6 +304,7 @@ stats = Stats(db, args)
 
 #stats.printData(stats.extractData())
 stats.runTest()
+stats.printFooter()
     
 sys.stdout.write("\n")
 raise SystemExit
