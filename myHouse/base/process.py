@@ -93,7 +93,7 @@ class Processor(object):
         if(result=="loop-old"):
             #sys.stdout.write('.')
             pass
-            
+        
         sys.stdout.flush()
     
     def debug_print_0(self, result, extra=None):
@@ -121,10 +121,46 @@ class Processor(object):
             newRow = self.processor_helper.convert_location(newRow)
             
             if(self.maindb.itemExists("data", newRow['id'])):
-
                 if self.args.forceUpdate:
-                    self.maindb.execute("DELETE FROM `data_contacts` WHERE `idOffer`='%s'" %(newRow['id']))
-                    self.maindb.execute("DELETE FROM `data_extracted` WHERE `idOffer`='%s'" %(newRow['id']))
+                    try:
+                        self.maindb.execute("DELETE FROM `data_contacts` WHERE `idOffer`='%s'" %(newRow['id']))
+                        self.maindb.execute("DELETE FROM `data_extracted` WHERE `idOffer`='%s'" %(newRow['id']))
+                        
+                        if 'contacts' in newRow:
+                            for c in newRow['contacts']:
+                                self.maindb.itemInsert("data_contacts", { "idOffer":newRow['id'], "key": c['key'], "value": c['value'] })
+                                
+                        if 'extracted' in newRow:
+                            for k,v in newRow['extracted'].items():
+                                self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
+                                
+                        self.maindb.itemUpdate("data", {
+                              "source":             self.source, 
+                              "id":                 newRow['id'],
+                              "category":           newRow['category'], 
+                              "url":                newRow['url'], 
+                              "price":              newRow['price'],
+                              "description":        newRow['description'],
+                              
+                              "location":           newRow['location'] if 'location' in newRow else None,
+                              "rooms":              newRow['rooms'] if 'rooms' in newRow else None,
+                              "year_built":         newRow['year_built'] if 'year_built' in newRow else None,
+                              "surface_total":      newRow['surface_total'] if 'surface_total' in newRow else None,
+                              "surface_built":      newRow['surface_built'] if 'surface_built' in newRow else None,
+                              "price_per_mp_total": newRow['price_per_mp_total'] if 'price_per_mp_total' in newRow else None,
+                              "price_per_mp_built": newRow['price_per_mp_built'] if 'price_per_mp_built' in newRow else None,
+                              
+                              "updateDate":         timestamp,
+                          })
+                    except Exception as e:
+                        print "Exception(%s): %s" % (e.errno, e.strerror)
+                else:
+                    self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })
+                    
+                self.debug_print("loop-old", newRow)
+            else:
+                try:
+                    self.debug_print("loop-new", newRow)
                     
                     if 'contacts' in newRow:
                         for c in newRow['contacts']:
@@ -134,62 +170,31 @@ class Processor(object):
                         for k,v in newRow['extracted'].items():
                             self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
                             
-                    self.maindb.itemUpdate("data", {
-                          "source":             self.source, 
-                          "id":                 newRow['id'],
-                          "category":           newRow['category'], 
-                          "url":                newRow['url'], 
-                          "price":              newRow['price'],
-                          "description":        newRow['description'],
-                          
-                          "location":           newRow['location'] if 'location' in newRow else None,
-                          "rooms":              newRow['rooms'] if 'rooms' in newRow else None,
-                          "year_built":         newRow['year_built'] if 'year_built' in newRow else None,
-                          "surface_total":      newRow['surface_total'] if 'surface_total' in newRow else None,
-                          "surface_built":      newRow['surface_built'] if 'surface_built' in newRow else None,
-                          "price_per_mp_total": newRow['price_per_mp_total'] if 'price_per_mp_total' in newRow else None,
-                          "price_per_mp_built": newRow['price_per_mp_built'] if 'price_per_mp_built' in newRow else None,
-                          
-                          "updateDate":         timestamp,
+                    self.maindb.itemInsert("data", {
+                              "internalStatus":     "",
+                              "userStatus":         "",
+                              "suggestedStatus":    "",
+                              "source":             self.source, 
+                              "id":                 newRow['id'],
+                              "category":           newRow['category'], 
+                              "url":                newRow['url'], 
+                              "price":              newRow['price'],
+                              "description":        newRow['description'],
+                              
+                              "location":           newRow['location'] if 'location' in newRow else None,
+                              "rooms":              newRow['rooms'] if 'rooms' in newRow else None,
+                              "year_built":         newRow['year_built'] if 'year_built' in newRow else None,
+                              "surface_total":      newRow['surface_total'] if 'surface_total' in newRow else None,
+                              "surface_built":      newRow['surface_built'] if 'surface_built' in newRow else None,
+                              "price_per_mp_total": newRow['price_per_mp_total'] if 'price_per_mp_total' in newRow else None,
+                              "price_per_mp_built": newRow['price_per_mp_built'] if 'price_per_mp_built' in newRow else None,
+                              
+                              "updateDate":         timestamp,
+                              "addDate":            timestamp,
                       })
-                else:
-                    self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })
-                    
-                self.debug_print("loop-old", newRow)
-            else:
-                self.debug_print("loop-new", newRow)
-                
-                if 'contacts' in newRow:
-                    for c in newRow['contacts']:
-                        self.maindb.itemInsert("data_contacts", { "idOffer":newRow['id'], "key": c['key'], "value": c['value'] })
-                        
-                if 'extracted' in newRow:
-                    for k,v in newRow['extracted'].items():
-                        self.maindb.itemInsert("data_extracted", { "idOffer":newRow['id'], "key": k, "value": v })
-                        
-                self.maindb.itemInsert("data", {
-                          "internalStatus":     "",
-                          "userStatus":         "",
-                          "suggestedStatus":    "",
-                          "source":             self.source, 
-                          "id":                 newRow['id'],
-                          "category":           newRow['category'], 
-                          "url":                newRow['url'], 
-                          "price":              newRow['price'],
-                          "description":        newRow['description'],
-                          
-                          "location":           newRow['location'] if 'location' in newRow else None,
-                          "rooms":              newRow['rooms'] if 'rooms' in newRow else None,
-                          "year_built":         newRow['year_built'] if 'year_built' in newRow else None,
-                          "surface_total":      newRow['surface_total'] if 'surface_total' in newRow else None,
-                          "surface_built":      newRow['surface_built'] if 'surface_built' in newRow else None,
-                          "price_per_mp_total": newRow['price_per_mp_total'] if 'price_per_mp_total' in newRow else None,
-                          "price_per_mp_built": newRow['price_per_mp_built'] if 'price_per_mp_built' in newRow else None,
-                          
-                          "updateDate":         timestamp,
-                          "addDate":            timestamp,
-                  })
-                self.db.flushRandom(0.025, False)
+                    self.db.flushRandom(0.025, False)
+                except Exception as e:
+                    print "Exception(%s): %s" % (e.errno, e.strerror)
                 
         self.selectEnd(rows)
         self.maindb.close()
