@@ -54,6 +54,13 @@ if [ "$SYNCREMOTE" == "default" -o "$SYNCREMOTE" == "local" ]; then
         fi;
     done <<< "$STATUSES"
     echo "{ }"> "$OUTDIR/localStatuses.json"
+    
+    
+    ./view.py -category="case-vile" -status="todo" --outputFormat="id" > /tmp/TODO.json
+    ./view.py -category="case-vile" -status="hide" --outputFormat="id" > /tmp/HIDE.json
+    ./view.py -category="case-vile" -status=""     --outputFormat="id" > /tmp/TEST.json
+    ./suggestions.py -datasetHIDE="/tmp/HIDE.json" -datasetTODO="/tmp/TODO.json" -datasetTEST="/tmp/TEST.json" -train=1 --outputFormat=json > /tmp/suggestions.json
+    ./import.py -jsonFile=/tmp/suggestions.json -targetField=suggestedStatus > /tmp/import-suggestions.json
 fi;
 
 
