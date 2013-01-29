@@ -73,7 +73,7 @@ class offer{
 DATA;
             
             
-            echo "<div class='operations'>";
+            echo "<div class='operations suggestedStatus-{$offer->suggestedStatus}'>";
             switch($status){
                 case 'hide':
                     echo <<<DATA

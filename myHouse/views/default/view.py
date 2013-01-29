@@ -24,11 +24,12 @@ class newView(views.base.view.baseView):
             
     def printItem(self, data):
         sys.stdout.write((
-                "[% 9s]%s %s\n"
+                "[% 9s]%s %s%s\n"
                 "  %s\n"
                 "  % 7s EUR, \tid: %s (add:%s, upd:%s)\n") % (
                 data['category'], 
                 "#[%s]"%(data['userStatus']) if data['userStatus'] else "",
+                "~{%s}"%(data['suggestedStatus']) if data['suggestedStatus'] else "",
                 data['description'], 
                 data['url'], 
                 locale.format("%.*f", (0, data['price']), True),

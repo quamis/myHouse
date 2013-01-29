@@ -210,6 +210,16 @@ div.offer button.None{          /** http://colorschemedesigner.com/#3p62nrGrbw0w
     color: #280B60;
 }
 
+div.offer div.suggestedStatus-todo button.todo{
+    border: 1px solid #D92B1D;
+    box-shadow: 0px 0px 1.2em 0.2em #D92B1D;
+}
+div.offer div.suggestedStatus-hide button.hide{
+    border: 1px solid #D92B1D;
+    box-shadow: 0px 0px 1.2em 0.2em #D92B1D;
+}
+
+
 
 div.offer button.todo{
     border: 1px solid #8D1309;

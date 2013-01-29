@@ -32,6 +32,7 @@ class newView(views.base.view.baseView):
         output['category'] =    data['category']
         output['id'] =          data['id']
         output['userStatus'] =  data['userStatus']
+        output['suggestedStatus'] =  data['suggestedStatus']
         output['url'] =         data['url']
         output['addDate'] =     self.format_timestamp(data['addDate'])
         output['updateDate'] =  self.format_timestamp(data['updateDate'])

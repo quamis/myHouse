@@ -28,7 +28,7 @@ class View:
         data_contacts = {}
         data_extracted = {}
         if 'data' in fields:
-            keys = ('id', 'internalStatus', 'userStatus', 'category', 'source', 'url', 'description', 'price', 'location', 'rooms', 'year_built', 'surface_total', 'surface_built', 'price_per_mp_total', 'price_per_mp_built', 'addDate', 'updateDate')
+            keys = ('id', 'internalStatus', 'userStatus', 'suggestedStatus', 'category', 'source', 'url', 'description', 'price', 'location', 'rooms', 'year_built', 'surface_total', 'surface_built', 'price_per_mp_total', 'price_per_mp_built', 'addDate', 'updateDate')
             values = self.db.selectAll("SELECT `"+"`, `".join(keys)+"` FROM `data` WHERE `id`='%s'" %( idStr ))[0]
             data = dict( zip(keys, values) )
             
@@ -223,12 +223,6 @@ elif args.profile=="case-noi-metrou":
     args.agea = 1.5
 elif args.profile=="case-valide":
     #args.text = [ "metrou" ]
-    args.narea = [     
-                "Balotesti", "Chiajna", "Corbeanca", "Tunari", "Comuna Berceni", "Bragadiru", "Adunatii Copaceni", "Glina", "Comuna Chitila", "Comuna Pantelimon", "Bolintin", 
-                "Branesti", "Islaz", "Vlasiei", "Peris", "Snagov", "Domnesti", "Telega", "Cernica", "Cucuieti", "Plataresti", "Vlasca", "Mihailesti", "Mogosoaia", "Urziceni", "Ciocanesti", "Buftea", "Ciolpani", 
-                "Frumusani", "Clinceni", "Buturugeni", "Vidra", "Baneasa", "Otopeni", "Tanganu", "Ordoreanu", "Bolintin", "Darasti", "Tamadaul Mare", "Corbeanca"
-    ]
-    args.ntext = [ "comuna" ]
     args.category = [ "case-vile" ]
     args.maxPrice = 70000
     args.minPrice = 30000
