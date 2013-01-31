@@ -159,9 +159,9 @@ DT=`date +"%Y-%m-%d %H:%M:%S"`
 echo "[$DT] updater started"
 
 
-#SOURCES=( "anuntul_ro" "imobiliare_ro" "tocmai_ro" "mercador_ro" "imopedia_ro" "az_ro" )
+SOURCES=( "anuntul_ro" "imobiliare_ro" "tocmai_ro" "mercador_ro" "imopedia_ro" "az_ro" )
 #SOURCES=( "az_ro" )
-SOURCES=( "anuntul_ro" )
+#SOURCES=( "anuntul_ro" )
 #SOURCES=( "imopedia_ro" )
 #SOURCES=( "tocmai_ro" )
 
