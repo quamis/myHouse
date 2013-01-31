@@ -35,6 +35,43 @@ class doProcess(base.process.Processor ):
         newRow['surface_built'] =      tree.asFloat(".//div[@id='informatii']//ul/li//*[contains(text(), 'suprafata construita')]/../text()")
         if not newRow['surface_total'] and newRow['surface_built']:
             newRow['surface_total'] = newRow['surface_built']
+        
+        
+        r = tree.first(".//div[@id='informatii']//ul//*[contains(text(), 'etaj')]/text()")
+        m = re.search("(?P<floor>([0-9]+|parter|p|demisol|d|mansarda|m))[\s]*\/[\s]*([p\+]*)[\s]*(?P<floor_max>[0-9]+)", r.lower())
+        if m:
+            newRow['floor_max'] =  int(m.group('floor_max'))
+            
+            if m.group('floor')=="mansarda" or m.group('floor')=="m":
+                newRow['floor'] = newRow['floor_max']+1
+            elif m.group('floor')=="demisol" or m.group('floor')=="d":
+                newRow['floor'] =  -1
+            elif m.group('floor')=="parter" or m.group('floor')=="p":
+                newRow['floor'] =  0
+            else:
+                newRow['floor'] =  int(m.group('floor'))
+#            print "%s %s  %s" % (newRow['floor'], newRow['floor_max'], newRow['url'])
+#        else:
+#            print ". %s" % (newRow['url'])
+        
+        r = tree.first(".//div[@id='informatii']//ul//*[contains(text(), 'comandat')]/text()")
+        newRow['apartmentType'] =  None
+        if r:
+            if r=="semidecomandat" or r=="semi-decomandat":
+                newRow['apartmentType'] =  "semidec"
+            elif r=="nedecomandat":
+                newRow['apartmentType'] =  "nondec"
+            elif r=="decomandat" or r=="comandat":
+                newRow['apartmentType'] =  "dec"
+            elif r=="circular":
+                newRow['apartmentType'] =  "nondec"
+            elif r=="vagon":
+                newRow['apartmentType'] =  "nondec"
+            elif r=="---":
+                newRow['apartmentType'] =  None
+#            else:
+#                print "Unknwon apartmentType: '%s'" % (r)
+#        print "ApartmentType: '%s'\n" % (newRow['apartmentType'])    
             
         return newRow
         

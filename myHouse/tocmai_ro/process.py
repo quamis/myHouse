@@ -15,6 +15,16 @@ class doProcess(base.process.Processor ):
     def selectEnd(self, c):
         self.db.selectEnd(c)
         
+        
+    def _extractData_houses(self, newRow, row, tree):
+        return newRow
+    
+    def _extractData_apt(self, newRow, row, tree):
+        desc = newRow['description']
+        newRow = self.processor_helper.extract_floor(newRow, desc, "apt")
+        newRow = self.processor_helper.extract_apartmentType(newRow, desc, "apt")
+        return newRow
+        
     def _processRow(self, row):
         newRow = {}
         newRow['id'] =      row[0]
@@ -46,9 +56,15 @@ class doProcess(base.process.Processor ):
         newRow = self.processor_helper.extract_year(newRow, newRow['description'])
         
         if newRow['category']=="case-vile":
-            if re.search("apartament", newRow['description']) and re.search("etaj", newRow['description']):
+            if not re.search("(vila|casa|curte)", newRow['description']) and re.search("apartament", newRow['description']) and re.search("etaj", newRow['description']):
                 newRow['category'] = "apt-%d-cam" %(max(2, min(4, newRow['rooms'])))
         
+        if newRow['category']=="case-vile":
+            newRow = self._extractData_houses(newRow, row, tree)
+        else:
+            newRow = self._extractData_apt(newRow, row, tree)
+            
+            
         newRow = super(doProcess, self).extractData_base(newRow)
             
         return newRow

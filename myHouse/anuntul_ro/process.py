@@ -30,6 +30,9 @@ class doProcess(base.process.Processor ):
         newRow = self.processor_helper.extract_rooms(newRow, desc)
         newRow = self.processor_helper.extract_year(newRow, desc)
         newRow = self.processor_helper.extract_surface(newRow, desc, "apt")
+        
+        newRow = self.processor_helper.extract_floor(newRow, desc, "apt")
+        newRow = self.processor_helper.extract_apartmentType(newRow, desc, "apt")
 
         return newRow
         

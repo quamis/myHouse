@@ -36,6 +36,10 @@ class Processor(object):
             "price_per_mp_total":"FLOAT",
             "price_per_mp_built":"FLOAT",
             
+            "floor":        "INT",
+            "floor_max":    "INT",
+            "apartmentType":"VARCHAR(64)",
+            
             "addDate":      "INT",
             "updateDate":   "INT",
         }, ["id"], ["internalStatus", "category", "source", "price", "addDate", "updateDate"])
@@ -357,6 +361,160 @@ class Processor_helper(object):
             extr['rooms'] = s
             
         return extr
+    
+    def extract_floor(self, newRow, text, profile):
+        #print "\n->%s" % (text)
+        
+        etj =   [ "etaje", "etajul", "etaj", "etj", "et", ]
+        etj2 =   etj + [ ""]
+        f =     ["\/", "din"]
+        p =     [ "parter", "parter [a-z]+", "[^a-z0-9\+]p[^a-z0-9\+]"]
+        
+        s = None    
+        if s is None:
+            # etaj 1/8
+            s = self.extract_withFormula(text, {
+                  'type':'int',
+                  'match:raw': "("+"|".join(etj2)+")[\s]*(?P<match>[0-9]+)[\s]*("+"|".join(f)+")[\s]*(?P<x>[0-9]+)[\s]*"
+            })
+            #if s:
+            #    print "extract: floor #1: %s" % (s)
+        
+        if s is None:
+            # etaj 1
+            s = self.extract_withFormula(text, {
+                  'type':'str',
+                  'match:raw': "("+"|".join(etj)+")[\s]*(?P<match>[0-9]+)"
+            })
+            #if s:
+            #    print "extract: floor #3: %s" % (s)
+                
+            if s:
+                s=0
+                
+        if s is None:
+            # etaj parter/10
+            s = self.extract_withFormula(text, {
+                  'type':'str',
+                  'match:raw': "("+"|".join(etj2)+")[\s]*(?P<match>("+"|".join(p)+"))[\s]*("+"|".join(f)+")[\s]*(?P<x>[0-9]+)[\s]*"
+            })
+            #if s:
+            #    print "extract: floor #4: %s" % (s)
+                
+            if s:
+                s=0
+                
+        if s is None:
+            # parter
+            s = self.extract_withFormula(text, {
+                  'type':'str',
+                  'match:raw': "[^a-z0-9\+](?P<match>("+"|".join(p)+"))"
+            })
+            #if s:
+            #    print "extract: floor #5: %s" % (s)
+                
+            if s:
+                s=0
+                
+#        if s is None:
+#            print "extract: floor: NOT FOUND"
+        
+        if s and s>0 and s<20:
+            newRow['floor'] = s
+        
+        
+        
+        s = None    
+        if s is None:
+            # etaj 1/8
+            s = self.extract_withFormula(text, {
+                  'type':'int',
+                  'match:raw': "("+"|".join(etj2)+")[\s]*(?P<x>[0-9]+)[\s]*("+"|".join(f)+")[\s]*(?P<match>[0-9]+)[\s]*"
+            })
+#            if s:
+#                print "extract: floor_max #1: %s" % (s)
+        
+        if s is None:
+            # etaj parter/10
+            s = self.extract_withFormula(text, {
+                  'type':'int',
+                  'match:raw': "("+"|".join(etj)+")[\s]*(?P<x>("+"|".join(p)+"))[\s]*("+"|".join(f)+")[\s]*(?P<match>[0-9]+)[\s]*"
+            })
+#            if s:
+#                print "extract: floor_max #2: %s" % (s)
+        
+        if s is None:
+            #  parter/10
+            s = self.extract_withFormula(text, {
+                  'type':'int',
+                  'match:raw': "[^a-z0-9](?P<x>("+"|".join(p)+"))[\s]*("+"|".join(f)+")[\s]*(?P<match>[0-9]+)[\s]*"
+            })
+#            if s:
+#                print "extract: floor_max #3: %s" % (s)
+                        
+        if s is None:
+            # 10 etaje
+            s = self.extract_withFormula(text, {
+                  'type':'int',
+                  'match:raw': "(?P<match>[0-9]+)[\s]*("+"|".join(etj)+")"
+            })
+#            if s:
+#                print "extract: floor_max #4: %s" % (s)
+                
+#        if s is None:
+#            print "extract: floor_max: NOT FOUND"
+        
+        if s:
+            newRow['floor_max'] = s
+        
+        return newRow
+    
+    
+    def extract_apartmentType(self, newRow, text, profile):
+#        print "\n->%s" % (text)
+        s = None    
+        if s is None:
+            s = self.extract_withFormula(text, {
+                  'type':'str',
+                  'match:raw': "[^a-z0-9](?P<match>"+"|".join(["semidecomandat"])+")[^a-z0-9]"
+            })
+#            if s:
+#                print "extract: apartmentType #1: %s" % (s)
+
+            if s:
+                s = "semidec"
+        
+        
+        if s is None:
+            s = self.extract_withFormula(text, {
+                  'type':'str',
+                  'match:raw': "[^a-z0-9](?P<match>"+"|".join(["nedecomandat"])+")[^a-z0-9]"
+            })
+#            if s:
+#                print "extract: apartmentType #2: %s" % (s)
+        
+            if s:
+                s = "nondec"
+                
+        if s is None:
+            s = self.extract_withFormula(text, {
+                  'type':'str',
+                  'match:raw': "[^a-z0-9](?P<match>"+"|".join(["decomandat", "dec"])+")[^a-z0-9]"
+            })
+#            if s:
+#                print "extract: apartmentType #3: %s" % (s)
+        
+            if s:
+                s = "dec"
+                
+#        if s is None:
+#            print "extract: apartmentType: NOT FOUND"
+        
+        if s:
+            newRow['apartmentType'] = s
+        
+        return newRow
+    
     
     def convert_location(self, newRow):
         if 'location' in newRow: 

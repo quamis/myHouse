@@ -41,6 +41,44 @@ class doProcess(base.process.Processor ):
         r = tree.asYear("//*[contains(text(), 'An const')]/../*[last()]/text()")
         newRow['year_built'] = int(r) if r else None
         
+        
+        r = tree.first("//*[contains(text(), 'Etaj')]/../*[last()]/text()")
+        m = re.search("(?P<floor>([0-9]+|parter|p|demisol|d|mansarda|m))[\s]*\/[\s]*(?P<floor_max>[0-9]+)", r.lower())
+        if m:
+            newRow['floor_max'] =  int(m.group('floor_max'))
+            
+            if m.group('floor')=="mansarda" or m.group('floor')=="m":
+                newRow['floor'] = newRow['floor_max']+1
+            elif m.group('floor')=="demisol" or m.group('floor')=="d":
+                newRow['floor'] =  -1
+            elif m.group('floor')=="parter" or m.group('floor')=="p":
+                newRow['floor'] =  0
+            else:
+                newRow['floor'] =  int(m.group('floor'))
+                
+#            print "%s %s  %s" % (newRow['floor'], newRow['floor_max'], newRow['url'])
+#        else:
+#            print " %s" % (newRow['url'])
+        
+        r = tree.first("//*[contains(text(), 'Compartimentare')]/../*[last()]/text()")
+        newRow['apartmentType'] =  None
+        if r:
+            if r=="semidecomandat":
+                newRow['apartmentType'] =  "semidec"
+            elif r=="nedecomandat":
+                newRow['apartmentType'] =  "nondec"
+            elif r=="decomandat":
+                newRow['apartmentType'] =  "dec"
+            elif r=="circular":
+                newRow['apartmentType'] =  "nondec"
+            elif r=="vagon":
+                newRow['apartmentType'] =  "nondec"
+            elif r=="---":
+                newRow['apartmentType'] =  None
+#            else:
+#                print "Unknwon apartmentType: '%s'" % (r)
+#        print "ApartmentType: '%s'\n" % (newRow['apartmentType'])
+            
         return newRow
         
     def _processRow(self, row):
