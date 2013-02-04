@@ -1,4 +1,8 @@
+# -*- coding: utf-8 -*-
+
 import csv
+
+
 class UnicodeCsvReader(object):
     def __init__(self, f, encoding="utf-8", **kwargs):
         self.csv_reader = csv.reader(f, **kwargs)
@@ -16,6 +20,8 @@ class UnicodeCsvReader(object):
     @property
     def line_num(self):
         return self.csv_reader.line_num
+
+
 
 class UnicodeDictReader(csv.DictReader):
     def __init__(self, f, encoding="utf-8", fieldnames=None, **kwds):
