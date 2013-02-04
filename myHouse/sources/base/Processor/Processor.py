@@ -69,6 +69,12 @@ class Processor(object):
     def _processRow(self, row):
         pass
 
+    def _extractData_houses(self, newRow, row, tree):
+        return newRow
+    
+    def _extractData_apt(self, newRow, row, tree):
+        return newRow
+    
     def extractData_base(self, newRow):
         if newRow['price'] and "surface_built" in newRow and newRow["surface_built"]:
             newRow['price_per_mp_built'] = round(float(newRow['price'])/float(newRow['surface_built']), 0)

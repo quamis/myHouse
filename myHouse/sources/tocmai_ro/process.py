@@ -13,10 +13,6 @@ class doProcess( Processor.Processor ):
     def selectEnd(self, c):
         self.db.selectEnd(c)
         
-        
-    def _extractData_houses(self, newRow, row, tree):
-        return newRow
-    
     def _extractData_apt(self, newRow, row, tree):
         desc = newRow['description']
         newRow = self.processor_helper.extract_floor(newRow, desc, "apt")

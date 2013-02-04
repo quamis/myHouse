@@ -13,9 +13,6 @@ class doProcess( Processor.Processor ):
     def selectEnd(self, c):
         self.db.selectEnd(c)
     
-    def _extractData_houses(self, newRow, row, tree):
-        return newRow
-    
     def _extractData_apt(self, newRow, row, tree):
         # this isn't actually tested, we cannot gather too many announcements from this site, so i'm only gathering houses, no apartments
         
