@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sources.base.process as base
 import sources.base.HTML as HTML
 

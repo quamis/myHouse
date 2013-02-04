@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import views.base.view
 
 import os, sys, time, codecs, importlib

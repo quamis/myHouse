@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import sources.base.gather as base
 
 from lxml import etree

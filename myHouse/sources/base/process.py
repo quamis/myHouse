@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 import time, sys, re, string
 import sources.base.UnicodeCsvReader as UnicodeCsvReader
 
