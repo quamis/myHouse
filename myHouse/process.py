@@ -8,7 +8,7 @@ from CACHE import CACHE
 import argparse
 import importlib
 
-sys.path.insert(0, "base")
+sys.path.insert(0, "sources/base")
 
 
 logging.basicConfig(format='%(asctime)s %(message)s',level=logging.DEBUG)
@@ -24,6 +24,7 @@ if args.module is None:
     raise SystemExit
 
 moduleStr = args.module
+modulePath = "sources/"+args.module
 
 # change the output encoding to utf8
 sys.stdout = codecs.getwriter('utf8')(sys.stdout)
@@ -32,7 +33,7 @@ maindb = DB("../db/main.sqlite")
 db = DB("../db/"+moduleStr+".sqlite")
 cache = CACHE(moduleStr)
 
-sys.path.insert(0, os.path.abspath(moduleStr))
+sys.path.insert(0, os.path.abspath(modulePath))
 module = importlib.import_module("process", moduleStr)
 gatherer = module.doProcess(moduleStr, maindb, db, cache, args)
 sys.stdout.write("\n")
