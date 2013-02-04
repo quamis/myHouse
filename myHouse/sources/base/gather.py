@@ -20,7 +20,6 @@ class Extractor(object):
         self.cache = cache
         self.args = args
         self.br = None
-        self.conv_EURRON = 4.55
         
         self.table_data = None
         

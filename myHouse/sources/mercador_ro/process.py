@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
 
-import sources.base.process as base
+import sources.base.Processor.Processor as Processor
 import sources.base.HTML as HTML
  
 import re, time
 
-class doProcess( base.Processor ):
-    def __init__(self, source, maindb, db, cache, args):
-        super(doProcess, self).__init__(source, maindb, db, cache, args)
-    
+class doProcess( Processor.Processor ):
     def selectStart(self):
         c = self.db.selectStart("SELECT `id`, `category`, `html`, `url` FROM `mercador_ro_data` WHERE 1")
         return c
