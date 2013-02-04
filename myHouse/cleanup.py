@@ -3,19 +3,6 @@
 
 
 """
-duplicates cleanup:
-	- fa o lista cu description-ul din care elimini tot ce nu e a-z, lowercase, ca sa compari doar pe lista aia. Lasa spatiile
-	- trebuie mentinuta o lista de "duplicate posibile" cu tot cu sansele lor. indexata numeric, dupa indexul intern de la sql
-		- apoi daca indexul se afla in lista aia, sa sar cu totul procesarea(dar asta presupune ca parsez toata lista la fiecare 
-			pas, mai rapid ar putea sa fie parsarea doar "up" sau "down")
-			as putea sa reduc intervalul de cautare daca lista ar fi presortata dupa categorie, descriere, link, si sa folosesc 
-				o "ferestra" de cautare de 1000 de elemente de ex. Daca folosesc metoda asta, periodic (10% chances) ar trebui 
-				sa fac un shuffle la lista sau sa maresc f mult fereastra, ca sa aiba sanse sa prinda si alte elemente in fereastra
-				
-	- matcherul trebuie instantiat o sg data, si apoi folosit set_seq1(), set_seq2() ca sa updateze datele interne si atat
-	- la matcher, folosita o combinatie intre real_quick_ratio(), quick_ratio(), ratio() ca sa faca matching-ul cat mai rapid 
-				
-				
 TODO: implementat -v=1, -v=2... 
 """
 

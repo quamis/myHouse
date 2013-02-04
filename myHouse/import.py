@@ -1,20 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import os, sys, time, codecs, importlib
-import re
-from datetime import date, timedelta
-
-
 from DB import DB
-from CACHE import CACHE
 import logging
+import codecs
 import locale
 import argparse
-import datetime
-import csv
+import sys
 import json
-import collections
 
 class Import:
     def __init__(self, db, args):

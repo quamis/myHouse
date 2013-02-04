@@ -3,7 +3,7 @@
 import sources.base.Processor.Processor as Processor
 import sources.base.HTML as HTML
  
-import re, time
+import re
 
 class doProcess( Processor.Processor ):
     def selectStart(self):

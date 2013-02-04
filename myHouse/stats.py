@@ -1,9 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# @see http://lxml.de/lxmlhtml.html#parsing-html
-# @see https://gist.github.com/823821
-
 import sys, time, codecs
 import datetime
 
@@ -12,8 +9,6 @@ import logging
 import locale
 import argparse
 import numpy 
-import collections
-
 
 class Stats:
     def __init__(self, db, args):

@@ -1,21 +1,14 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# @see http://lxml.de/lxmlhtml.html#parsing-html
-# @see https://gist.github.com/823821
 import os, sys, time, codecs, importlib
-import re
 from datetime import date, timedelta
 
 
 from DB import DB
-from CACHE import CACHE
 import logging
 import locale
 import argparse
-import datetime
-import csv
-import collections
 
 class View:
     def __init__(self, db, viewer, args):
