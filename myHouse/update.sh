@@ -80,7 +80,7 @@ function gather_mercador_ro(){
     local SLEEP="1.5"
     local V=5
     do_lock "mercador_ro" "case-vile(limited-search)"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "mercador_ro" -category "case-vile" -url "http://mercador.ro/imobiliare/case-de-vanzare-si-de-inchiriat/bucuresti/?search[filter_float_price%3Afrom]=20000&search[filter_float_price%3Ato]=329000&search[filter_enum_alege]=vanzare"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "mercador_ro" -category "case-vile" -url "http://mercador.ro/imobiliare/case-de-vanzare/bucuresti/?all_categories=1&search%5Bfilter_float_price%3Afrom%5D=20000&search%5Bfilter_float_price%3Ato%5D=70000&currency=EUR"
     
     do_unlock "mercador_ro"
 }
