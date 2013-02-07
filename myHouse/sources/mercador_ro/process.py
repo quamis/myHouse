@@ -64,7 +64,7 @@ class doProcess( Processor.Processor ):
         
         newRow['surface_total'] =  tree.asFloat(".//table[contains(@class, 'details')]//div[contains(text(), 'Suprafata')]/strong/text()")
         
-        newRow['rooms'] =          int(tree.asFloat(".//table[contains(@class, 'details')]//div[contains(text(), 'Camere')]/strong/*/text()"))
+        newRow['rooms'] =          tree.asInt(".//table[contains(@class, 'details')]//div[contains(text(), 'Camere')]/strong/*/text()")
         
         newRow['description'] =    tree.first(".//div[contains(@class, 'offerdescription')]/p[contains(@class, 'large')]/text()")
         
@@ -72,11 +72,11 @@ class doProcess( Processor.Processor ):
         
 
         if re.search("apartament", newRow['description']) and re.search("etaj", newRow['description']):
-            print("\nThis is not the correct category(its an apartment). Ignoring")
+            #print("\nThis is not the correct category(its an apartment). Ignoring")
             return None
         
         if re.search("cumpar", newRow['description']):
-            print("\nThis is not the correct category(this guy buys stuff, not selling). Ignoring")
+            #print("\nThis is not the correct category(this guy buys stuff, not selling). Ignoring")
             return None
     
         if newRow['category']=="case-vile":
