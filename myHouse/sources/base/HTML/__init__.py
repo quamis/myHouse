@@ -48,6 +48,17 @@ class HTML(object):
         
         return None
     
+    def asInt(self, xpath):
+        price = self.first(xpath)
+        
+        if price:
+            price =     re.sub("[^0-9]", "", price)
+            
+        if price:
+            return int(price)
+        
+        return None
+    
     def asYear(self, xpath):
         y = self.first(xpath)
         

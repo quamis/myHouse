@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import logging
-import sys
 import re
 import random, time
 import mechanize
@@ -10,7 +9,7 @@ import hashlib
 import numconv
 import warnings
 import datetime
-import zlib
+import urllib2
 
 class Extractor(object):
     def __init__(self, category, url, db, cache, args):
@@ -23,24 +22,23 @@ class Extractor(object):
         
         self.table_data = None
         
+        self.wget_stats = {
+            'requests': 0,
+            'failed': 0,
+            'passed': 0,
+            'time': 0,
+        }
+        
         self.lastCallTime = datetime.datetime.now()
         
-    def xpath_getOne(self, tree, xpath):
-        ret = tree.xpath(xpath)
-        if ret: 
-            return ret[0].strip()
-        return ""
-    
-    def xpath_getTexts(self, tree, xpath):
-        elms = tree.xpath(xpath)
-        ret = ""
-        for r in elms:
-            ret+= r + "\n"
-            
-        if ret: 
-            return ret.strip()
-        return ""
-    
+    def destroy(self):
+        if self.wget_stats['time']>0:
+            print "requests: %d (%d failed), avg: %.3fs/rq" % (
+               self.wget_stats['requests'],
+               self.wget_stats['failed'],
+               self.wget_stats['time']/float(self.wget_stats['requests'])
+            )
+        
     def getCachePrefix(self, usage):
         if usage=="links":
             return time.strftime("%Y%m%d%H")
@@ -75,11 +73,6 @@ class Extractor(object):
         pagesList.sort( key=self._custom_sort_natcasesort )
         return pagesList
         
-    def printPagesList(self, pagesList):
-        for link in pagesList:
-            print link
-
-
     def extractPaginationUrls(self, html):
         ret = []
         return ret
@@ -90,7 +83,7 @@ class Extractor(object):
 
     def gatherLinks(self):
         ret = self._gatherLinks()
-        self.debug_print("got-links", [len(ret[1]), len(ret[0])])
+        logging.debug("got %d links from %d pages", len(ret[1]), len(ret[0]))
         return ret
     
     def _gatherLinks(self):
@@ -101,9 +94,34 @@ class Extractor(object):
         self._getAll(t)
         self.cache.close()
         self.db.close()
+        self.destroy()
     
     def _getAll(self):
         pass
+    
+    def _getAll_simple(self, detailedPagesList, encoding="utf-8", urlPrefix=None):
+        # loop through all pages and gather individual links
+        timestamp = time.time()
+        cachePrefix = self.getCachePrefix("page")
+        for link in detailedPagesList:
+            if urlPrefix:
+                if re.match("^http", link) is None:
+                    link = urlPrefix+link
+                
+            html = self.wget_cached(cachePrefix, link)
+                
+            # extract data from the selected page
+            idstr = self.hash(link)
+            if html and self.updateIfExists(idstr, timestamp):
+                self.writeItem({ 
+                    "id":           idstr,
+                    "category":     self.category,
+                    "url":          link,
+                    "html":         self.db.compress( unicode(html.decode(encoding)) ),
+                    "addDate":      timestamp,
+                    "updateDate":   timestamp,
+                })
+
     
     def hash(self, text):
         ident = hashlib.md5()
@@ -128,9 +146,9 @@ class Extractor(object):
             self.db.flushRandom(0.010)
         
 
-    def wait(self, reason): 
+    def wait(self, mode="default"): 
         # TODO: configure sleep period from the command-line/system specific args
-        if reason=="new-page" or reason=="new-offer":
+        if mode=="default":
             try:
                 now = datetime.datetime.now()
                 remainingSleep = max(0, self.args.sleep - (now - self.lastCallTime).total_seconds())
@@ -143,7 +161,8 @@ class Extractor(object):
             
         
     def wget(self, url):
-        self.debug_print("wget-start", url)
+        logging.debug('wget %s'% (url))
+        
         if self.br is None:
             br = mechanize.Browser()
             
@@ -174,86 +193,35 @@ class Extractor(object):
             self.br = br
 
         html = ""
+        
+        t1 = time.time()
+        
         try:
+            self.wget_stats['requests']+=1
             html = self.br.open(url).read()
+            self.wget_stats['passed']+=1
         except Exception, ex:
-            sys.stdout.write("\n Browser.open.read() returned with exception: %s\n" % (ex))
-            return None
-            
-        self.debug_print("wget-done")
+            self.wget_stats['failed']+=1
+            logging.debug('Browser.open.read() returned with exception: %s\n '% (ex))
+            html = None
+        
+        t2 = time.time()
+        self.wget_stats['time']+=t2-t1
+        
+        logging.debug('  done')
         return html
     
-    
-    def extractYear(self, text):
-        years = self.removeEmptyValues(re.split("[^0-9]+", text))
-        return min(years) if years else None
-    
-    def removeEmptyValues(self, rawList):
-        return filter(None, rawList)
-    
-    
-    
-    
-    
-    def debug_print(self, result, extra=None):
-        # 0 = none, 1: only importans, 2: dots, 3: debug
-        if(self.args.verbosity>=3):
-            self.debug_print_3(result, extra)
-        elif(self.args.verbosity>=2):
-            self.debug_print_2(result, extra)
-        elif(self.args.verbosity>=1):
-            self.debug_print_1(result, extra)
-        elif(self.args.verbosity>=0):
-            self.debug_print_0(result, extra)
-            
-    
-    def debug_print_3(self, result, extra=None):
-        if(result=="wget-start"):
-            logging.debug('wget %s', extra)
-        elif(result=="wget-done"):
-            logging.debug('  wget done')
-        elif(result=="wget-fail"):
-            logging.debug('  wget failed, skipping')
-        elif(result=="wget-cached"):
-            logging.debug("wget from cache %s", extra)
-        elif(result=="parse-failed"):
-            logging.debug("cannot extract data")
-        elif(result=="got-links"):
-            logging.debug("got %d links from %d pages", extra[0], extra[1])
+    def wget_cached(self, cachePrefix, url):
+        html = self.cache.get(cachePrefix+url)
+        if(html is None):
+            try:
+                html = self.wget(url)
+                self.cache.set(cachePrefix+url, html)
+                self.wait()
+            except urllib2.URLError, ex:
+                logging.debug('wget failed: %s'% (ex))
+                html = None
         else:
-            logging.debug(result)
+            logging.debug('wget from cache %s ' % (url))
             
-    def debug_print_2(self, result, extra=None):
-        if(result=="wget-start"):
-            sys.stdout.write("\n %s" % (extra))
-        elif(result=="wget-done"):
-            pass
-        elif(result=="wget-fail"):
-            sys.stdout.write(" (fail)")
-        elif(result=="wget-cached"):
-            sys.stdout.write("\n %s" % (extra))
-        elif(result=="parse-failed"):
-            sys.stdout.write(" (parse fail)")
-        elif(result=="got-links"):
-            pass
-            
-        sys.stdout.flush()
-        
-    def debug_print_1(self, result, extra=None):
-        if(result=="wget-start"):
-            sys.stdout.write(">")
-        elif(result=="wget-done"):
-            sys.stdout.write("<")
-        elif(result=="wget-fail"):
-            sys.stdout.write("!")
-        elif(result=="wget-cached"):
-            sys.stdout.write("-")
-        elif(result=="parse-failed"):
-            sys.stdout.write("*")
-        elif(result=="got-links"):
-            sys.stdout.write("\n\n")
-            
-        sys.stdout.flush()
-        
-    def debug_print_0(self, result, extra=None):
-        pass
+        return html

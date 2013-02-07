@@ -6,8 +6,6 @@ from lxml import etree
 import re
 import time
 
-import urllib2 # to be able to catch Browser expcetions
-
 class newGatherer(base.Extractor ):
     def __init__(self, category, url, db, cache, args):
         super(newGatherer, self).__init__(category, url, db, cache, args)
@@ -81,17 +79,7 @@ class newGatherer(base.Extractor ):
             
             for link in completePagesList:
                 if not self.linkAlreadyLoaded(link, gotPagesList):
-                    html = self.cache.get(cachePrefix+link)
-                    if(html is None):
-                        try:
-                            html = self.wget(link)
-                            self.cache.set(cachePrefix+link, html)
-                            self.wait("new-page")
-                        except urllib2.URLError:
-                            self.debug_print("wget-failed")
-                            continue
-                    else:
-                        self.debug_print("wget-cached", link)
+                    html = self.wget_cached(cachePrefix, link)
                 
                     if(html):
                         gotPagesList.append(link)
@@ -111,32 +99,4 @@ class newGatherer(base.Extractor ):
 
     
     def _getAll(self, detailedPagesList):
-        # loop through all pages and gather individual links
-        linkIndex = 0
-        timestamp = time.time()
-        cachePrefix = self.getCachePrefix("page")
-        for link in detailedPagesList:
-            linkIndex+=1
-            html = self.cache.get(cachePrefix+link)
-            if(html is None):
-                try:
-                    html = self.wget(link)
-                    self.cache.set(cachePrefix+link, html)
-                    self.wait("new-offer")
-                except urllib2.URLError:
-                    self.debug_print("wget-failed")
-                    continue
-            else:
-                self.debug_print("wget-cached", link)
-                
-            idstr = self.hash(link)
-            if html and self.updateIfExists(idstr, timestamp):
-                self.writeItem({ 
-                    "id":           idstr,
-                    "category":     self.category,
-                    "url":          link,
-                    "html":         self.db.compress( unicode(html.decode("latin-1")) ),
-                    "addDate":      timestamp,
-                    "updateDate":   timestamp,
-                })
-                
+        return self._getAll_simple(detailedPagesList, "latin-1")
