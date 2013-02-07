@@ -56,6 +56,7 @@ if [ "$SYNCREMOTE" == "default" -o "$SYNCREMOTE" == "local" ]; then
     echo "{ }"> "$OUTDIR/localStatuses.json"
     
     
+    echo "Computing suggestions lists"
     ./view.py -category="case-vile" -status="todo" --outputFormat="id" > /tmp/TODO.json
     ./view.py -category="case-vile" -status="hide" --outputFormat="id" > /tmp/HIDE.json
     ./view.py -category="case-vile" -status=""     --outputFormat="id" > /tmp/TEST.json
