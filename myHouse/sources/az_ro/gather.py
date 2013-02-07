@@ -4,7 +4,6 @@ import sources.base.gather as base
 
 from lxml import etree
 import re
-import time
 
 class newGatherer(base.Extractor ):
     def __init__(self, category, url, db, cache, args):
@@ -28,41 +27,10 @@ class newGatherer(base.Extractor ):
         for a in hrefs:
             if(re.search("\/imobiliare-vanzari\/(case-vile|[1-9]-camere)\/[^?]+", a)):
                 ret.append(a)
-
         return ret
     
     def _gatherLinks(self):
-        completePagesList = [self.url]
-        gotPagesList = []
-        detailedPagesList = []
-        gotNewPage = True
+        return self._gatherLinks_simple("http://az.ro")
         
-        cachePrefix = self.getCachePrefix("links")
-        while gotNewPage:
-            gotNewPage=False
-            for link in completePagesList:
-                if re.match("^http", link) is None:
-                    link = "http://az.ro"+link
-                
-                if link not in gotPagesList: 
-                    html = self.wget_cached(cachePrefix, link)
-                
-                    if(html):
-                        gotPagesList.append(link)
-                        gotPagesList = self.removeDuplicates(gotPagesList)
-                        
-                        completePagesList2 = self.extractPaginationUrls(html)
-                        completePagesList = self.removeDuplicates(completePagesList + completePagesList2)
-                        
-                        # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
-                        detailedPagesList2 = self.extractOffersUrls(html)
-                        detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
-                        
-                    gotNewPage = True
-                    #gotNewPage = False
-                    
-        return [completePagesList, detailedPagesList]
-        
-    
     def _getAll(self, detailedPagesList):
         return self._getAll_simple(detailedPagesList, "utf-8", "http://az.ro")

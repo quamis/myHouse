@@ -4,7 +4,6 @@ import sources.base.gather as base
 
 from lxml import etree
 import re
-import time
 
 class newGatherer(base.Extractor ):
     def __init__(self, category, url, db, cache, args):
@@ -28,40 +27,11 @@ class newGatherer(base.Extractor ):
         for a in hrefs:
             if(re.search("\/anunturi-imobiliare-vanzari\/(.+)\/(.+)\.html", a)):
                 ret.append(a)
-
         return ret
     
     def _gatherLinks(self):
-        completePagesList = [self.url]
-        gotPagesList = []
-        detailedPagesList = []
-        gotNewPage = True
-        
-        cachePrefix = self.getCachePrefix("links")
-        while gotNewPage:
-            gotNewPage=False
-            self.sortPagesList(completePagesList)
-            
-            for link in completePagesList:
-                if link not in gotPagesList: 
-                    html = self.wget_cached(cachePrefix, link)
-                
-                    if(html):
-                        gotPagesList.append(link)
-                        gotPagesList = self.removeDuplicates(gotPagesList)
-                        
-                        completePagesList = self.extractPaginationUrls(html)
-                        completePagesList = self.removeDuplicates(completePagesList)
-                        
-                        # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
-                        detailedPagesList2 = self.extractOffersUrls(html)
-                        detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
-                        
-                    gotNewPage = True
-                    #gotNewPage = False
-
-        return [completePagesList, detailedPagesList]
-        
+        return self._gatherLinks_simple()
     
     def _getAll(self, detailedPagesList):
         return self._getAll_simple(detailedPagesList, "latin-1")
+    

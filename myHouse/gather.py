@@ -54,6 +54,8 @@ cache = CACHE(moduleStr)
 sys.path.insert(0, os.path.abspath(modulePath))
 module = importlib.import_module("gather", moduleStr)
 gatherer = module.newGatherer(category, startUrl, db, cache, args)
+gatherer.init()
 gatherer.getAll()
+gatherer.destroy()
 sys.stdout.write("\n")
 raise SystemExit

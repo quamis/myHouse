@@ -99,6 +99,50 @@ class Extractor(object):
     
     def _gatherLinks(self):
         pass
+    
+    def linkAlreadyLoaded(self, link, gotPagesList):
+        if link in gotPagesList:
+            return True
+        return False
+    
+    def removePageDuplicates(self, pagesList):
+        return self.removeDuplicates(pagesList)
+    
+    def _gatherLinks_simple(self, urlPrefix=None):
+        completePagesList = [self.url]
+        gotPagesList = []
+        detailedPagesList = []
+        gotNewPage = True
+        
+        cachePrefix = self.getCachePrefix("links")
+        while gotNewPage:
+            gotNewPage=False
+            for link in completePagesList:
+                if urlPrefix:
+                    if re.match("^http", link) is None:
+                        link = urlPrefix+link
+                
+                if not self.linkAlreadyLoaded(link, gotPagesList): 
+                    html = self.wget_cached(cachePrefix, link)
+                
+                    if(html):
+                        gotPagesList.append(link)
+                        gotPagesList = self.removeDuplicates(gotPagesList)
+                        
+                        completePagesList2 = self.extractPaginationUrls(html)
+                        completePagesList = self.removePageDuplicates(completePagesList + completePagesList2)
+                        completePagesList = self.sortPagesList(completePagesList)
+                        
+                        # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
+                        detailedPagesList2 = self.extractOffersUrls(html)
+                        detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
+                        
+                    gotNewPage = True
+                    #gotNewPage = False
+        
+        self.cache.flushRandom(1)
+        return [completePagesList, detailedPagesList]
+    
 
     def getAll(self):
         t = self.gatherLinks()[1]
