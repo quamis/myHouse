@@ -9,16 +9,6 @@ import time
 class newGatherer(base.Extractor ):
     def __init__(self, category, url, db, cache, args):
         super(newGatherer, self).__init__(category, url, db, cache, args)
-        
-        self.db.tableCreate("imobiliare_ro_data", { 
-            "id":             "VARCHAR(32)",
-            "category":       "VARCHAR(64)",
-            "url":            "VARCHAR(256)",
-            "html":           "TEXT",
-            "addDate":        "INT",
-            "updateDate":     "INT",
-        }, ["id"])
-        
         self.table_data = "imobiliare_ro_data"
         
         

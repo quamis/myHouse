@@ -31,6 +31,17 @@ class Extractor(object):
         
         self.lastCallTime = datetime.datetime.now()
         
+    def init(self):
+        self.db.tableCreate(self.table_data, { 
+            "id":             "VARCHAR(32)",
+            "category":       "VARCHAR(64)",
+            "url":            "VARCHAR(256)",
+            "html":           "TEXT",
+            "addDate":        "INT",
+            "updateDate":     "INT",
+        }, ["id"])
+        
+        
     def destroy(self):
         if self.wget_stats['time']>0:
             print "requests: %d (%d failed), avg: %.3fs/rq" % (
@@ -94,7 +105,6 @@ class Extractor(object):
         self._getAll(t)
         self.cache.close()
         self.db.close()
-        self.destroy()
     
     def _getAll(self):
         pass
