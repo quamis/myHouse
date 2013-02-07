@@ -85,40 +85,13 @@ class Processor(object):
         return newRow
 
 
-    def debug_print(self, result, extra=None):
-        # 0 = none, 1: only importans, 2: dots, 3: debug
-        if(self.args.verbosity>=1):
-            self.debug_print_1(result, extra)
-        elif(self.args.verbosity>=0):
-            self.debug_print_0(result, extra)
-            
-    
-    def debug_print_1(self, result, extra=None):
-        if(result=="loop-error"):
-            sys.stdout.write("\n # %s -> %s" % ("error on", extra['url']))
-            
-        if(result=="loop-step"):
-            pass
-        
-        if(result=="loop-new"):
-            sys.stdout.write("\n    % 9sEUR %s" % (int(extra['price']) if extra['price'] else "-", extra['url']))
-            
-        if(result=="loop-old"):
-            #sys.stdout.write('.')
-            pass
-        
-        sys.stdout.flush()
-    
-    def debug_print_0(self, result, extra=None):
-        pass
-
     def run(self):
         rows = self.selectStart();
         timestamp = time.time()
         
         index=0
         for row in rows:
-            self.debug_print("loop-step", { "index": index })
+            #self.debug_print("loop-step", { "index": index })
             index+=1
             #try:
             newRow = self._processRow(row)
@@ -170,10 +143,10 @@ class Processor(object):
                 else:
                     self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })
                     
-                self.debug_print("loop-old", newRow)
+                #self.debug_print("loop-old", newRow)
             else:
                 try:
-                    self.debug_print("loop-new", newRow)
+                    #self.debug_print("loop-new", newRow)
                     
                     if 'contacts' in newRow:
                         for c in newRow['contacts']:
