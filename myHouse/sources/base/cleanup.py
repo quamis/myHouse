@@ -9,9 +9,9 @@ class Cleanup(object):
         self.cache = cache
         self.tables_cache = []
         self.tables_data = []
-        
+    
     def cleanCache(self):
-        maxUpdatedTime = time.mktime((date.today()-timedelta(days=7)).timetuple())
+        maxUpdatedTime = time.mktime((date.today()-timedelta(days=14)).timetuple())
 
         for table in self.tables_cache:
             count1 = self.cache.db.selectAll("SELECT COUNT(*) FROM `%s`" % (table))[0][0]
@@ -23,13 +23,11 @@ class Cleanup(object):
             
             print "cache: %s: %s -> %s" % (table, count1, count2)
         
-        """
         if self.args.vacuum:
             self.cache.db.execute("VACUUM")
-        """
             
     def cleanDataTable(self):
-        maxUpdatedTime = time.mktime((date.today()-timedelta(days=14)).timetuple())
+        maxUpdatedTime = time.mktime((date.today()-timedelta(days=7)).timetuple())
 
         for table in self.tables_data:
             count1 = self.db.selectAll("SELECT COUNT(*) FROM `%s`" % (table))[0][0]
@@ -39,10 +37,8 @@ class Cleanup(object):
             
             print "data: %s: %s -> %s" % (table, count1, count2)
         
-        """
         if self.args.vacuum:
             self.db.execute("VACUUM")
-        """
             
     def run(self):
         self.cleanCache()
