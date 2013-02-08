@@ -87,7 +87,7 @@ function gather_mercador_ro(){
 
 
 function gather_imopedia_ro(){
-    local SLEEP="1.5"
+    local SLEEP="0.5"
     local V=5
     do_lock "imopedia_ro" "case-vile"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "case-vile" -url "http://www.imopedia.ro/bucuresti/vanzari-vile.html"
