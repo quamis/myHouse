@@ -117,6 +117,7 @@ class Extractor(object):
         cachePrefix = self.getCachePrefix("links")
         while gotNewPage:
             gotNewPage=False
+            
             for link in completePagesList:
                 if urlPrefix:
                     if re.match("^http", link) is None:
@@ -218,6 +219,7 @@ class Extractor(object):
         logging.debug('wget %s'% (url))
         
         if self.br is None:
+            logging.debug("initialize browser")
             br = mechanize.Browser()
             
             # Cookie Jar
@@ -245,6 +247,7 @@ class Extractor(object):
             #br.set_debug_responses(True)
             
             self.br = br
+            logging.debug("got a brand new browser object")
 
         html = ""
         
