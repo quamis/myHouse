@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# update.sh -gather none -process none -cleanup thorough
+
+
+
 if [ ! -d "../db/" ]; then 
     mkdir "../db/"
 fi
@@ -273,5 +277,5 @@ elif [ "$CLEANUP" == "thorough" ]; then
     ./cleanup.py -v=5 -deleteOldItems=1
     
     printf "[`date +"%Y-%m-%d %H:%M:%S"`]       Delete duplicates\n"
-    ./cleanup.py -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=10 -dup_minAutoMatch=0.990
+    ./cleanup.py -dup_apply=1 -dup_algorithm_c=desc:0 -dup_algorithm_s=1.7.2 -dup_windowSize=10 -dup_minAutoMatch=0.950
 fi
