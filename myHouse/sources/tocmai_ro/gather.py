@@ -42,13 +42,15 @@ class newGatherer(base.Extractor ):
     
     def linkAlreadyLoaded(self, link, gotPagesList):
         m = re.search("page=(?P<page>[0-9]+)", link)
+        page = 1
         if m:
             page = m.groups("page")
-        else:
-            page = 1
             
         for e in gotPagesList:
-            pg = re.search("page=(?P<page>[0-9]+)", e).groups("page")
+            m = re.search("page=(?P<page>[0-9]+)", e)
+            pg = 1
+            if m:
+                pg = m.groups("page")
             if page == pg:
                 return True
         return False
