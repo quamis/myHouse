@@ -46,7 +46,8 @@ class doProcess( Processor.Processor ):
         
         newRow['description'] = tree.first("//table[@id='detalii_anunt']//div[@class='detalii_txt']/text()")
         newRow['location'] =    tree.first("//table[@id='detalii_anunt']//div[@class='detalii_txt']/strong/text()")
-
+        newRow['description'] = "%s %s" % (newRow['location'], newRow['description'])
+        
         contactStr =     tree.first("//table[@id='detalii_anunt']//div[@class='contact']/text()")
         contact = []
         for c in contactStr.split("/"): 
@@ -63,6 +64,6 @@ class doProcess( Processor.Processor ):
             newRow = self._extractData_apt(newRow)
             
         newRow = super(doProcess, self).extractData_base(newRow)
-        
+
         return newRow
     
