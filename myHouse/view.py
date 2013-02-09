@@ -119,7 +119,7 @@ class View:
             if(self.args.status and self.args.status!=""):
                 sql+="/*userStatus*/ AND( 0 "
                 for k in self.args.status:
-                    sql+=" OR `userStatus`='%s'" % (k)
+                    sql+=" OR `userStatus` LIKE '%s'" % (k)
                 sql+=")"
         
         
