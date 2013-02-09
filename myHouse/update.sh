@@ -96,8 +96,9 @@ function gather_imopedia_ro(){
     do_lock "imopedia_ro" "case-vile"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "case-vile" -url "http://www.imopedia.ro/bucuresti/vanzari-vile.html"
     
-    do_lock "imopedia_ro" "apt-2-cam"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "apt-2-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-2-camere-1104056-0-pagina-0.html"
+    # imopedia.ro seems to be extra slow on large datasets(3-5s/request, and they have about 300 pages). probably they forgot to index their tables:)
+    #do_lock "imopedia_ro" "apt-2-cam"
+    #./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "apt-2-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-2-camere-1104056-0-pagina-0.html"
     
     do_lock "imopedia_ro" "apt-3-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "apt-3-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-3-camere-1102874-0-pagina-0.html"
