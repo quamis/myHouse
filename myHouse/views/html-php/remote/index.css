@@ -2,20 +2,33 @@
 
 
 body {
-	counter-reset: offer 0;           /* Set the section counter to 0 */
+    counter-reset: offer 0;           /* Set the section counter to 0 */
 }
 
 div.filters{
-	border: 1px solid #5B1A15;
-	background-color: #C5B38B;
-	min-height: 5em;
-        position: relative;
+    border: 1px solid #5B1A15;
+    background-color: #C5B38B;
+    min-height: 5em;
+    position: relative;
 }
-div.filters select{
-	width: 25%;
-	text-align: left;
-	margin-left: 1em;
-	margin-right: 1em;
+
+div.filters table.filters{
+    width: 99%;
+}
+div.filters table.filters td{
+    vertical-align: top;
+}
+div.filters table.filters select{
+    width: 100%;
+    text-align: left;
+    margin-left: 1em;
+    margin-right: 1em;
+}
+div.filters table.filters input{
+    width: 100%;
+    text-align: left;
+    margin-left: 1em;
+    margin-right: 1em;
 }
 
 div.filters div.stats{
@@ -42,26 +55,26 @@ div.filters div.stats table tr td.int{
 
 
 div.offer{
-	margin-bottom: 1em;
-	border-left: 4px dotted #ccc;
-	border-top: 2px dotted #ccc;
-	padding-left: 0.5em;
-	padding-right: 2px;
-	padding-bottom: 2px;
-	
-	color: #222;
-	min-height: 6em;
-	background-color: #F0F0F0;  /* default color */
+    margin-bottom: 1em;
+    border-left: 4px dotted #ccc;
+    border-top: 2px dotted #ccc;
+    padding-left: 0.5em;
+    padding-right: 2px;
+    padding-bottom: 2px;
+
+    color: #222;
+    min-height: 6em;
+    background-color: #F0F0F0;  /* default color */
 }
 div.offer:hover{
-	border-left: 4px solid #888;
-	border-top: 2px solid #888;
-	border-bottom: 2px solid #888;
-	border-right: 2px solid #888;
-	
-	padding-right: 0px;
-	padding-bottom: 0px;
-	background-color: #ffffff;
+    border-left: 4px solid #888;
+    border-top: 2px solid #888;
+    border-bottom: 2px solid #888;
+    border-right: 2px solid #888;
+
+    padding-right: 0px;
+    padding-bottom: 0px;
+    background-color: #ffffff;
 }
 div.offer.loading{
 	border-left: 4px double #f00;
@@ -137,6 +150,12 @@ div.offer .description{
 	margin-bottom: 2em;
 	position: relative;
 	z-index: 100;
+}
+
+div.offer .description span.highlight{
+    font-weight: bold;
+    color: #800;
+    border-bottom: 1px dashed #800;
 }
 
 div.offer a.link{
@@ -266,6 +285,48 @@ div.offer.checked-notok{
     color: #800;
     background-color: #EC847C;
 }
+
+/*********************************************/
+div.offer button.mark-01{
+    border: 1px solid #5B1A15;
+    background-color: #C58F8B;
+    color: #5B1A15;
+}
+div.offer.mark-01{
+    color: #000;
+    background-color: #C58F8B;
+}
+
+div.offer button.mark-02{
+    border: 1px solid #5B4515;
+    background-color: #C5B38B;
+    color: #5B4515;
+}
+div.offer.mark-02{
+    color: #000;
+    background-color: #C5B38B;
+}
+
+div.offer button.mark-03{
+    border: 1px solid #2E0F3C;
+    background-color: #9E7DAE;
+    color: #2E0F3C;
+}
+div.offer.mark-03{
+    color: #000;
+    background-color: #9E7DAE;
+}
+
+div.offer button.mark-04{
+    border: 1px solid #104519;
+    background-color: #7FB589;
+    color: #104519;
+}
+div.offer.mark-04{
+    color: #000;
+    background-color: #7FB589;
+}
+
 
 /*********************************************/
 div.offer button.hide{          /* http://colorschemedesigner.com/#0362nhhhxw0w0 */

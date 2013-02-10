@@ -1,14 +1,12 @@
 <?php
-/**
-ye38j2ju
-wt283uo311222
-rqua3116 
-4c35d31dc0b79
-o0o092i1
-7eh2rtpj4bus0
-*/
+
+error_reporting(E_ALL ^ E_NOTICE);
+ini_set('display_errors', 1);
+session_start();
 
 require("offer.class.php");
+require("filters.class.php");
+
 
 $offers = json_decode(file_get_contents("profile.case-valide.json"));
 
@@ -41,79 +39,25 @@ if(!$localStatuses){
 <body>
 
 
-<div class='filters'>
 <?php
-	$rpp = ($_GET['rpp']?(int)$_GET['rpp']:25);
-	$pg = (int)$_GET['pg'];
-	$status = (string)$_GET['status'];
-	
-	
-	// filter the offers, remove invalid items
-	$filteredOffers = Array();
-	foreach($offers as $offer){
-		$offObj = new offer($offer, $localStatuses->{$offer->id});
-		$add = true;
-		if($status){
-			$add = false;
-			$st = ($status=='None'?'':$status);
-			if($offObj->hasStatus($st)){
-				$add = true;
-			}
-		}
-		if($add){
-			$filteredOffers[] = $offer;
-		}
-	} // foreach
+$filters = new index_filters();
+$filters->setOffers($offers, $localStatuses);
+$filters->setFilters(Array(
+    'rpp' =>    ($_GET['rpp']?(int)$_GET['rpp']:25),
+    'pg' =>     (int)$_GET['pg'],
+    'status' => (string)$_GET['status'],
+    'text' =>   (string)$_GET['text'],
+));
+$filters->filterOffers();
+    
+require("index.header.php");
 
 
-
-	$totalOffers = count($filteredOffers);
-	$rppArr = Array(2, 5, 10, 25, 50, 100, 250, 500, 1000, 10000);
-	
-	$sel = "<select name='rpp' onChange=\"window.location='?rpp='+$(this).val()+''\">";
-	foreach($rppArr as $v){
-		$sel.=sprintf("<option %s value='%s'>%s/pag</option>", ($rpp==$v?"selected=selected":""), $v, $v);
-	}
-	$sel.="</select>";
-	echo $sel;
-	
-
-	$statuses = Array('None', 'hide', 'todo', 'checked');
-	$sel = "<select name='status' onChange=\"window.location='?rpp={$rpp}&status='+$(this).val()+''\">";
-	$sel.=sprintf("<option %s value=''>-</option>", ($status==''?"selected=selected":""));
-	foreach($statuses as $v){
-		$sel.=sprintf("<option %s value='%s'>%s</option>", ($status==$v?"selected=selected":""), $v, $v);
-	}
-	$sel.="</select>";
-	echo $sel;
-	
-	$totPg = ceil($totalOffers/$rpp);
-	$sel = "<select name='pg' onChange=\"window.location='?rpp={$rpp}&status={$status}&pg='+$(this).val()+''\">";
-	for($i=0; $i<$totPg; $i++){
-		$sel.=sprintf("<option %s value='%s'>pag %s</option>", ($pg==$i?"selected=selected":""), $i, $i+1);
-	}
-	$sel.="</select>";
-	echo $sel;
-        
-        echo "<div class='stats'>
-            <table>
-                <tr class='total'>
-                    <td class='label'>total:</td>
-                    <td class='int'>{$totalOffers}</td>
-                </tr>
-            </table>
-        </div>";
-        
-?>
-</div>
-
-<?php
-
-$filteredOffers = array_slice($filteredOffers, $rpp*$pg, $rpp);
+$filteredOffers = array_slice($filters->getFilteredOffers(), $filters->getFilters()->rpp*$filters->getFilters()->pg, $filters->getFilters()->rpp);
 
 foreach($filteredOffers as $offer){
-	$offObj = new offer($offer, $localStatuses->{$offer->id});
-	$offObj->render();
+    $offObj = new offer($offer, $localStatuses->{$offer->id});
+    $offObj->render();
 } // foreach
 
 ?>

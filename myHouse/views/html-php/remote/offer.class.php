@@ -18,9 +18,17 @@ class offer{
         return $arr;
     }
     
+    public function getDescription(){
+        return $this->offer->description;
+    }
+    public function setDescription($desc){
+        $this->offer->description = $desc;
+    }
+    
     public function getStatus(){
         return ($this->localStatus!==null?$this->localStatus:$this->offer->userStatus);
     }
+    
     public function hasStatus($status){
         $thisStatus = $this->getStatus();
         $statuses = explode("-", $thisStatus);
@@ -116,12 +124,27 @@ DATA;
                     <button class="back checked" onClick="mark(this, 'checked');"><span>&#x21E6;</span></button>
 DATA;
                     break;
+                
+                case 'mark':
+                case 'mark-01':
+                case 'mark-02':
+                case 'mark-03':
+                case 'mark-04':
+                    echo <<<DATA
+                    <button class="back None" onClick="mark(this, '');"><span>&#x21E6;</span></button>
+                    <button class="mark-01" onClick="mark(this, 'mark-01');"><span>&#x2295;</span></button>
+                    <button class="mark-02" onClick="mark(this, 'mark-02');"><span>&#x2299;</span></button>
+                    <button class="mark-03" onClick="mark(this, 'mark-03');"><span>&#x229E;</span></button>
+                    <button class="mark-04" onClick="mark(this, 'mark-04');"><span>&#x22A1;</span></button>
+DATA;
+                    break;
                     
                 case '':        // None
                     echo <<<DATA
                     <button class="todo" onClick="mark(this, 'todo');">todo</button>
                     <button class="checked" onClick="mark(this, 'checked');">checked</button>
                     <button class="hide" onClick="mark(this, 'hide');">hide</button>
+                    <button class="mark-01" onClick="mark(this, 'mark-01');"><span>&#x2295;</span></button>
 DATA;
                     break;
                     
