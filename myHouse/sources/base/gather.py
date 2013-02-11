@@ -108,39 +108,47 @@ class Extractor(object):
     def removePageDuplicates(self, pagesList):
         return self.removeDuplicates(pagesList)
     
+    def _gatherLinks_callback(self, gotPagesList, completePagesList, detailedPagesList, html):
+        pass
+    
     def _gatherLinks_simple(self, urlPrefix=None):
         completePagesList = [self.url]
         gotPagesList = []
         detailedPagesList = []
         gotNewPage = True
-        
-        cachePrefix = self.getCachePrefix("links")
-        while gotNewPage:
-            gotNewPage=False
-            
-            for link in completePagesList:
-                if urlPrefix:
-                    if re.match("^http", link) is None:
-                        link = urlPrefix+link
+
+        try:        
+            cachePrefix = self.getCachePrefix("links")
+            while gotNewPage:
+                gotNewPage=False
                 
-                if not self.linkAlreadyLoaded(link, gotPagesList): 
-                    html = self.wget_cached(cachePrefix, link)
-                
-                    if(html):
-                        gotPagesList.append(link)
-                        gotPagesList = self.removeDuplicates(gotPagesList)
-                        
-                        completePagesList2 = self.extractPaginationUrls(html)
-                        completePagesList = self.removePageDuplicates(completePagesList + completePagesList2)
-                        completePagesList = self.sortPagesList(completePagesList)
-                        
-                        # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
-                        detailedPagesList2 = self.extractOffersUrls(html)
-                        detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
-                        
-                    gotNewPage = True
-                    #gotNewPage = False
-        
+                for link in completePagesList:
+                    if urlPrefix:
+                        if re.match("^http", link) is None:
+                            link = urlPrefix+link
+                    
+                    if not self.linkAlreadyLoaded(link, gotPagesList): 
+                        html = self.wget_cached(cachePrefix, link)
+                    
+                        if(html):
+                            gotPagesList.append(link)
+                            gotPagesList = self.removeDuplicates(gotPagesList)
+                            
+                            completePagesList2 = self.extractPaginationUrls(html)
+                            completePagesList = self.removePageDuplicates(completePagesList + completePagesList2)
+                            completePagesList = self.sortPagesList(completePagesList)
+                            
+                            # TODO: rename detailedPagesList2, detailedPagesList to something offer-like:)
+                            detailedPagesList2 = self.extractOffersUrls(html)
+                            detailedPagesList = self.removeDuplicates(detailedPagesList + detailedPagesList2)
+                            
+                            self._gatherLinks_callback(gotPagesList, completePagesList, detailedPagesList, html)
+                        gotNewPage = True
+                        #gotNewPage = False
+
+        except ExceptionGatherTimeout, e:
+            logging.debug("Exception caught: %s" %(e))
+
         self.cache.flushRandom(1)
         return [completePagesList, detailedPagesList]
     
@@ -154,28 +162,36 @@ class Extractor(object):
     def _getAll(self):
         pass
     
+    def _getAll_callback(self, link, detailedPagesList, html):
+        pass
+    
     def _getAll_simple(self, detailedPagesList, encoding="utf-8", urlPrefix=None):
         # loop through all pages and gather individual links
         timestamp = time.time()
-        cachePrefix = self.getCachePrefix("page")
-        for link in detailedPagesList:
-            if urlPrefix:
-                if re.match("^http", link) is None:
-                    link = urlPrefix+link
-                
-            html = self.wget_cached(cachePrefix, link)
-                
-            # extract data from the selected page
-            idstr = self.hash(link)
-            if html and self.updateIfExists(idstr, timestamp):
-                self.writeItem({ 
-                    "id":           idstr,
-                    "category":     self.category,
-                    "url":          link,
-                    "html":         self.db.compress( unicode(html.decode(encoding)) ),
-                    "addDate":      timestamp,
-                    "updateDate":   timestamp,
-                })
+        try:
+            cachePrefix = self.getCachePrefix("page")
+            for link in detailedPagesList:
+                if urlPrefix:
+                    if re.match("^http", link) is None:
+                        link = urlPrefix+link
+                    
+                html = self.wget_cached(cachePrefix, link)
+                self._getAll_callback(link, detailedPagesList, html)
+                    
+                # extract data from the selected page
+                idstr = self.hash(link)
+                if html and self.updateIfExists(idstr, timestamp):
+                    self.writeItem({ 
+                        "id":           idstr,
+                        "category":     self.category,
+                        "url":          link,
+                        "html":         self.db.compress( unicode(html.decode(encoding)) ),
+                        "addDate":      timestamp,
+                        "updateDate":   timestamp,
+                    })
+        except ExceptionGatherTimeout, e:
+            self.cache.flushRandom(1)
+            logging.debug("Exception caught: %s" %(e))
 
     
     def hash(self, text):
@@ -282,3 +298,6 @@ class Extractor(object):
             logging.debug('wget from cache %s ' % (url))
             
         return html
+
+class ExceptionGatherTimeout(Exception):
+    pass
