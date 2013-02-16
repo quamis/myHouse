@@ -3,20 +3,20 @@
 class index_filters{
     protected $offers = Array();
     protected $localStatuses = Array();
-    
+
     protected $filterdOffers = Array();
-    
+
     protected $filters = Array();
-    
+
     function getFilters(){
         $obj = new stdClass();
         foreach($this->filters as $k=>$v){
             $obj->{$k} = $v;
         }
-        
+
         return $obj;
     }
-    
+
     function setFilters($filters){
         $this->filters = $filters;
     }
@@ -26,7 +26,7 @@ class index_filters{
         $this->filterdOffers = Array();
         $this->localStatuses = $localStatuses;
     }
-    
+
     public function filterOffers(){
         // filter the offers, remove invalid items
         $filteredOffers = Array();
@@ -40,42 +40,67 @@ class index_filters{
                     $add = true;
                 }
             }
-            
+
             if($add && $this->filters['text']){
                 $add = false;
-                $desc = $offObj->getDescription();
-                
+
+                $filteredField = "description";
                 $regex = "";
-                if($this->filters['text'][0]=="/"){
-                    $regex = $this->filters['text'];    // custom, advanced matcher
+                $text = $this->filters['text'];
+
+                $textAdvanced = explode(":", $text);
+                if($textAdvanced[0] && $textAdvanced[1]){
+                    $filteredField = $textAdvanced[0];
+                    $text = $textAdvanced[1];
+                }
+
+                if($text[0]=="/"){
+                    $regex = $text;    // custom, advanced matcher
                 } else {
-                    $regex = "/[^[:alnum:]](?P<match>{$this->filters['text']})[^[:alnum:]]/ui";
+                    $regex = "/[^[:alnum:]](?P<match>{$text})[^[:alnum:]]/ui";
                 }
-                
-                if(preg_match($regex, $desc, $m)){
-                    $desc = str_replace($m[0], "<span class='highlight'>{$m[0]}</span>", $desc);
-                    $offObj->setDescription($desc);
-                    
-                    $add = true;
+
+                switch($filteredField){
+                    case 'description':
+                        $desc = $offObj->getDescription();
+                        if(preg_match($regex, $desc, $m)){
+                            $desc = str_replace($m[0], "<span class='highlight'>{$m[0]}</span>", $desc);
+                            $offObj->setDescription($desc);
+
+                            $add = true;
+                        }
+                    break;
+
+                    case 'id':
+                        $desc = $offObj->getId();
+                        if(preg_match($regex, $desc, $m)){
+                            $add = true;
+                        }
+                    break;
+
+                    default:
+                        throw new Exception("Invalid filter field '{$filteredField}' specified");
                 }
+
+
             }
-            
+
             if($add){
                 $filteredOffers[] = $offer;
             }
         } // foreach
-        
+
         $this->filteredOffers = $filteredOffers;
     }
-    
+
     function getFilteredOffers(){
         return $this->filteredOffers;
     }
-    
+
     function getTotal(){
         return count($this->filteredOffers);
     }
-    
+
     function view_text(){
         $sel = "<input type='text' name='text' value='{$this->filters['text']}' onChange=\"window.location='?rpp={$this->filters['rpp']}&status={$this->filters['status']}&text='+$(this).val()+''\">";
         return $sel;
@@ -91,10 +116,10 @@ class index_filters{
         return $sel;
     }
 
-    
+
     function view_rpp(){
         $rppArr = Array(2, 5, 10, 25, 50, 100, 250, 500, 1000, 5000);
-        
+
         $sel = "<select name='rpp' onChange=\"window.location='?rpp='+$(this).val()+'&status={$this->filters['status']}&text={$this->filters['text']}'\">";
         foreach($rppArr as $v){
             $sel.=sprintf("<option %s value='%s'>%s/pag</option>", ($this->filters['rpp']==$v?"selected=selected":""), $v, $v);
@@ -111,4 +136,4 @@ class index_filters{
         $sel.="</select>";
         return $sel;
     }
-} 
+}

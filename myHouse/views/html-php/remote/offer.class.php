@@ -7,17 +7,17 @@ class offer{
         $this->offer = $offer;
         $this->localStatus = $localStatus;
     }
-    
+
     static function cleanArr($arr){
         foreach($arr as $k=>$v){
             if(!$v){
                 unset($arr[$k]);
             }
         }
-        
+
         return $arr;
     }
-    
+
     public function getDescription(){
         return $this->offer->description;
     }
@@ -25,21 +25,25 @@ class offer{
         $this->offer->description = $desc;
     }
     
+    public function getId(){
+        return $this->offer->id;
+    }
+
     public function getStatus(){
         return ($this->localStatus!==null?$this->localStatus:$this->offer->userStatus);
     }
-    
+
     public function hasStatus($status){
         $thisStatus = $this->getStatus();
         $statuses = explode("-", $thisStatus);
         return ($status==$thisStatus || $status==$statuses[0]);
     }
-    
+
     public function render(){
         $offer = $this->offer;
         $id = $offer->id;
         $status = $this->getStatus();
-        
+
         $data01 = Array();
         $data01['location'] = $offer->location;
         $data01['year_built'] = $offer->year_built;
@@ -49,7 +53,7 @@ class offer{
         $data01['price_per_mp_surface'] = $offer->price_per_mp_surface;
         $data01['rooms'] = $offer->rooms;
         $data01_str = "<span>" . implode("</span>, <span>", self::cleanArr($data01)) . "</span>";
-        
+
         $contactsArr = Array();
         $contactsArr_str = Array();
         foreach($offer->contacts as $type=>$contactsList){
@@ -57,14 +61,14 @@ class offer{
             foreach($contactsList as $c){
                 $contactsArr[$type][] = $c;
             }
-            
+
             $arr = self::cleanArr($contactsArr[$type]);
             if($arr){
                 $contactsArr_str[$type] = "<span class='{$type}'>" . implode("</span>, <span class='{$type}'>", $arr) . "</span>";
             }
         }
         $contacts_str = implode(", ", $contactsArr_str);
-        
+
         $domId = md5($id);
         echo <<<DATA
         <div class='offer {$status}' data-id='{$id}'>
@@ -79,83 +83,83 @@ class offer{
         <span class='date updateDate'>{$offer->updateDate}</span>
         <div class='extraData-contacts'>{$contacts_str}</div>
 DATA;
-            
-            
-            echo "<div class='operations suggestedStatus-{$offer->suggestedStatus}'>";
-            switch($status){
-                case 'hide':
-                    echo <<<DATA
+
+
+        echo "<div class='operations suggestedStatus-{$offer->suggestedStatus}'>";
+        switch($status){
+            case 'hide':
+                echo <<<DATA
                     <button class="back hide" onClick="mark(this, '');"><span>&#x21E6;</span></button>
                     <button class="hide hide-badArea" onClick="mark(this, 'hide-badArea');">bad area</button>
                     <button class="hide hide-badConstruction" onClick="mark(this, 'hide-badConstruction');">bad constr.</button>
                     <button class="hide hide-badPayment" onClick="mark(this, 'hide-badPayment');">bad payment</button>
 DATA;
-                    break;
-                    
-                case 'todo':
-                    echo <<<DATA
+                break;
+
+            case 'todo':
+                echo <<<DATA
                     <button class="back None" onClick="mark(this, '');"><span>&#x21E6;</span></button>
                     <button class="todo todo-call" onClick="mark(this, 'todo-call');">todo:call</button>
                     <button class="todo todo-talk" onClick="mark(this, 'todo-talk');">todo:talk</button>
                     <button class="todo todo-view" onClick="mark(this, 'todo-view');">todo:view</button>
 DATA;
-                    break;
-                    
-                case 'todo-call':
-                case 'todo-talk':
-                case 'todo-view':
-                    echo <<<DATA
+                break;
+
+            case 'todo-call':
+            case 'todo-talk':
+            case 'todo-view':
+                echo <<<DATA
                     <button class="back todo" onClick="mark(this, 'todo');"><span>&#x21E6;</span></button>
 DATA;
-                    break;
-                    
-                    
-                case 'checked':
-                    echo <<<DATA
+                break;
+
+
+            case 'checked':
+                echo <<<DATA
                     <button class="back None" onClick="mark(this, '');"><span>&#x21E6;</span></button>
                     <button class="checked-ok" onClick="mark(this, 'checked-ok');">ok</button>
                     <button class="checked-notok" onClick="mark(this, 'checked-notok');">not ok</button>
 DATA;
-                    break;
-                    
-                case 'checked-ok':
-                case 'checked-notok':
-                    echo <<<DATA
+                break;
+
+            case 'checked-ok':
+            case 'checked-notok':
+                echo <<<DATA
                     <button class="back checked" onClick="mark(this, 'checked');"><span>&#x21E6;</span></button>
 DATA;
-                    break;
-                
-                case 'mark':
-                case 'mark-01':
-                case 'mark-02':
-                case 'mark-03':
-                case 'mark-04':
-                    echo <<<DATA
+                break;
+
+            case 'mark':
+            case 'mark-01':
+            case 'mark-02':
+            case 'mark-03':
+            case 'mark-04':
+                echo <<<DATA
                     <button class="back None" onClick="mark(this, '');"><span>&#x21E6;</span></button>
                     <button class="mark-01" onClick="mark(this, 'mark-01');"><span>&#x2295;</span></button>
                     <button class="mark-02" onClick="mark(this, 'mark-02');"><span>&#x2299;</span></button>
                     <button class="mark-03" onClick="mark(this, 'mark-03');"><span>&#x229E;</span></button>
                     <button class="mark-04" onClick="mark(this, 'mark-04');"><span>&#x22A1;</span></button>
 DATA;
-                    break;
-                    
-                case '':        // None
-                    echo <<<DATA
+                break;
+
+            case '':        // None
+                echo <<<DATA
                     <button class="todo" onClick="mark(this, 'todo');">todo</button>
                     <button class="checked" onClick="mark(this, 'checked');">checked</button>
                     <button class="hide" onClick="mark(this, 'hide');">hide</button>
                     <button class="mark-01" onClick="mark(this, 'mark-01');"><span>&#x2295;</span></button>
 DATA;
-                    break;
-                    
-                default:
-                    echo <<<DATA
+                break;
+
+            default:
+                echo <<<DATA
 DATA;
-            } // switch
-            
+        } // switch
+
         echo "<span class='id'>{$id}</span>";
         echo "</div>";  // close the operations div
-        
+
         // close the offer div
         echo "</div>";
     }
