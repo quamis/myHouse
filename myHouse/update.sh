@@ -64,17 +64,23 @@ function gather_imobiliare_ro(){
 function gather_tocmai_ro(){
     local SLEEP="0.75"
     local V=5
+    local TL1=7
+    local TL2=10
+    
     do_lock "tocmai_ro" "case-vile"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "tocmai_ro" -category "case-vile" -url "http://www.tocmai.ro/cauta?page=1&typ=1&ct=8&jd=26&tz=1"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "tocmai_ro" -category "case-vile" -url "http://www.tocmai.ro/cauta?page=1&typ=1&ct=8&jd=26&tz=1"
     
+    local TL1=1
     do_lock "tocmai_ro" "apt-2-cam"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "tocmai_ro" -category "apt-2-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=2&img=1"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "tocmai_ro" -category "apt-2-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=2&img=1"
     
+    local TL1=3
     do_lock "tocmai_ro" "apt-3-cam"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "tocmai_ro" -category "apt-3-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=3&img=1"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "tocmai_ro" -category "apt-3-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=3&img=1"
     
+    local TL1=3
     do_lock "tocmai_ro" "apt-4-cam"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "tocmai_ro" -category "apt-4-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=4&img=1"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "tocmai_ro" -category "apt-4-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=4&img=1"
     
     do_unlock "tocmai_ro"
 }
@@ -93,17 +99,22 @@ function gather_mercador_ro(){
 function gather_imopedia_ro(){
     local SLEEP="0.5"
     local V=5
+    local TL1=7
+    local TL2=10
     do_lock "imopedia_ro" "case-vile"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "case-vile" -url "http://www.imopedia.ro/bucuresti/vanzari-vile.html"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "imopedia_ro" -category "case-vile" -url "http://www.imopedia.ro/bucuresti/vanzari-vile.html"
     
+    TL1=1
     do_lock "imopedia_ro" "apt-2-cam"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "apt-2-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-2-camere-1104056-0-pagina-0.html"
-    
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "imopedia_ro" -category "apt-2-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-2-camere-1104056-0-pagina-0.html"
+
+    TL1=1
     do_lock "imopedia_ro" "apt-3-cam"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "apt-3-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-3-camere-1102874-0-pagina-0.html"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "imopedia_ro" -category "apt-3-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-3-camere-1102874-0-pagina-0.html"
     
+    TL1=1
     do_lock "imopedia_ro" "apt-4-cam"
-    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" -module "imopedia_ro" -category "apt-4-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-4-camere-1104405-0-pagina-0.html"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "imopedia_ro" -category "apt-4-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-4-camere-1104405-0-pagina-0.html"
     
     do_unlock "imopedia_ro"
 }

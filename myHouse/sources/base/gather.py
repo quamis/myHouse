@@ -109,7 +109,8 @@ class Extractor(object):
         return self.removeDuplicates(pagesList)
     
     def _gatherLinks_callback(self, gotPagesList, completePagesList, detailedPagesList, html):
-        pass
+        if(self.args.timeLimit_gatherLinks and self.wget_stats['time']>(self.args.timeLimit_gatherLinks*60)):   # this is the total time spent by wget, including all page and article fetches
+            raise ExceptionGatherTimeout("Script took to long to gather %d pages (from %d)" % (len(gotPagesList), len(completePagesList)))
     
     def _gatherLinks_simple(self, urlPrefix=None):
         completePagesList = [self.url]
@@ -163,7 +164,8 @@ class Extractor(object):
         pass
     
     def _getAll_callback(self, link, detailedPagesList, html):
-        pass
+        if(self.args.timeLimit_getAll and self.wget_stats['time']>(self.args.timeLimit_getAll*60)):   # this is the total time spent by wget, including all page and article fetches
+            raise ExceptionGatherTimeout("Script took to long to gather pages, from a total of %d" % (len(detailedPagesList)))
     
     def _getAll_simple(self, detailedPagesList, encoding="utf-8", urlPrefix=None):
         # loop through all pages and gather individual links
