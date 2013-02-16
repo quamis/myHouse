@@ -81,7 +81,7 @@ class index_filters{
         return $sel;
     }
     function view_status(){
-        $statuses = Array('None', 'hide', 'todo', 'checked', 'mark');
+        $statuses = Array('None', 'hide', 'todo', 'todo-call', 'checked', 'mark');
         $sel = "<select name='status' onChange=\"window.location='?rpp={$this->filters['rpp']}&text={$this->filters['text']}&status='+$(this).val()+''\">";
         $sel.=sprintf("<option %s value=''>-</option>", ($this->filters['status']==''?"selected=selected":""));
         foreach($statuses as $v){
