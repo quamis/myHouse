@@ -63,7 +63,7 @@ if [ "$SYNCREMOTE" == "default" -o "$SYNCREMOTE" == "local" ]; then
     ./suggestions.py -datasetHIDE="/tmp/HIDE.json" -datasetTODO="/tmp/TODO.json" -datasetTEST="/tmp/TEST.json" -train=1 --outputFormat=json > /tmp/suggestions.json
     ./import.py -jsonFile=/tmp/suggestions.json -targetField=suggestedStatus > /tmp/import-suggestions.json
 fi;
-exit
+
 
 if [ "$SYNCREMOTE" == "default" ]; then
     ./view.py --profile=case-valide --outputFormat="html-php" >   "$OUTDIR/profile.case-valide.json"
