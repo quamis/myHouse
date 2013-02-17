@@ -65,7 +65,23 @@ class Processor(object):
     
     def selectEnd(self):
         pass
-    
+
+    def processRow(self, row):
+        #try:
+        newRow = self._processRow(row)
+        #except Exception as e:
+        #    print "ex: %s" % (e)
+            
+        if newRow is None:
+            return None
+        
+        if "extracted" not in newRow:
+            newRow['extracted'] = {}
+                                
+        newRow = self.processor_helper.convert_location(newRow)
+        
+        return newRow
+        
     def _processRow(self, row):
         pass
 
@@ -91,23 +107,16 @@ class Processor(object):
         
         index=0
         for row in rows:
-            #self.debug_print("loop-step", { "index": index })
             index+=1
-            #try:
-            newRow = self._processRow(row)
-            #except Exception as e:
-            #    print "ex: %s" % (e)
-                
-            if newRow is None:
-                continue
             
-            if "extracted" not in newRow:
-                newRow['extracted'] = {}
-                                    
-            newRow = self.processor_helper.convert_location(newRow)
+            rowId =      row[0]
             
-            if(self.maindb.itemExists("data", newRow['id'])):
+            if(self.maindb.itemExists("data", rowId)):
                 if self.args.forceUpdate:
+                    newRow = self.processRow(row)
+                    if newRow is None:
+                        continue
+                    
                     try:
                         self.maindb.execute("DELETE FROM `data_contacts` WHERE `idOffer`='%s'" %(newRow['id']))
                         self.maindb.execute("DELETE FROM `data_extracted` WHERE `idOffer`='%s'" %(newRow['id']))
@@ -141,10 +150,14 @@ class Processor(object):
                     except Exception as e:
                         print "Exception(%s): %s" % (e.errno, e.strerror)
                 else:
-                    self.maindb.itemUpdate("data", { "id": newRow['id'], "updateDate": timestamp, })
+                    self.maindb.itemUpdate("data", { "id": rowId, "updateDate": timestamp, })
                     
                 #self.debug_print("loop-old", newRow)
             else:
+                newRow = self.processRow(row)
+                if newRow is None:
+                    continue
+                    
                 try:
                     #self.debug_print("loop-new", newRow)
                     
