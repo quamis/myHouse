@@ -74,11 +74,11 @@ function gather_tocmai_ro(){
     do_lock "tocmai_ro" "apt-2-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "tocmai_ro" -category "apt-2-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=2&img=1"
     
-    local TL1=3
+    local TL1=2
     do_lock "tocmai_ro" "apt-3-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "tocmai_ro" -category "apt-3-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=3&img=1"
     
-    local TL1=3
+    local TL1=2
     do_lock "tocmai_ro" "apt-4-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "tocmai_ro" -category "apt-4-cam" -url "http://www.tocmai.ro/cauta?typ=1&ct=6&jd=26&tz=1&cm=4&img=1"
     
@@ -104,15 +104,15 @@ function gather_imopedia_ro(){
     do_lock "imopedia_ro" "case-vile"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "imopedia_ro" -category "case-vile" -url "http://www.imopedia.ro/bucuresti/vanzari-vile.html"
     
-    TL1=1
+    TL1=0.5
     do_lock "imopedia_ro" "apt-2-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "imopedia_ro" -category "apt-2-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-2-camere-1104056-0-pagina-0.html"
 
-    TL1=1
+    TL1=0.9
     do_lock "imopedia_ro" "apt-3-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "imopedia_ro" -category "apt-3-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-3-camere-1102874-0-pagina-0.html"
     
-    TL1=1
+    TL1=0.9
     do_lock "imopedia_ro" "apt-4-cam"
     ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "imopedia_ro" -category "apt-4-cam" -url "http://www.imopedia.ro/bucuresti/apartamente-de-vanzare-4-camere-1104405-0-pagina-0.html"
     
