@@ -82,13 +82,17 @@ class ImageReader:
     
     def init(self):
         (__, self.tempFile) = tempfile.mkstemp(".png")
+        os.close(__)
         self.load()
     
     def destroy(self):
         os.unlink(self.tempFile)
     
     def load(self):
-        im = Image.open(self.file)
+        f = open(self.file, "rb")
+        im = Image.open(f)
+        im.load()
+        f.close()
         
         # turn it grayscale
         enh = ImageEnhance.Color(im)
@@ -112,7 +116,7 @@ class ImageReader:
         #im = enh.enhance(10.5)
         
         im.save(self.tempFile)
-
+        
         return self
         
     def detect(self):
@@ -121,7 +125,9 @@ class ImageReader:
         api.SetVariable("tessedit_char_whitelist", "0123456789 ")
         api.SetPageSegMode(tesseract.PSM_AUTO)
 
-        mBuffer=open(self.tempFile,"rb").read()
+        f = open(self.tempFile,"rb")
+        mBuffer = f.read()
+        f.close()
         self.result = tesseract.ProcessPagesBuffer(mBuffer, len(mBuffer), api)
         
         return self

@@ -12,6 +12,8 @@ class Processor(object):
         self.maindb = maindb
         self.cache = cache
         
+        self.browser = None
+        
         
         self.processor_helper = Helper.Helper()
         
