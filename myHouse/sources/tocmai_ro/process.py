@@ -43,9 +43,9 @@ class doProcess( Processor.Processor ):
             
         newRow['surface_total'] = tree.asFloat(".//*[@id='main']//div/p/b[contains(text(), 'Suprafata')]/../text()")
         
-        newRow['rooms'] =         int(tree.asFloat(".//*[@id='main']//div/p/b[contains(text(), 'camere')]/../text()"))
+        newRow['rooms'] =         tree.asInt(".//*[@id='main']//div/p/b[contains(text(), 'camere')]/../text()")
         
-        newRow['description'] =      tree.concat(".//*[@id='main']//div[contains(@class, 'item-description')]/text()")
+        newRow['description'] =   tree.concat(".//*[@id='main']//div[contains(@class, 'item-description')]/text()")
         
         newRow = self.processor_helper.extract_year(newRow, newRow['description'])
         
