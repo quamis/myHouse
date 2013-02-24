@@ -12,12 +12,16 @@ class Cleanup(object):
     
     def cleanCache(self):
         maxUpdatedTime = time.mktime((date.today()-timedelta(days=14)).timetuple())
+        
+        maxCacheTime = time.mktime((date.today()-timedelta(days=2)).timetuple())
 
         for table in self.tables_cache:
             count1 = self.cache.db.selectAll("SELECT COUNT(*) FROM `%s`" % (table))[0][0]
             self.cache.db.execute("DELETE FROM `%s` WHERE `addDate`<%d OR `addDate` IS NULL" % (table, maxUpdatedTime))
             
             self.cache.db.execute("DELETE FROM `%s` WHERE ( `id` NOT LIKE 'page-%%' AND `id` NOT LIKE '%s__http://%%' )" % (table, time.strftime("%Y%m%d")))
+            
+            self.cache.db.execute("UPDATE `%s` SET `data`=NULL WHERE `addDate`<%d OR `addDate` IS NULL" % (table, maxUpdatedTime))
             
             count2 = self.cache.db.selectAll("SELECT COUNT(*) FROM `%s`" % (table))[0][0]
             

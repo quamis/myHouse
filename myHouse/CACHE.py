@@ -27,6 +27,10 @@ class CACHE:
             self.db.itemInsert(self.tablePrefix, { "id":id, "addDate":time.time(), "data":buffer(zlib.compress(pickle.dumps(data, pickle.HIGHEST_PROTOCOL))) })
             
         self.db.flushRandom(0.01)
+        
+    def clear(self, id):
+        self.db.itemUpdate(self.tablePrefix, { "id":id, "data":None })
+        self.db.flushRandom(0.01)
     
     def close(self):
         self.db.close()

@@ -176,21 +176,21 @@ class Extractor(object):
                 if urlPrefix:
                     if re.match("^http", link) is None:
                         link = urlPrefix+link
-                    
-                html = self.wget_cached(cachePrefix, link)
-                self._getAll_callback(link, detailedPagesList, html)
-                    
+
                 # extract data from the selected page
                 idstr = self.hash(link)
-                if html and self.updateIfExists(idstr, timestamp):
-                    self.writeItem({ 
-                        "id":           idstr,
-                        "category":     self.category,
-                        "url":          link,
-                        "html":         self.db.compress( unicode(html.decode(encoding)) ),
-                        "addDate":      timestamp,
-                        "updateDate":   timestamp,
-                    })
+                if self.updateIfExists(idstr, timestamp):
+                    html = self.wget_cached(cachePrefix, link)
+                    self._getAll_callback(link, detailedPagesList, html)
+                    if html:
+                        self.writeItem({ 
+                            "id":           idstr,
+                            "category":     self.category,
+                            "url":          link,
+                            "html":         self.db.compress( unicode(html.decode(encoding)) ),
+                            "addDate":      timestamp,
+                            "updateDate":   timestamp,
+                        })
         except ExceptionGatherTimeout, e:
             self.cache.flushRandom(1)
             logging.debug("Exception caught: %s" %(e))

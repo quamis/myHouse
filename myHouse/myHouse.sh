@@ -4,6 +4,7 @@ cd "$HOME/git/myHouse/myHouse/"
 
 UPDATE="default"
 SYNCREMOTE="default"
+CLEANUP="default" # thorough
 
 SYNC_SOURCEURL=""
 SYNC_FTP_HOST=""
@@ -19,6 +20,10 @@ while test $# -gt 0; do
         -update)
             shift
             UPDATE=$1
+            ;;
+        -cleanup)
+            shift
+            CLEANUP=$1
             ;;
         -syncRemote)
             shift
@@ -40,7 +45,7 @@ if [ ! -d "$OUTDIR" ]; then
 fi;
 
 if [ "$UPDATE" == "default" ]; then
-    ./update.sh
+    ./update.sh -cleanup "$CLEANUP"
 fi;
 
 if [ "$SYNCREMOTE" == "default" -o "$SYNCREMOTE" == "local" ]; then
