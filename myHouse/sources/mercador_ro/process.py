@@ -71,7 +71,7 @@ class doProcess( Processor.Processor ):
         newRow = self.processor_helper.extract_year(newRow, newRow['description'])
         
 
-        if re.search("apartament", newRow['description']) and re.search("etaj", newRow['description']):
+        if re.search("(apartament|garsoniera)", newRow['description']) and re.search("etaj", newRow['description']):
             #print("\nThis is not the correct category(its an apartment). Ignoring")
             return None
         
