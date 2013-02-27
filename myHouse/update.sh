@@ -23,6 +23,35 @@ function do_unlock(){
     rm "$LDIR/$SYS"
 }
 
+function gather_romino_ro(){
+    local SLEEP="1.0"
+    local V=5
+    local TL1=2
+    local TL2=5
+    
+    do_lock "romino_ro" "case-vile"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "romino_ro" -category "case-vile" -url "http://www.romimo.ro/Case/Casa/vanzare/Bucuresti/Bucuresti/"
+    
+    local TL1=1
+    do_lock "romino_ro" "apt-2-cam"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "romino_ro" -category "apt-2-cam" -url "http://www.romimo.ro/Apartamente/Apartamente-2-camere/vanzare/Bucuresti/Bucuresti/"
+    
+    do_lock "romino_ro" "apt-3-cam"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "romino_ro" -category "apt-3-cam" -url "http://www.romimo.ro/Apartamente/Apartamente-3-camere/vanzare/Bucuresti/Bucuresti/"
+    
+    do_lock "romino_ro" "apt-4-cam"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "romino_ro" -category "apt-4-cam" -url "http://www.romimo.ro/Apartamente/Apartamente-4-camere/vanzare/Bucuresti/Bucuresti/"
+    
+    do_lock "romino_ro" "apt-5-cam"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "romino_ro" -category "apt-4-cam" -url "http://www.romimo.ro/Apartamente/Apartamente-5-camere/vanzare/Bucuresti/Bucuresti/"
+    
+    do_lock "romino_ro" "apt-6-cam"
+    ./gather.py -v=$V -sleep=$SLEEP -user-agent="random" --timeLimit_gatherLinks="$TL1" --timeLimit_getAll="$TL2" -module "romino_ro" -category "apt-4-cam" -url "http://www.romimo.ro/Apartamente/Apartamente-6-camere/vanzare/Bucuresti/Bucuresti/"
+    
+    do_unlock "romino_ro"
+    
+}
+
 function gather_anuntul_ro(){
     local SLEEP="0.75"
     local V=5
@@ -174,7 +203,7 @@ DT=`date +"%Y-%m-%d %H:%M:%S"`
 echo "[$DT] updater started"
 
 
-SOURCES=( "anuntul_ro" "imobiliare_ro" "tocmai_ro" "mercador_ro" "imopedia_ro" "az_ro" )
+SOURCES=( "anuntul_ro" "imobiliare_ro" "tocmai_ro" "mercador_ro" "imopedia_ro" "az_ro" "romino_ro" )
 #SOURCES=( "az_ro" )
 #SOURCES=( "anuntul_ro" )
 #SOURCES=( "imopedia_ro" )

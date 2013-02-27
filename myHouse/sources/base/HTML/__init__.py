@@ -14,6 +14,11 @@ class HTML(object):
     def xpath(self, query):
         return self.tree.xpath(query)
 
+    def conditional(self, prefix, reference):
+        if reference:
+            return prefix+reference
+        return None
+
     def first(self, xpath):
         ret = self.tree.xpath(xpath)
         if ret:
