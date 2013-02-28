@@ -107,8 +107,8 @@ class View:
                 sql+=" AND `price` < '%d'" % (self.args.maxPrice)
                 
                 
-            if(self.args.age):
-                dt = date.today()-timedelta(days=self.args.age)
+            if(self.args.ageu):
+                dt = date.today()-timedelta(days=self.args.ageu)
                 sql+=" AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
             
             if(self.args.agea):
@@ -149,7 +149,7 @@ parser.add_argument('-category',     dest='category',    action='append',     ty
 parser.add_argument('-ncategory',     dest='ncategory',   action='append',     type=str, default=[],        help='not in category')
 parser.add_argument('-maxPrice',     dest='maxPrice',     action='store',     type=int, default=None,        help='max price to match')
 parser.add_argument('-minPrice',     dest='minPrice',     action='store',     type=int, default=None,        help='min price to match')
-parser.add_argument('-age',         dest='age',         action='store',     type=float, default=3.0,    help='max age in days')
+parser.add_argument('-ageu',         dest='ageu',         action='store',     type=float, default=3.0,    help='max age in days')
 parser.add_argument('-agea',         dest='agea',         action='store',     type=float, default=14.0,    help='max age when added in days')
 parser.add_argument('-status',         dest='status',         action='append',     type=str, default=[],        help='?')
 parser.add_argument('--profile',     dest='profile',     action='store',     type=str, default="default",help='internal profile to use')
@@ -219,21 +219,21 @@ elif args.profile=="case-valide":
     args.category = [ "case-vile" ]
     args.maxPrice = 70000
     args.minPrice = 30000
-    args.age = 1.5
+    args.ageu = 1.5
     args.agea = 90
 elif args.profile=="apt-4-cam:metrou":
     args.text = [ "metrou" ]
     args.category = [ "apt-4-cam" ]
     args.maxPrice = 70000
     args.minPrice = 30000
-    args.age = 1.5
+    args.ageu = 1.5
     args.agea = 90
 elif args.profile=="apt-3-cam:metrou":
     args.text = [ "metrou" ]
     args.category = [ "apt-3-cam" ]
     args.maxPrice = 70000
     args.minPrice = 30000
-    args.age = 1.5
+    args.ageu = 1.5
     args.agea = 90
 else:
     print "no profile, or unknown profile specified"
