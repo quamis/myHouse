@@ -73,6 +73,13 @@ class Stats:
         if(self.args.dtupd_max):
             dt = datetime.date.today()-datetime.timedelta(days=self.args.dtupd_max)
             sql+=" AND `updateDate`<%d" % (time.mktime(dt.timetuple()))
+            
+        if(self.args.price_min):
+            sql+=" AND `price`>%d" % (self.args.price_min)
+        if(self.args.price_max):
+            sql+=" AND `price`<=%d" % (self.args.price_max)
+         
+         
          
         sql += " ORDER BY `price` ASC, `location` ASC"
         return sql
@@ -386,6 +393,9 @@ parser.add_argument('-dtadd_min', dest='dtadd_min', action='store', type=float, 
 parser.add_argument('-dtadd_max', dest='dtadd_max', action='store', type=float, default=None, help='TODO')
 parser.add_argument('-dtupd_min', dest='dtupd_min', action='store', type=float, default=None, help='TODO')
 parser.add_argument('-dtupd_max', dest='dtupd_max', action='store', type=float, default=None, help='TODO')
+parser.add_argument('-price_min', dest='price_min', action='store', type=float, default=None, help='TODO')
+parser.add_argument('-price_max', dest='price_max', action='store', type=float, default=None, help='TODO')
+
 
 
 
