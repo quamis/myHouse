@@ -52,6 +52,13 @@ class Stats:
             
         if self.args.status:
             sql += "/*userStatus*/ AND (`userStatus`='%s')" % (self.args.status)
+            
+        if(self.args.ageu):
+            dt = datetime.date.today()-datetime.timedelta(days=self.args.ageu)
+            sql+=" AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
+        if(self.args.agea):
+            dt = datetime.date.today()-datetime.timedelta(days=self.args.agea)
+            sql+=" AND `addDate`>%d" % (time.mktime(dt.timetuple()))
         
         sql += " ORDER BY `price` ASC, `location` ASC"
         return sql
@@ -119,8 +126,8 @@ class Stats:
             stats['price_per_category:std'][categ] = numpy.std(prices[categ])
             stats['price_per_category:var'][categ] = numpy.var(prices[categ])
         
-        stats['alivePeriod'] =          numpy.mean(alivePeriods) / (60 * 60 * 24)
-        stats['timeSinceAppeared'] =    numpy.mean(timeSinceAppeared) / (60 * 60 * 24)
+        stats['alivePeriod'] = numpy.mean(alivePeriods) / (60 * 60 * 24)
+        stats['timeSinceAppeared'] = numpy.mean(timeSinceAppeared) / (60 * 60 * 24)
         stats['timeSinceDisappeared'] = numpy.mean(timeSinceDisappeared) / (60 * 60 * 24)
         
         self.db.selectEnd(rows)
@@ -190,22 +197,22 @@ class Stats:
             addDate = datetime.datetime.fromtimestamp(row['addDate']).strftime('%Y-%m-%d')
             updateDate = datetime.datetime.fromtimestamp(row['updateDate']).strftime('%Y-%m-%d')
             
-            stats['addDate'] =        self._incDict(stats['addDate'], addDate)
-            stats['updateDate'] =     self._incDict(stats['updateDate'], updateDate)
+            stats['addDate'] = self._incDict(stats['addDate'], addDate)
+            stats['updateDate'] = self._incDict(stats['updateDate'], updateDate)
             
             if self.args.byAddDate == "week":
                 addDate = datetime.datetime.fromtimestamp(row['addDate']).strftime('%Y-%U')
                 updateDate = datetime.datetime.fromtimestamp(row['updateDate']).strftime('%Y-%U')
                 
-                stats['addDate:week'] =     self._incDict(stats['addDate:week'], addDate)
-                stats['updateDate:week'] =     self._incDict(stats['updateDate:week'], updateDate)
+                stats['addDate:week'] = self._incDict(stats['addDate:week'], addDate)
+                stats['updateDate:week'] = self._incDict(stats['updateDate:week'], updateDate)
                 
             if self.args.byAddDate == "month":
                 addDate = datetime.datetime.fromtimestamp(row['addDate']).strftime('%Y-%m')
                 updateDate = datetime.datetime.fromtimestamp(row['updateDate']).strftime('%Y-%m')
                 
-                stats['addDate:month'] =        self._incDict(stats['addDate:month'], addDate)
-                stats['updateDate:month'] =     self._incDict(stats['updateDate:month'], updateDate)
+                stats['addDate:month'] = self._incDict(stats['addDate:month'], addDate)
+                stats['updateDate:month'] = self._incDict(stats['updateDate:month'], updateDate)
             
         return stats
         
@@ -351,14 +358,17 @@ class Stats:
         
             
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
-parser.add_argument('-source',     dest='source',     action='append',         type=str, default=None,     help='TODO')
-parser.add_argument('-category', dest='category', action='append',         type=str, default=None,     help='TODO')
-parser.add_argument('-status',     dest='status',     action='store',         type=str, default=None,     help='TODO')
+parser.add_argument('-source', dest='source', action='append', type=str, default=None, help='TODO')
+parser.add_argument('-category', dest='category', action='append', type=str, default=None, help='TODO')
+parser.add_argument('-status', dest='status', action='store', type=str, default=None, help='TODO')
+parser.add_argument('-ageu', dest='ageu', action='store', type=float, default=None, help='max age in days')
+parser.add_argument('-agea', dest='agea', action='store', type=float, default=None, help='max age when added in days')
 
-parser.add_argument('-byAddDate',         dest='byAddDate',         action='store',     type=str, default=None,     help='TODO')
-parser.add_argument('-byBuildDate',     dest='byBuildDate',         action='store',     type=str, default=None,     help='TODO')
-parser.add_argument('-byLocation',         dest='byLocation',         action='store',     type=str, default=None,     help='TODO')
-parser.add_argument('-bySurface',         dest='bySurface',         action='store',     type=str, default=None,     help='TODO')
+
+parser.add_argument('-byAddDate', dest='byAddDate', action='store', type=str, default=None, help='TODO')
+parser.add_argument('-byBuildDate', dest='byBuildDate', action='store', type=str, default=None, help='TODO')
+parser.add_argument('-byLocation', dest='byLocation', action='store', type=str, default=None, help='TODO')
+parser.add_argument('-bySurface', dest='bySurface', action='store', type=str, default=None, help='TODO')
 args = parser.parse_args()
 
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
