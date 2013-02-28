@@ -60,6 +60,20 @@ class Stats:
             dt = datetime.date.today()-datetime.timedelta(days=self.args.agea)
             sql+=" AND `addDate`>%d" % (time.mktime(dt.timetuple()))
         
+        if(self.args.dtadd_min):
+            dt = datetime.date.today()-datetime.timedelta(days=self.args.dtadd_min)
+            sql+=" AND `addDate`>%d" % (time.mktime(dt.timetuple()))
+        if(self.args.dtadd_max):
+            dt = datetime.date.today()-datetime.timedelta(days=self.args.dtadd_max)
+            sql+=" AND `addDate`<%d" % (time.mktime(dt.timetuple()))
+        
+        if(self.args.dtupd_min):
+            dt = datetime.date.today()-datetime.timedelta(days=self.args.dtupd_min)
+            sql+=" AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
+        if(self.args.dtupd_max):
+            dt = datetime.date.today()-datetime.timedelta(days=self.args.dtupd_max)
+            sql+=" AND `updateDate`<%d" % (time.mktime(dt.timetuple()))
+         
         sql += " ORDER BY `price` ASC, `location` ASC"
         return sql
     
@@ -126,9 +140,14 @@ class Stats:
             stats['price_per_category:std'][categ] = numpy.std(prices[categ])
             stats['price_per_category:var'][categ] = numpy.var(prices[categ])
         
-        stats['alivePeriod'] = numpy.mean(alivePeriods) / (60 * 60 * 24)
-        stats['timeSinceAppeared'] = numpy.mean(timeSinceAppeared) / (60 * 60 * 24)
-        stats['timeSinceDisappeared'] = numpy.mean(timeSinceDisappeared) / (60 * 60 * 24)
+        if alivePeriods:
+            stats['alivePeriod'] = numpy.mean(alivePeriods) / (60 * 60 * 24)
+        
+        if timeSinceAppeared:
+            stats['timeSinceAppeared'] = numpy.mean(timeSinceAppeared) / (60 * 60 * 24)
+            
+        if timeSinceDisappeared:
+            stats['timeSinceDisappeared'] = numpy.mean(timeSinceDisappeared) / (60 * 60 * 24)
         
         self.db.selectEnd(rows)
         return stats
@@ -363,6 +382,11 @@ parser.add_argument('-category', dest='category', action='append', type=str, def
 parser.add_argument('-status', dest='status', action='store', type=str, default=None, help='TODO')
 parser.add_argument('-ageu', dest='ageu', action='store', type=float, default=None, help='max age in days')
 parser.add_argument('-agea', dest='agea', action='store', type=float, default=None, help='max age when added in days')
+parser.add_argument('-dtadd_min', dest='dtadd_min', action='store', type=float, default=None, help='TODO')
+parser.add_argument('-dtadd_max', dest='dtadd_max', action='store', type=float, default=None, help='TODO')
+parser.add_argument('-dtupd_min', dest='dtupd_min', action='store', type=float, default=None, help='TODO')
+parser.add_argument('-dtupd_max', dest='dtupd_max', action='store', type=float, default=None, help='TODO')
+
 
 
 parser.add_argument('-byAddDate', dest='byAddDate', action='store', type=str, default=None, help='TODO')
