@@ -11,6 +11,7 @@ import locale
 import argparse
 import numpy 
 
+
 parser = argparse.ArgumentParser(description='Filter gatherer results.')
 parser.add_argument('-source', dest='source', action='append', type=str, default=None, help='TODO')
 parser.add_argument('-category', dest='category', action='append', type=str, default=None, help='TODO')
@@ -35,10 +36,9 @@ sys.stdout = codecs.getwriter('utf8')(sys.stdout)
 db = DB("../db/main.sqlite")
 
 module = importlib.import_module("stats." + args.type + ".base")
-obj = module.Stats(db, args)
+obj = module.Stats(db, vars(args))
 obj.precheck()
 
-if __name__ == "__main__":
-    obj.doprint(obj.group(obj.gather()))
+obj.doprint(obj.group(obj.gather()))
 
-    sys.stdout.write("\n")
+sys.stdout.write("\n")

@@ -9,11 +9,11 @@ import sys, locale
 
 class Stats(base.Stats):
     def precheck(self):
-        if self.args.subtype=='default':
-            self.args.subtype = 'full'
+        if self.args['subtype']=='default':
+            self.args['subtype'] = 'full'
             
-        if self.args.subtype not in ('full', 'simple'):
-            raise Exception("Invalid subtype '%s'" % (self.args.subtype))
+        if self.args['subtype'] not in ('full', 'simple'):
+            raise Exception("Invalid subtype '%s'" % (self.args['subtype']))
     
     def group(self, rows):
         stats = {}
@@ -25,7 +25,7 @@ class Stats(base.Stats):
             
             if row['location']:
                 loc = row['location']
-                if self.args.subtype == "simple":
+                if self.args['subtype'] == "simple":
                     loc = "+++"
                     
                 if loc not in stats:

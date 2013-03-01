@@ -9,11 +9,11 @@ import sys, locale
 
 class Stats(base.Stats):
     def precheck(self):
-        if self.args.subtype=='default':
-            self.args.subtype = 'total'
+        if self.args['subtype']=='default':
+            self.args['subtype'] = 'total'
             
-        if self.args.subtype not in ('total', 'built'):
-            raise Exception("Invalid subtype '%s'" % (self.args.subtype))
+        if self.args['subtype'] not in ('total', 'built'):
+            raise Exception("Invalid subtype '%s'" % (self.args['subtype']))
     
     def group(self, rows):
         stats = {}
@@ -24,19 +24,19 @@ class Stats(base.Stats):
             row = self.getItem(row[0], ('data'))
             
             surf = None
-            if self.args.subtype == "total":
+            if self.args['subtype'] == "total":
                 if row['surface_total']:
                     surf = row['surface_total']
                     
-            if self.args.subtype == "built":
+            if self.args['subtype'] == "built":
                 if row['surface_built']:
                     surf = row['surface_built']
             
             # round the surface to 10mp increments
             if surf:
-                if "apt-2-cam" in self.args.category:
+                if "apt-2-cam" in self.args['category']:
                     surf = self.roundInInterval(float(surf), ((20, 5), (150, 10), (500, 50)))
-                elif "apt-3-cam" in self.args.category or "apt-4-cam" in self.args.category:
+                elif "apt-3-cam" in self.args['category'] or "apt-4-cam" in self.args['category']:
                     surf = self.roundInInterval(float(surf), ((20, 5), (250, 10), (500, 50)))
                 else:
                     surf = self.roundInInterval(float(surf), ((30, 10), (750, 50), (2500, 100), (10000, 500), (100000, 10000), (10000000, 100000)))
