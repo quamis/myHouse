@@ -35,7 +35,7 @@ class Cleanup(object):
 
         for table in self.tables_data:
             count1 = self.db.selectAll("SELECT COUNT(*) FROM `%s`" % (table))[0][0]
-            self.db.execute("DELETE FROM `%s` WHERE `updateDate`<%d OR `updateDate` IS NULL" % (table, maxUpdatedTime))
+            # self.db.execute("DELETE FROM `%s` WHERE `updateDate`<%d OR `updateDate` IS NULL" % (table, maxUpdatedTime))
             
             count2 = self.db.selectAll("SELECT COUNT(*) FROM `%s`" % (table))[0][0]
             
