@@ -37,38 +37,38 @@ class Stats(object):
     
     def getSQL(self):
         sql = "SELECT `id` FROM `data` WHERE 1"
-        if self.args['category']:
+        if 'category' in self.args and self.args['category']:
             sql += "/*category*/ AND( 0 "
             for k in self.args['category']:
                 sql += " OR `category`='%s'" % (k)
             sql += ")"
             
-        if self.args['source']:
+        if 'source' in self.args and self.args['source']:
             sql += "/*source*/ AND( 0 "
             for k in self.args['source']:
                 sql += " OR `source`='%s'" % (k)
             sql += ")"
             
-        if self.args['status']:
+        if 'status' in self.args and self.args['status']:
             sql += "/*userStatus*/ AND (`userStatus`='%s')" % (self.args['status'])
             
-        if(self.args['dtadd_min']):
+        if 'dtadd_min' in self.args and (self.args['dtadd_min']):
             dt = datetime.date.today() - datetime.timedelta(days=self.args['dtadd_min'])
             sql += " AND `addDate`>%d" % (time.mktime(dt.timetuple()))
-        if(self.args['dtadd_max']):
+        if 'dtadd_max' in self.args and self.args['dtadd_max']:
             dt = datetime.date.today() - datetime.timedelta(days=self.args['dtadd_max'])
             sql += " AND `addDate`<%d" % (time.mktime(dt.timetuple()))
         
-        if(self.args['dtupd_min']):
+        if 'dtupd_min' in self.args and self.args['dtupd_min']:
             dt = datetime.date.today() - datetime.timedelta(days=self.args['dtupd_min'])
             sql += " AND `updateDate`>%d" % (time.mktime(dt.timetuple()))
-        if(self.args['dtupd_max']):
+        if 'dtupd_max' in self.args and self.args['dtupd_max']:
             dt = datetime.date.today() - datetime.timedelta(days=self.args['dtupd_max'])
             sql += " AND `updateDate`<%d" % (time.mktime(dt.timetuple()))
             
-        if(self.args['price_min']):
+        if 'price_min' in self.args and self.args['price_min']:
             sql += " AND `price`>%d" % (self.args['price_min'])
-        if(self.args['price_max']):
+        if 'price_max' in self.args and self.args['price_max']:
             sql += " AND `price`<=%d" % (self.args['price_max'])
          
         #sql += " ORDER BY `price` ASC, `location` ASC"
