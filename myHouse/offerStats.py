@@ -19,6 +19,9 @@ class Stats(object):
         self.stats = None
         self.doimport()
     
+    def setargs(self, args):
+        self.args = args
+    
     def doimport(self):
         if self.stats is None:
             module = importlib.import_module("stats." + self.args['type'] + ".base")
