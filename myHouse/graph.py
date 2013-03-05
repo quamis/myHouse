@@ -42,7 +42,6 @@ class Graph(object):
                 self.stats.setargs(args)
                 data = self.stats.raw()
                 self.cache.set(ckey, data)
-                self.cache.flushRandom(1)
             
             for (k, __) in data['categories'].iteritems():
             #for (k, d) in data['price_per_category:std'].iteritems():
@@ -75,44 +74,56 @@ class Graph(object):
             splines_prices[k]['tck'] = interpolate.splrep(np.arange(1,30), prices[k], s=0)
             splines_prices[k]['x'] = np.arange(1, 29, 0.15)
             splines_prices[k]['y'] = interpolate.splev(splines_prices[k]['x'], splines_prices[k]['tck'], der=0)
-            
-        #print stats['apt-2-cam']
-        #print splines_prices['apt-2-cam']['x']
-        #print splines_prices['apt-2-cam']['y']
+        
+        self.cache.flushRandom(1)
+        
         #print offers
+        #print prices
         #exit()
         
         
-        plt.figure(1)                # the first figure
-        # The subplot() command specifies numrows, numcols, fignum where fignum ranges from 1 to numrows*numcols.
-        
+        #plt.ion()
         idx = 0
         for (k, __) in keys.iteritems():
             idx+=1
-            plt.subplot(len(offers), 1, idx)             # the first subplot in the first figure
+            
+            plt.figure(idx)
+            
+            plt.subplot(2, 1, 1)
+            plt.fill_between( splines_offers[k]['x'], splines_offers[k]['y'], color="#6666cc", antialiased=True, alpha=0.25 )
+            plt.plot( splines_offers[k]['x'], splines_offers[k]['y'], color="#6666cc", antialiased=True )
+            plt.plot( range(1, 30), offers[k], color="#6666cc", marker='x', linestyle='None', )
+            plt.legend(['offers'])
+            
             plt.xlabel('add day')
-            plt.ylabel('offers')
+            plt.ylabel("%s offers" % ( k ))
             plt.title(k)
             plt.grid(True)
             
-            print k
-            print offers[k]
-            
-            plt.fill_between( splines_offers[k]['x'], splines_offers[k]['y'], color="#6666cc", antialiased=True, alpha=0.25 )
+            plt.subplot(2, 1, 2)
             plt.fill_between( splines_prices[k]['x'], splines_prices[k]['y'], color="#66cc66", antialiased=True, alpha=0.25, linewidth=2 )
-            
-            plt.plot( splines_offers[k]['x'], splines_offers[k]['y'], color="#6666cc", antialiased=True )
             plt.plot( splines_prices[k]['x'], splines_prices[k]['y'], color="#66cc66", antialiased=True, linewidth=2 )
-            
-            plt.plot( range(1, 30), offers[k], color="#6666cc", marker='x', linestyle='None', )
             plt.plot( range(1, 30), prices[k], color="#66cc66", marker='x', linestyle='None', )
+            plt.legend(['prices'])
             
-            plt.legend(['offers', 'prices'])
+            plt.xlabel('add day')
+            plt.ylabel("%s prices" % ( k ))
+            plt.title(k)
+            plt.grid(True)
+            
+            
         
-        plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=1)
+        #plt.subplots_adjust(left=None, bottom=None, right=None, top=None, wspace=None, hspace=1)
         plt.show()
+        
+        
+        #time.sleep(15)
+        #plt.close('all')
 
-
+    #def plot(self, data):
+        
+    
+    
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging.DEBUG)
 locale.setlocale(locale.LC_NUMERIC, '')
 
@@ -123,7 +134,7 @@ cache = CACHE("graph")
 obj = Graph({
     'type': 'default',
     'subtype': 'default',
-    'category': ['apt-2-cam'],
+    #'category': ['apt-2-cam'],
 }, cache)
 
 obj.display()
