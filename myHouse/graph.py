@@ -55,7 +55,7 @@ class Graph(object):
                     offers[k].append(0)
                     
                 if data['price_per_category:std'][k]:
-                    prices[k].append(data['price_per_category:std'][k])
+                    prices[k].append(data['price_per_category:median'][k])
                 else:
                     prices[k].append(0)
                     
@@ -114,9 +114,9 @@ class Graph(object):
             
             plt.subplot(2, 1, 1)
             plt.fill_between( splines_offers1[k]['x'], splines_offers1[k]['y'], color="#6666cc", antialiased=True, alpha=0.25 )
-            plt.plot( splines_offers1[k]['x'], splines_offers1[k]['y'], color="#6666cc", antialiased=True )
-            plt.plot( range(0, len(offers1[k])), offers1[k], color="#2222cc", marker='x', linestyle='None', )
-            plt.plot( splines_offers7[k]['x'], splines_offers7[k]['y'], color="#880000", antialiased=True, linewidth=2, linestyle="dotted" )
+            plt.plot( splines_offers1[k]['x'], splines_offers1[k]['y'], color="#8888cc", antialiased=True )
+            plt.plot( range(0, len(offers1[k])), offers1[k], color="#4444cc", marker='x', linestyle='None', )
+            plt.plot( splines_offers7[k]['x'], splines_offers7[k]['y'], color="#880000", antialiased=True, linewidth=2, linestyle="dashed" )
             
             plt.legend(['offers'])
             
@@ -128,8 +128,8 @@ class Graph(object):
             plt.subplot(2, 1, 2)
             plt.fill_between( splines_prices1[k]['x'], splines_prices1[k]['y'], color="#66cc66", antialiased=True, alpha=0.25, linewidth=2 )
             plt.plot( splines_prices1[k]['x'], splines_prices1[k]['y'], color="#66cc66", antialiased=True, linewidth=2 )
-            plt.plot( range(0, len(prices1[k])), prices1[k], color="#228822", marker='x', linestyle='None', )
-            plt.plot( splines_prices7[k]['x'], splines_prices7[k]['y'], color="#880000", antialiased=True, linewidth=2, linestyle="dotted" )
+            plt.plot( range(0, len(prices1[k])), prices1[k], color="#006600", marker='x', linestyle='None', )
+            plt.plot( splines_prices7[k]['x'], splines_prices7[k]['y'], color="#880000", antialiased=True, linewidth=2, linestyle="dashed" )
             
             plt.legend(['prices'])
             
@@ -161,7 +161,13 @@ cache = CACHE("graph")
 obj = Graph({
     'type': 'default',
     'subtype': 'default',
-    'category': ['case-vile'],
+    
+    #'source':['imopedia_ro'],
+    #'source':['anuntul_ro'],
+    'price_min':30000, 'price_max':70000,
+    #'price_min':70000, 'price_max':700000,
+    
+    #'category': ['case-vile'],
     #'category': ['case-vile', 'apt-3-cam'],
 }, cache)
 
