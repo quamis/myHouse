@@ -37,6 +37,7 @@ class Stats(object):
     
     def getSQL(self):
         sql = "SELECT `id` FROM `data` WHERE 1"
+        
         if 'category' in self.args and self.args['category']:
             sql += "/*category*/ AND( 0 "
             for k in self.args['category']:
@@ -72,6 +73,7 @@ class Stats(object):
             sql += " AND `price`<=%d" % (self.args['price_max'])
          
         #sql += " ORDER BY `price` ASC, `location` ASC"
+        #print sql
         
         return sql
     
