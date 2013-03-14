@@ -78,4 +78,7 @@ if [ "$SYNCREMOTE" == "default" ]; then
         -attach="$OUTDIR/localStatuses.json" \
 
 fi
-        
+
+
+
+./graph.py -category=case-vile -price_min=30000 -price_max=70000 -interval_max=30
