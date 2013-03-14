@@ -60,9 +60,13 @@ class Stats(base.Stats):
         
         if timeSinceAppeared:
             stats['timeSinceAppeared'] = numpy.mean(timeSinceAppeared) / (60 * 60 * 24)
+            stats['timeSinceAppeared:min'] = min(timeSinceAppeared) / (60 * 60 * 24)
+            stats['timeSinceAppeared:max'] = max(timeSinceAppeared) / (60 * 60 * 24)
             
         if timeSinceDisappeared:
             stats['timeSinceDisappeared'] = numpy.mean(timeSinceDisappeared) / (60 * 60 * 24)
+            stats['timeSinceDisappeared:min'] = min(timeSinceDisappeared) / (60 * 60 * 24)
+            stats['timeSinceDisappeared:max'] = max(timeSinceDisappeared) / (60 * 60 * 24)
         
         self.db.selectEnd(rows)
         return stats
