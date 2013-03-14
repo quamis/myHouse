@@ -1,5 +1,7 @@
 TODO:
- - coloreaza output-ul
+ - adaugat facilitatea de scoring "manual", pt o locatie anunme sa ia X puncte, pt alta Y, pt gresie alte pcte, etc
+ - impartit site-ul pt multiusers
+    - sugestii, scoring, statuses eliminate si separate, nu cum este acum
  - detecteaza agentiile, adauga cautare dupa telefon/mail
  - adauga facilitate de "asemanatoare"
  - extrage date de genul suprafata, constructie, pret/m^2 construit, renovat, AC, faianta, gresie, parchet
