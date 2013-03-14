@@ -23,7 +23,7 @@ class Graph(object):
         self.stats = offerStats.Stats(self.db, { 'type': self.args['type'], 'subtype': self.args['subtype'], } )
         self.cache = cache
     
-    def gatherData(self, args, step=1, maxInterval=-1):
+    def gatherData(self, args, step=1, maxInterval=-1, graphSource='price_per_category:median'):
         keys = {}
         offers = {}
         prices = {}
@@ -43,8 +43,8 @@ class Graph(object):
             if data is None:
                 logging.debug("Building stats for : %s" %( args ))
                 self.stats.setargs(args)
-                #self.stats.doimport()
                 data = self.stats.raw()
+                
                 self.cache.set(ckey, data)
             
             for (k, __) in data['categories'].iteritems():
@@ -61,8 +61,8 @@ class Graph(object):
                 else:
                     offers[k].append(0)
                     
-                if data['price_per_category:std'][k]:
-                    prices[k].append(data['price_per_category:median'][k])
+                if data[graphSource][k]:
+                    prices[k].append(data[graphSource][k])
                 else:
                     prices[k].append(0)
                     
@@ -83,19 +83,24 @@ class Graph(object):
         return splines
 
     def display(self):
-        (keys1, offers1, prices1) = self.gatherData(dict.copy(self.args), 1, self.args['interval_max'])
-        (keys7, offers7, prices7) = self.gatherData(dict.copy(self.args), 7, self.args['interval_max'])
+        (keys1_1, offers1_1, prices1_1) = self.gatherData(dict.copy(self.args), 1, self.args['interval_max'], 'price_per_category:median')
+        (keys1_2, offers1_2, prices1_2) = self.gatherData(dict.copy(self.args), 1, self.args['interval_max'], 'price_per_category:mean')
+        (keys7, offers7, prices7) = self.gatherData(dict.copy(self.args), 7, self.args['interval_max'], 'price_per_category:median')
         
-        splines_offers1 = {}
-        splines_prices1 = {}
+        splines_offers1_1 = {}
+        splines_prices1_1 = {}
+        splines_offers1_2 = {}
+        splines_prices1_2 = {}
         
         splines_offers7 = {}
         splines_prices7 = {}
         
 
-        for k in keys1:
-            splines_offers1[k] = self.doInterpolate(offers1[k])
-            splines_prices1[k] = self.doInterpolate(prices1[k])
+        for k in keys1_1:
+            splines_offers1_1[k] = self.doInterpolate(offers1_1[k])
+            splines_prices1_1[k] = self.doInterpolate(prices1_1[k])
+            splines_offers1_2[k] = self.doInterpolate(offers1_2[k])
+            splines_prices1_2[k] = self.doInterpolate(prices1_2[k])
             
         for k in keys7:
             offers7[k] = np.array(offers7[k])/7
@@ -112,16 +117,24 @@ class Graph(object):
         
         #plt.ion()
         idx = 0
-        for k in keys1:
+        for k in keys1_1:
+            # @see http://colorschemedesigner.com/#3U62dw0w0LVeb
+            # @see http://colorschemedesigner.com/#5962dw0w0LVeb
+            
             idx+=1
             
             plt.figure(idx)
-            
+
+            # generate the first subplot            
             plt.subplot(2, 1, 1)
-            plt.fill_between( splines_offers1[k]['x'], splines_offers1[k]['y'], color="#6666cc", antialiased=True, alpha=0.25 )
-            plt.plot( splines_offers1[k]['x'], splines_offers1[k]['y'], color="#8888cc", antialiased=True )
-            plt.plot( range(0, len(offers1[k])), offers1[k], color="#4444cc", marker='x', linestyle='None', )
-            plt.plot( splines_offers7[k]['x'], splines_offers7[k]['y'], color="#880000", antialiased=True, linewidth=2, linestyle="dashed" )
+            
+            # median, filled poly and lines, daily
+            plt.fill_between( splines_offers1_1[k]['x'], splines_offers1_1[k]['y'], color="#FF7A33", antialiased=True, alpha=0.25 )
+            plt.plot( splines_offers1_1[k]['x'], splines_offers1_1[k]['y'], color="#FF7A33", antialiased=True )
+            plt.plot( range(0, len(offers1_1[k])), offers1_1[k], color="#772900", marker='x', linestyle='None', )
+            
+             # median, line, weekly
+            plt.plot( splines_offers7[k]['x'], splines_offers7[k]['y'], color="#CB0077", antialiased=True, linewidth=2, linestyle="dashed" )
             
             plt.legend(['offers'])
             
@@ -130,14 +143,24 @@ class Graph(object):
             plt.title(k)
             plt.grid(True)
             
+            
+            # generate another subplot
             plt.subplot(2, 1, 2)
-            plt.fill_between( splines_prices1[k]['x'], splines_prices1[k]['y'], color="#66cc66", antialiased=True, alpha=0.25, linewidth=2 )
-            plt.plot( splines_prices1[k]['x'], splines_prices1[k]['y'], color="#66cc66", antialiased=True, linewidth=2 )
-            plt.plot( range(0, len(prices1[k])), prices1[k], color="#006600", marker='x', linestyle='None', )
-            plt.plot( splines_prices7[k]['x'], splines_prices7[k]['y'], color="#880000", antialiased=True, linewidth=2, linestyle="dashed" )
             
-            plt.legend(['prices'])
+            # median, filled poly and lines, daily
+            plt.fill_between( splines_prices1_1[k]['x'], splines_prices1_1[k]['y'], color="#3A4DC1", antialiased=True, alpha=0.15, linewidth=2 )
+            plt.plot( splines_prices1_1[k]['x'], splines_prices1_1[k]['y'], color="#3A4DC1", antialiased=True, linewidth=1, label="median" )
+            plt.plot( range(0, len(prices1_1[k])), prices1_1[k], color="#020D51", marker='x', linestyle='None', )
             
+            # median, line, weekly
+            plt.plot( splines_prices7[k]['x'], splines_prices7[k]['y'], color="#CB0077", antialiased=True, linewidth=2, linestyle="dashed", label="weekly"  )
+            
+            # mean values
+            plt.plot( splines_prices1_2[k]['x'], splines_prices1_2[k]['y'], color="#775500", antialiased=True, linewidth=1 , label="mean" )
+            
+            #plt.legend(['prices', ''])
+
+            plt.legend().set_visible(True)            
             plt.xlabel('add day')
             plt.ylabel("%s prices" % ( k ))
             plt.title(k)
