@@ -21,6 +21,7 @@ class Stats(object):
     
     def setargs(self, args):
         self.args = args
+        self.stats.args = self.args
     
     def doimport(self):
         if self.stats is None:
