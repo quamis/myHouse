@@ -37,7 +37,8 @@ fi
 if [ "$CLEANUP" == "cleanup" ]; then
     for file in `ls -1 "../db/"*.sqlite`; do
         echo "VACUUM $file";
-        sqlite3 -batch -bail "$file" "VACUUM" &
+        #sqlite3 -batch -bail "$file" "VACUUM" &
+        sqlite3 -batch -bail "$file" "VACUUM"
     done;
 fi
 
