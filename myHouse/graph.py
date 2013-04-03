@@ -114,7 +114,41 @@ class Graph(object):
         #print prices
         #exit()
         
-        
+        def markWeekends(plt, splines_x):
+            iw = False
+            was_iw = False
+            
+            x1 = None
+            x2 = None
+            
+            def drawBar(plt, x1, x2):
+                plt.axvspan(max(0, x1-0.5), max(0, x2-0.5), facecolor='#B4F230', alpha=0.10)
+            
+            if (datetime.date.today()).isoweekday() in (6, 7):
+                was_iw = True
+                x1=0
+            
+            for d in splines_x:
+                # in weekend?
+                if (datetime.date.today() - datetime.timedelta(days=d)).isoweekday() in (6, 7):
+                    iw = True
+                else:
+                    iw = False
+                  
+                if not was_iw and iw:
+                    was_iw = True
+                    x1 = d
+                    
+                if was_iw and not iw:
+                    x2 = d
+                    was_iw = False
+                    
+                    drawBar(plt, x1, x2)
+                    
+            if was_iw:
+                drawBar(plt, x1, max(splines_x))
+                
+                
         #plt.ion()
         idx = 0
         for k in keys1_1:
@@ -127,6 +161,8 @@ class Graph(object):
 
             # generate the first subplot            
             plt.subplot(2, 1, 1)
+            
+            markWeekends(plt, splines_prices1_1[k]['x'])
             
             # median, filled poly and lines, daily
             plt.fill_between( splines_offers1_1[k]['x'], splines_offers1_1[k]['y'], color="#FF7A33", antialiased=True, alpha=0.25 )
@@ -159,6 +195,12 @@ class Graph(object):
             plt.plot( splines_prices1_2[k]['x'], splines_prices1_2[k]['y'], color="#775500", antialiased=True, linewidth=1 , label="mean" )
             
             #plt.legend(['prices', ''])
+            
+            markWeekends(plt, splines_prices1_1[k]['x'])
+            
+                    
+            
+            #
 
             plt.legend().set_visible(True)            
             plt.xlabel('add day')
