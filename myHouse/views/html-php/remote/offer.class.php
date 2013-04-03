@@ -18,6 +18,10 @@ class offer{
         return $arr;
     }
 
+    public function getDescriptionFull(){
+        return implode(". ", Array($this->offer->location, $this->offer->description));
+    }
+    
     public function getDescription(){
         return $this->offer->description;
     }
@@ -31,6 +35,18 @@ class offer{
 
     public function getStatus(){
         return ($this->localStatus!==null?$this->localStatus:$this->offer->userStatus);
+    }
+    
+    public function setStatus($newStatus){
+        $localStatuses = @json_decode(@file_get_contents("localStatuses.json"));
+        if(!$localStatuses){
+        	$localStatuses = new stdClass();
+        }
+        
+        $localStatuses->{$this->getId()} = $newStatus;
+        file_put_contents("localStatuses.json", json_encode($localStatuses));
+        
+        $this->offer->userStatus = $newStatus;
     }
 
     public function hasStatus($status){
@@ -93,6 +109,7 @@ DATA;
                     <button class="hide hide-badArea" onClick="mark(this, 'hide-badArea');">bad area</button>
                     <button class="hide hide-badConstruction" onClick="mark(this, 'hide-badConstruction');">bad constr.</button>
                     <button class="hide hide-badPayment" onClick="mark(this, 'hide-badPayment');">bad payment</button>
+                    <button class="hide hide-auto" onClick="mark(this, 'hide-auto');">bad auto</button>
 DATA;
                 break;
 

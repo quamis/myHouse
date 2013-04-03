@@ -33,6 +33,30 @@ class index_filters{
         foreach($this->offers as $offer){
             $offObj = new offer($offer, $this->localStatuses->{$offer->id});
             $add = true;
+            
+            // this has to be the first one
+            if($add && $this->filters['autofilter']){
+                $desc = $offObj->getDescriptionFull();
+                foreach($this->filters['autofilter'] as $blidx=>$bl){
+                    if(in_array($offObj->getStatus(), $bl['onStatus'])){
+                        if($offObj->getStatus()!=$bl['newStatus']){
+                            if($bl['regex']){
+                                $regex = $bl['regex'];
+                            }elseif($bl['text']){
+                                $regex = "/[^[:alnum:]](?P<match>{$bl['text']})[^[:alnum:]]/ui";
+                            }else{
+                                throw new Exception("No matching function specified for autofilter[{$blidx}]");
+                            }
+                            
+                            if(preg_match($regex, $desc, $m)){
+                                $offObj->setStatus($bl['newStatus']);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            
             if($add && $this->filters['status']){
                 $add = false;
                 $st = ($this->filters['status']=='None'?'':$this->filters['status']);
@@ -51,7 +75,8 @@ class index_filters{
                 $textAdvanced = explode(":", $text);
                 if($textAdvanced[0] && $textAdvanced[1]){
                     $filteredField = $textAdvanced[0];
-                    $text = $textAdvanced[1];
+                    
+                    $text = implode(":", array_slice($textAdvanced, 1));
                 }
 
                 if($text[0]=="/"){
@@ -62,7 +87,7 @@ class index_filters{
 
                 switch($filteredField){
                     case 'description':
-                        $desc = $offObj->getDescription();
+                        $desc = $offObj->getDescriptionFull();
                         if(preg_match($regex, $desc, $m)){
                             $desc = str_replace($m[0], "<span class='highlight'>{$m[0]}</span>", $desc);
                             $offObj->setDescription($desc);
@@ -70,6 +95,15 @@ class index_filters{
                             $add = true;
                         }
                     break;
+                    
+                    case 'status':
+                        $desc = $offObj->getStatus();
+                        $add = false;
+                        if(preg_match($regex, $desc, $m)){
+                            $add = true;
+                        }
+                    break;
+                    
 
                     case 'id':
                         $desc = $offObj->getId();
@@ -81,10 +115,8 @@ class index_filters{
                     default:
                         throw new Exception("Invalid filter field '{$filteredField}' specified");
                 }
-
-
             }
-
+            
             if($add){
                 $filteredOffers[] = $offer;
             }

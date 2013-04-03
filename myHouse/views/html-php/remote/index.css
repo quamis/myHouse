@@ -340,11 +340,11 @@ div.offer.hide{
     background-image: url("hide-bg.png");
     background-repeat: repeat;
 }
-div.offer.hide .price, div.offer.hide-badArea .price, div.offer.hide-badConstruction .price, div.offer.hide-badPayment .price, div.offer.hide-badCategory .price{
+div.offer.hide .price, div.offer.hide-badArea .price, div.offer.hide-badConstruction .price, div.offer.hide-badPayment .price, div.offer.hide-badCategory .price, div.offer.hide-auto .price{
     color: #CFC0C0;
 }
 
-div.offer.hide-badArea, div.offer.hide-badConstruction, div.offer.hide-badPayment, div.offer.hide-badCategory{
+div.offer.hide-badArea, div.offer.hide-badConstruction, div.offer.hide-badPayment, div.offer.hide-badCategory, div.offer.hide-auto{
     color: #D0D0D0;
     background-color: #FCFCFC;
     font-style: italic;
@@ -352,6 +352,6 @@ div.offer.hide-badArea, div.offer.hide-badConstruction, div.offer.hide-badPaymen
     background-repeat: repeat;
 }
 
-div.offer.hide a, div.offer.hide-badArea a, div.offer.hide-badConstruction a, div.offer.hide-badPayment a, div.offer.hide-badCategory a{
+div.offer.hide a, div.offer.hide-badArea a, div.offer.hide-badConstruction a, div.offer.hide-badPayment a, div.offer.hide-badCategory a, div.offer.hide-auto a{
     color: #888;
 }

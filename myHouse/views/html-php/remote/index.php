@@ -47,6 +47,37 @@ $filters->setFilters(Array(
     'pg' =>     (int)$_GET['pg'],
     'status' => (string)$_GET['status'],
     'text' =>   (string)$_GET['text'],
+    'autofilter' => Array(
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Pantelimon comuna" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "comuna Pantelimon" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "BOLINTIN Deal" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Clinceni" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Calugareni" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Moara Vlasiei" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Constanța," ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Corbeanca," ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "TARTASESTI," ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "BERCENI comuna" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Dambovita" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Tamadau" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "BUSTENI" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Domnesti" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Dragomiresti" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "ADUNATII Copaceni" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Chiajna" ),
+        
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "ANDRONACHE" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Rahova" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Teius" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Margeanului" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Luica" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Voluntari" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "MIHAILESTI" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Buftea Crevedia" ),
+        
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Apartament" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "[0-9]+km de (Bucuresti|buc|centru)" ),
+    ),
 ));
 $filters->filterOffers();
     
