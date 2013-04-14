@@ -65,6 +65,8 @@ $filters->setFilters(Array(
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Dragomiresti" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "ADUNATII Copaceni" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Chiajna" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "BUTURUGENI" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "CIOROGARLA" ),
         
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "ANDRONACHE" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Rahova" ),
@@ -74,6 +76,14 @@ $filters->setFilters(Array(
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Voluntari" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "MIHAILESTI" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Buftea Crevedia" ),
+        
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Ialomita" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Brasov" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Vrancea" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Calarasi" ),
+        
+        
+        
         
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Apartament" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "[0-9]+km de (Bucuresti|buc|centru)" ),
