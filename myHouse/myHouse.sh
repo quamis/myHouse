@@ -66,15 +66,21 @@ if [ "$SYNCREMOTE" == "default" -o "$SYNCREMOTE" == "local" ]; then
     ./view.py -category="case-vile" -status="hide%" --outputFormat="id" > /tmp/HIDE.json
     ./view.py -category="case-vile" -status=""     --outputFormat="id" > /tmp/TEST.json
     ./suggestions.py -datasetHIDE="/tmp/HIDE.json" -datasetTODO="/tmp/TODO.json" -datasetTEST="/tmp/TEST.json" -train=1 --outputFormat=json > /tmp/suggestions.json
-    ./import.py -jsonFile=/tmp/suggestions.json -targetField=suggestedStatus > /tmp/import-suggestions.json
+    #./import.py -jsonFile=/tmp/suggestions.json -targetField=suggestedStatus > /tmp/import-suggestions.json
 fi;
 
 
 if [ "$SYNCREMOTE" == "default" ]; then
-    ./view.py --profile=case-valide --outputFormat="html-php" >   "$OUTDIR/profile.case-valide.json"
+    ./view.py --profile=case-valide --outputFormat="html-php" >   "$OUTDIR/profile.case-vile.json"
+    ./view.py -category="apt-2-cam" -maxPrice=70000 -minPrice=30000 -ageu=1.5 --outputFormat="html-php" >   "$OUTDIR/profile.apt-2-cam.json"
+    ./view.py -category="apt-3-cam" -maxPrice=70000 -minPrice=30000 -ageu=1.5 --outputFormat="html-php" >   "$OUTDIR/profile.apt-3-cam.json"
+    ./view.py -category="apt-4-cam" -maxPrice=70000 -minPrice=30000 -ageu=1.5 --outputFormat="html-php" >   "$OUTDIR/profile.apt-4-cam.json"
         
     notify/notify-ftp.py -host="$SYNC_FTP_HOST" -username="$SYNC_FTP_USER" -password="$SYNC_FTP_PASS" -remotePath="$SYNC_FTP_PATH" \
-        -attach="$OUTDIR/profile.case-valide.json" \
+        -attach="$OUTDIR/profile.case-vile.json" \
+        -attach="$OUTDIR/profile.apt-2-cam.json" \
+        -attach="$OUTDIR/profile.apt-3-cam.json" \
+        -attach="$OUTDIR/profile.apt-4-cam.json" \
         -attach="$OUTDIR/localStatuses.json" \
 
 fi
