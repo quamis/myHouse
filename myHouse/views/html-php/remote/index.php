@@ -7,8 +7,11 @@ session_start();
 require("offer.class.php");
 require("filters.class.php");
 
-
-$offers = json_decode(file_get_contents("profile.case-valide.json"));
+$_SESSION['source'] = ($_GET['source']?$_GET['source']:$_SESSION['source']);
+if(!$_SESSION['source']){
+    $_SESSION['source'] = 'case-vile';
+}
+$offers = json_decode(file_get_contents("profile.{$_SESSION['source']}.json"));
 
 $localStatuses = @json_decode(@file_get_contents("localStatuses.json"));
 if(!$localStatuses){
@@ -40,14 +43,9 @@ if(!$localStatuses){
 
 
 <?php
-$filters = new index_filters();
-$filters->setOffers($offers, $localStatuses);
-$filters->setFilters(Array(
-    'rpp' =>    ($_GET['rpp']?(int)$_GET['rpp']:25),
-    'pg' =>     (int)$_GET['pg'],
-    'status' => (string)$_GET['status'],
-    'text' =>   (string)$_GET['text'],
-    'autofilter' => Array(
+
+$autoFilters = Array(
+    'case-vile' => Array(
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Pantelimon comuna" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "comuna Pantelimon" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "BOLINTIN Deal" ),
@@ -67,7 +65,18 @@ $filters->setFilters(Array(
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Chiajna" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "BUTURUGENI" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "CIOROGARLA" ),
-        
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "CORNETU" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Vidra" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "DARVARI" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Ilfov" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Comuna Berceni" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Berceni Comuna" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "BRAGADIRU" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Titu" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "VALEA Doftanei" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Campina" ),
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Brebu" ),
+    
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "ANDRONACHE" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Rahova" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Teius" ),
@@ -76,18 +85,29 @@ $filters->setFilters(Array(
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Voluntari" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "MIHAILESTI" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Buftea Crevedia" ),
-        
+    
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Ialomita" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Brasov" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Vrancea" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Calarasi" ),
-        
-        
-        
-        
+        array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Focsani" ),
+    
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "Apartament" ),
         array( 'onStatus'=>Array(''), 'newStatus'=>'hide-auto', 'text' => "[0-9]+km de (Bucuresti|buc|centru)" ),
     ),
+);
+
+
+
+$filters = new index_filters();
+$filters->setOffers($offers, $localStatuses);
+$filters->setFilters(Array(
+    'rpp' =>    ($_GET['rpp']?(int)$_GET['rpp']:25),
+    'pg' =>     (int)$_GET['pg'],
+    'status' => (string)$_GET['status'],
+    'text' =>   (string)$_GET['text'],
+    'source' => $_SESSION['source'],
+    'autofilter' => (array)$autoFilters[$_SESSION['source']],
 ));
 $filters->filterOffers();
     

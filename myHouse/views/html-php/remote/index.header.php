@@ -8,6 +8,7 @@ echo "
         <td>
             <div>{$filters->view_rpp()}</div>
             <div>{$filters->view_pg()}</div>
+            <div>{$filters->view_source()}</div>
          </td>
     </tr>
 </table>

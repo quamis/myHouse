@@ -1,7 +1,10 @@
 <?php
+
+session_start();
+
 require("offer.class.php");
 
-$offers = json_decode(file_get_contents("profile.case-valide.json"));
+$offers = json_decode(file_get_contents("profile.{$_SESSION['source']}.json"));
 
 $id = $_GET['id'];
 $status = $_GET['status'];

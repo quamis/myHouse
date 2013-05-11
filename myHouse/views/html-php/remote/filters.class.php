@@ -168,4 +168,18 @@ class index_filters{
         $sel.="</select>";
         return $sel;
     }
+    function view_source(){
+        $sources = Array(
+            'case-vile',
+            'apt-2-cam',
+            'apt-3-cam',
+            'apt-4-cam',
+        );
+        $sel = "<select name='source' onChange=\"window.location='?source='+$(this).val()+''\">";
+        foreach($sources as $src){
+            $sel.=sprintf("<option %s value='%s'>%s</option>", ($this->filters['source']==$src?"selected=selected":""), $src, $src);
+        }
+        $sel.="</select>";
+        return $sel;
+    }
 }
